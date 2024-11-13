@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,6 +62,7 @@ public class JwtProvider {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(getSecretKey())
+                    .setAllowedClockSkewSeconds(60 * 60 * 24)  // 하루 24h 내에 발급된 토큰 한정
                     .build()
                     .parseClaimsJws(token);
         } catch (Exception e) {
@@ -73,6 +75,7 @@ public class JwtProvider {
     public Map<String, Object> getClaims(String token) {
         String body = Jwts.parserBuilder()
                 .setSigningKey(getSecretKey())
+                .setAllowedClockSkewSeconds(60 * 60 * 24)  //허용된 시간 차이(스큐) 설정 (24시간)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
