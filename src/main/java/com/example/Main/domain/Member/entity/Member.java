@@ -1,23 +1,25 @@
 package com.example.Main.domain.Member.entity;
 
+import com.example.Main.domain.Member.enums.MemberGender;
+import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.global.Jpa.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Getter
 @Setter
 @SuperBuilder
-@Entity
+@AllArgsConstructor
 @NoArgsConstructor
+@Entity
 public class Member extends BaseEntity {
     @Column(unique = true)
     private String username;
@@ -27,10 +29,10 @@ public class Member extends BaseEntity {
 
     private LocalDateTime birthDate;
 
-    private char gender;
+    private MemberGender gender;
 
     @Column(length = 50)
-    private String role;
+    private MemberRole role;
 
     @JsonIgnore
     private String refreshToken;

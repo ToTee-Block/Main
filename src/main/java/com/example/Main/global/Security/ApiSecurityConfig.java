@@ -19,12 +19,10 @@ public class ApiSecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeRequests(
                         authorizeRequests -> authorizeRequests
-                                .requestMatchers("/api/*/articles").permitAll()
-                                .requestMatchers("/api/*/articles/*").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/*/members/login").permitAll() // 로그인은 누구나 가능, post 요청만 허용
-                                .requestMatchers(HttpMethod.POST, "/api/*/members/join").permitAll() // 로그인은 누구나 가능, post 요청만 허용
+                                .requestMatchers(HttpMethod.POST, "/api/*/members/join").permitAll() // 회원가입은 누구나 가능, post 요청만 허용
                                 .requestMatchers(HttpMethod.GET, "/api/*/members/logout").permitAll() // 로그아웃은 누구나 가능, get 요청만 허용
-                                .requestMatchers(HttpMethod.GET, "/api/*/members/me").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/*/members/me").permitAll() // 로그인된 사용자 정보 보기는 누구나 가능, get 요청만 허용
                                 .anyRequest().authenticated()
                 )
                 .csrf(

@@ -2,7 +2,9 @@ package com.example.Main.domain.Member.service;
 
 import com.example.Main.domain.Member.dto.MemberDTO;
 import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.Member.enums.MemberGender;
 import com.example.Main.domain.Member.repository.MemberRepository;
+import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
@@ -24,7 +26,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    public MemberDTO join(String username, String password, LocalDateTime birthDate, char gender) {
+    public MemberDTO join(String username, String password, LocalDateTime birthDate, MemberGender gender) {
         if (this.memberRepository.findByUsername(username).isPresent()) {
             return null;
         }
@@ -32,8 +34,9 @@ public class MemberService {
         Member member = Member.builder()
                 .username(username)
                 .password(this.passwordEncoder.encode(password))
-                .birthDate(LocalDateTime.now())
+                .birthDate(birthDate)
                 .gender(gender)
+                .role(MemberRole.USER)
                 .build();
 
         String refreshToken = jwtProvider.genRefreshToken(member);

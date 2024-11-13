@@ -2,6 +2,7 @@ package com.example.Main.domain.Member.controller;
 
 import com.example.Main.domain.Member.dto.MemberDTO;
 import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.Member.enums.MemberGender;
 import com.example.Main.domain.Member.request.MemberCreate;
 import com.example.Main.domain.Member.request.MemberRequest;
 import com.example.Main.domain.Member.service.MemberService;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -26,7 +28,12 @@ public class ApiV1MemberController {
 
     @PostMapping("/join")
     public RsData join(@Valid @RequestBody MemberCreate memberCreate) {
-        MemberDTO memberDTO = this.memberService.join(memberCreate.getUsername(), memberCreate.getPassword(), memberCreate.getBirthDate(), memberCreate.getGender());
+        String username = memberCreate.getUsername();
+        String password = memberCreate.getPassword();
+        LocalDateTime birthDate = memberCreate.getBirthDate();
+        MemberGender gender = memberCreate.getGender();
+
+        MemberDTO memberDTO = this.memberService.join(username, password, birthDate, gender);
 
         if (memberDTO == null) {
             return RsData.of("400", "이미 존재하는 사용자입니다.");
@@ -49,14 +56,20 @@ public class ApiV1MemberController {
 
     @GetMapping("/logout")
     public RsData logout(HttpServletResponse res) {
-        Cookie cookie = new Cookie(loginToken, null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        res.addCookie(cookie);
+        Cookie accessTokenCookie = new Cookie("accessToken", null);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(0);
+        res.addCookie(accessTokenCookie);
+
+        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0);
+        res.addCookie(refreshTokenCookie);
+
         return RsData.of("200", "로그아웃 성공");
     }
 
-    @GetMapping("/me")
+    @GetMapping("/me")  // 로그인된 사용자 정보 확인하기
     public RsData getMe (HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
         String accessToken = "";
@@ -74,9 +87,9 @@ public class ApiV1MemberController {
         }
 
         Map<String, Object> claims = jwtProvider.getClaims(accessToken);
-        claims.get("id");
-        claims.get("username");
 
-        return RsData.of("200", "사용자 정보 : " + (String) claims.get("username"));
+        MemberDTO memberDTO = new MemberDTO(this.memberService.getMemberByName((String) claims.get("username")));
+
+        return RsData.of("200", "로그인된 사용자 정보", memberDTO);
     }
 }
