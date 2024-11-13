@@ -24,7 +24,6 @@ import java.util.Map;
 public class ApiV1MemberController {
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
-    private final String loginToken = "loginToken"; // 쿠키에 저장될 로그인 토큰 이름
 
     @PostMapping("/join")
     public RsData join(@Valid @RequestBody MemberCreate memberCreate) {
@@ -42,16 +41,27 @@ public class ApiV1MemberController {
     }
 
     @PostMapping("/login")
-    public RsData login (@Valid @RequestBody MemberRequest memberRequest, HttpServletResponse httpServletResponse) {
+    public RsData login (@Valid @RequestBody MemberRequest memberRequest, HttpServletResponse res) {
         Member member = this.memberService.getMemberByName(memberRequest.getUsername());
-        if (member == null) {
-            return RsData.of("400", "존재하지 않는 사용자 입니다.");
-        }
-        String jwtToken = this.jwtProvider.genToken(member, 60 * 60 * 24);  // 토큰 지속 시간: 24h
 
-        httpServletResponse.addCookie(new Cookie(loginToken, jwtToken));
+        String accessToken = jwtProvider.genAccessToken(member);
+        Cookie accessTokenCookie  = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(60 * 60 * 24);   // 로그인 지속 시간: 24h
+        res.addCookie(accessTokenCookie);
 
-        return RsData.of("200", "로그인 성공", jwtToken);
+
+        String refreshToken = member.getRefreshToken();
+        Cookie refreshTokenCookie  = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(60 * 60);
+        res.addCookie(refreshTokenCookie);
+
+        return RsData.of("200", "토큰 발급 성공: " + accessToken , new MemberDTO(member));
     }
 
     @GetMapping("/logout")
@@ -74,22 +84,19 @@ public class ApiV1MemberController {
         Cookie[] cookies = req.getCookies();
         String accessToken = "";
         for (Cookie cookie : cookies) {
-            if (loginToken.equals(cookie.getName())) {
+            if ("accessToken".equals(cookie.getName())) {
                 accessToken = cookie.getValue();
             }
         }
 
-        boolean checkedToken = jwtProvider.verify(accessToken);
-
-        System.out.println(checkedToken);
-        if (!checkedToken) {
+        if (accessToken.equals("")) {
             return RsData.of("400", "유효성 검증 실패");
         }
 
-        Map<String, Object> claims = jwtProvider.getClaims(accessToken);
+        Map<String, Object> claims =  jwtProvider.getClaims(accessToken);
+        String username = (String) claims.get("username");
+        Member member = this.memberService.getMemberByName(username);
 
-        MemberDTO memberDTO = new MemberDTO(this.memberService.getMemberByName((String) claims.get("username")));
-
-        return RsData.of("200", "로그인된 사용자 정보", memberDTO);
+        return RsData.of("200", "내 회원정보", new MemberDTO(member));
     }
 }
