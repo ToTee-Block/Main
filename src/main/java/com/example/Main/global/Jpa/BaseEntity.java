@@ -1,4 +1,4 @@
-package com.example.Main.global.jpa;
+package com.example.Main.global.Jpa;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
