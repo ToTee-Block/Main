@@ -112,6 +112,13 @@ public class ApiV1MemberController {
         return RsData.of("200", "내 회원정보", new MemberDTO(member));
     }
 
+    @PatchMapping("/password")
+    public RsData modifyPassword(@Valid @RequestBody MemberRequest memberRequest) {
+        Member member = this.memberService.modifyPassword(memberRequest.getUsername(), memberRequest.getPassword());
+
+        return RsData.of("200", "비밀번호 변경 성공", new MemberDTO(member));
+    }
+
     @PostMapping("/code/send")
     public RsData sendCode(@Valid @RequestBody MemberRequest memberRequest) {
         this.generatedAuthcode = Util.generateAuthCode(6);

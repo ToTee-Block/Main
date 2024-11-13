@@ -47,6 +47,15 @@ public class MemberService {
         return new MemberDTO(member);
     }
 
+    public Member modifyPassword(String username, String newPassword) {
+        Member member = this.getMemberByName(username);
+        member.setPassword(this.passwordEncoder.encode(newPassword));
+
+        this.memberRepository.save(member);
+
+        return member;
+    }
+
     public Member getMemberByName(String username) {
         Optional<Member> member = this.memberRepository.findByUsername(username);
         if (member.isEmpty()) {
