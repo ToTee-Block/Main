@@ -1,18 +1,22 @@
 package com.example.Main.domain.Member.controller;
 
+import com.example.Main.domain.Email.service.EmailService;
 import com.example.Main.domain.Member.dto.MemberDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.enums.MemberGender;
+import com.example.Main.domain.Member.request.AuthcodeRequest;
 import com.example.Main.domain.Member.request.MemberCreate;
 import com.example.Main.domain.Member.request.MemberRequest;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
+import com.example.Main.global.Util.Util;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -24,6 +28,10 @@ import java.util.Map;
 public class ApiV1MemberController {
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
+    private static String generatedAuthcode = "";
 
     @PostMapping("/join")
     public RsData join(@Valid @RequestBody MemberCreate memberCreate) {
@@ -44,6 +52,10 @@ public class ApiV1MemberController {
     public RsData login (@Valid @RequestBody MemberRequest memberRequest, HttpServletResponse res) {
         Member member = this.memberService.getMemberByName(memberRequest.getUsername());
 
+        if (!passwordEncoder.matches(memberRequest.getPassword(), member.getPassword())) {
+            return RsData.of("400", "비밀번호가 일치하지 않습니다.");
+        }
+
         String accessToken = jwtProvider.genAccessToken(member);
         Cookie accessTokenCookie  = new Cookie("accessToken", accessToken);
         accessTokenCookie.setHttpOnly(true);
@@ -58,7 +70,7 @@ public class ApiV1MemberController {
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(60 * 60);
+        refreshTokenCookie.setMaxAge(60 * 60 * 24);   // 로그인 지속 시간: 24h
         res.addCookie(refreshTokenCookie);
 
         return RsData.of("200", "토큰 발급 성공: " + accessToken , new MemberDTO(member));
@@ -83,14 +95,14 @@ public class ApiV1MemberController {
     public RsData getMe (HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
         String accessToken = "";
+        if (cookies == null) {
+            return RsData.of("400", "유효성 검증 실패");
+        }
+
         for (Cookie cookie : cookies) {
             if ("accessToken".equals(cookie.getName())) {
                 accessToken = cookie.getValue();
             }
-        }
-
-        if (accessToken.equals("")) {
-            return RsData.of("400", "유효성 검증 실패");
         }
 
         Map<String, Object> claims =  jwtProvider.getClaims(accessToken);
@@ -98,5 +110,21 @@ public class ApiV1MemberController {
         Member member = this.memberService.getMemberByName(username);
 
         return RsData.of("200", "내 회원정보", new MemberDTO(member));
+    }
+
+    @PostMapping("/code/send")
+    public RsData sendCode(@Valid @RequestBody MemberRequest memberRequest) {
+        this.generatedAuthcode = Util.generateAuthCode(6);
+        String emailContents = String.format("이메일 인증 코드 : %s", this.generatedAuthcode);
+
+        return this.emailService.send(memberRequest.getUsername(), "ToTeeBlocks 인증코드", emailContents);
+    }
+
+    @PostMapping("/code/auth")
+    public RsData authCode(@Valid @RequestBody AuthcodeRequest authcodeRequest) {
+        if (!this.generatedAuthcode.equals(authcodeRequest.getAuthcode())) {
+            return RsData.of("400", "인증코드가 일치하지 않습니다.");
+        }
+        return RsData.of("200", "인증 성공", this.generatedAuthcode);
     }
 }
