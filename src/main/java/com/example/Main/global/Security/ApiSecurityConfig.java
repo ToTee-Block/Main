@@ -24,7 +24,7 @@ public class ApiSecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/*/members/logout").permitAll() // 로그아웃은 누구나 가능, get 요청만 허용
                                 .requestMatchers(HttpMethod.GET, "/api/*/members/me").permitAll() // 로그인된 사용자 정보 보기는 누구나 가능, get 요청만 허용
                                 .requestMatchers(HttpMethod.PATCH, "/api/*/members/password").permitAll() // 비밀번호 변경은 누구나 가능, patch 요청만 허용
-                                .requestMatchers(HttpMethod.POST, "/api/*/members/**").permitAll() // TODO: 테스트 시 Members에 대한 기능 모두 허용. 추후에 삭제하고 추가 수정할 것
+                                .requestMatchers("/api/*/members/**").permitAll()  // TODO: 테스트 시 Members에 대한 기능 모두 허용. 추후에 머지 시 삭제하고 수정할 것
                                 .anyRequest().authenticated()
                 )
                 .csrf(

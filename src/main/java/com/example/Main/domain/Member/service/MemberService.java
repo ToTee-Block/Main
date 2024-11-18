@@ -8,10 +8,12 @@ import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
+import com.example.Main.global.Util.Service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,17 +28,19 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    public MemberDTO join(String username, String password, LocalDateTime birthDate, MemberGender gender) {
-        if (this.memberRepository.findByUsername(username).isPresent()) {
+    public MemberDTO join(String email, String password, String name, LocalDateTime birthDate, MemberGender gender, String profileImg, MemberRole role) {
+        if (this.memberRepository.findByEmail(email).isPresent()) {
             return null;
         }
 
         Member member = Member.builder()
-                .username(username)
+                .email(email)
                 .password(this.passwordEncoder.encode(password))
+                .name(name)
                 .birthDate(birthDate)
                 .gender(gender)
-                .role(MemberRole.USER)
+                .profileImg(profileImg)
+                .role(role)
                 .build();
 
         String refreshToken = jwtProvider.genRefreshToken(member);
@@ -47,8 +51,20 @@ public class MemberService {
         return new MemberDTO(member);
     }
 
-    public Member modifyPassword(String username, String newPassword) {
-        Member member = this.getMemberByName(username);
+    public Member modifyProfile(Member member, String newPassword, String newName, LocalDateTime newBirthDate, MemberGender newGender, String profileImg) {
+        member.setPassword(newPassword);
+        member.setName(newName);
+        member.setBirthDate(newBirthDate);
+        member.setGender(newGender);
+        member.setProfileImg(profileImg);
+
+        this.memberRepository.save(member);
+
+        return member;
+    }
+
+    public Member modifyPassword(String email, String newPassword) {
+        Member member = this.getMemberByEmail(email);
         member.setPassword(this.passwordEncoder.encode(newPassword));
 
         this.memberRepository.save(member);
@@ -56,8 +72,8 @@ public class MemberService {
         return member;
     }
 
-    public Member getMemberByName(String username) {
-        Optional<Member> member = this.memberRepository.findByUsername(username);
+    public Member getMemberByEmail(String email) {
+        Optional<Member> member = this.memberRepository.findByEmail(email);
         if (member.isEmpty()) {
             return null;
         }
@@ -80,9 +96,9 @@ public class MemberService {
         Map<String, Object> payloadBody = jwtProvider.getClaims(accessToken);
 
         long id = (int) payloadBody.get("id");
-        String username = (String) payloadBody.get("username");
+        String email = (String) payloadBody.get("email");
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        return new SecurityMember(id, username, "", authorities);
+        return new SecurityMember(id, email, "", authorities);
     }
 }

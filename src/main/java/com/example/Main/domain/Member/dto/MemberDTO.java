@@ -14,11 +14,17 @@ import java.time.LocalDateTime;
 public class MemberDTO {
     private final Long id;
 
-    private final String username;
+    private final String email;
+
+    private final String name;
+
+    private final LocalDateTime birthDate;
 
     private final MemberGender gender;
 
     private final MemberRole role;
+
+    private final String profileImg;
 
     private final LocalDateTime createdDate;
 
@@ -26,8 +32,11 @@ public class MemberDTO {
 
     public MemberDTO(Member member) {
         this.id = member.getId();
-        this.username = member.getUsername();
+        this.email = member.getEmail();
+        this.name = member.getName();
+        this.birthDate = member.getBirthDate();
         this.role = member.getRole();
+        this.profileImg = member.getProfileImg();
         this.gender = member.getGender();
         this.createdDate = member.getCreatedDate();
         this.modifiedDate = member.getModifiedDate();

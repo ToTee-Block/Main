@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class MemberRequest {
     @NotBlank
-    private String username;
+    private String email;
     @NotBlank
     private String password;
 }
