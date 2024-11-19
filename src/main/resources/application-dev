@@ -11,3 +11,15 @@ spring:
     username: [my name]
     password: [my password]
     driver-class-name: org.postgresql.Driver
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: kimjina1152@gmail.com
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+custom:
+  fileDirPath: [FILE_DIR_PATH] # 사진 저장 기본 경로 : OS가 윈도우인 경우 예시) "C:\\Users\\81152\\IdeaProjects\\image"

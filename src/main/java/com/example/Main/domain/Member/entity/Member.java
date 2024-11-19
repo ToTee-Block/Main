@@ -6,6 +6,7 @@ import com.example.Main.global.Jpa.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,14 +23,21 @@ import java.time.LocalDateTime;
 @Entity
 public class Member extends BaseEntity {
     @Column(unique = true)
-    private String username;
+    @Email
+    private String email;
 
     @JsonIgnore
     private String password;
 
+    @Column(length = 50)
+    private String name;
+
     private LocalDateTime birthDate;
 
     private MemberGender gender;
+
+    @Column(length = 200)
+    private String profileImg;
 
     @Column(length = 50)
     private MemberRole role;
