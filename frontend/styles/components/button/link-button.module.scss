@@ -1,0 +1,18 @@
+@import '../../globals/font-mixin.scss';
+
+/* styles/components/submit-button.module.scss */
+.linkButton {
+    padding: 10px 20px;
+    @include font-XXS-B; // 믹스인 사용
+    background-color: var(--primary-color);
+    color: var(--text-secondary-color);
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .linkButton:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-primary-color);
+  }
+  
+  

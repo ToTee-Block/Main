@@ -1,0 +1,43 @@
+// Noto Sans Regular 폰트 정의
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('/fonts/NotoSans-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+// Noto Sans Medium 폰트 정의
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('/fonts/NotoSans-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+// Noto Sans Bold 폰트 정의
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('/fonts/NotoSans-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+
+/* styles/globals/font.scss */
+:root {
+  --font-family: 'Noto Sans', sans-serif;
+
+  --font-size-XXL: 56px;
+  --font-size-XL: 48px;
+  --font-size-L: 40px;
+  --font-size-M: 32px;
+  --font-size-S: 24px;
+  --font-size-XS: 20px;
+  --font-size-XXS: 16px;
+  --font-size-XXXS: 14px;
+  --font-size-XXXXS: 12px;
+
+  --font-weight-Regular: normal;
+  --font-weight-Medium: 500;
+  --font-weight-Bold: bold;
+}

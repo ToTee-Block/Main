@@ -1,0 +1,6 @@
+@import './globals/global.scss'; // pages 하위의 scss 파일에 global.scss가 적용 되어있어 main.scss에 명시해주지 않아도 global.scss가 적용되지만 혹시 모를 상황을 대비해 명시해 놓음
+
+
+// 각 page stlye scss import
+@import './pages/home.scss'; // Home
+@import './pages/about.scss'; // About

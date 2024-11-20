@@ -1,0 +1,40 @@
+@import '../globals/font-mixin.scss';
+
+/* styles/header.module.scss */
+.header {
+  width: 100%;
+  height: 100px !important;
+  padding: 0 120px;
+  flex-shrink: 0;  /* header가 줄어들지 않도록 설정 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--gray-400);
+}
+
+.navSection {
+  display: flex;
+  align-items: center;
+}
+
+.nav {
+  margin-right: 24px;
+}
+
+.nav a {
+  margin-left: 12px;
+}
+
+.nav span {
+  @include font-XS-B;
+  color: var(--text-black);
+
+  &:hover {
+    border-bottom: 2px solid var(--text-secondary-color);
+  }
+}
+
+.active {
+  color: var(--text-secondary-color) !important; // 활성화된 링크에 스타일을 적용
+  border-bottom: 2px solid var(--text-secondary-color);
+}

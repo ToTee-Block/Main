@@ -1,0 +1,163 @@
+// XXL / R
+@mixin font-XXL-R {
+    font-size: var(--font-size-XXL);
+    font-weight: var(--font-weight-Regular);
+}
+
+// XL / R
+@mixin font-XL-R {
+    font-size: var(--font-size-XL);
+    font-weight: var(--font-weight-Regular);
+}
+
+// L / R
+@mixin font-L-R {
+    font-size: var(--font-size-L);
+    font-weight: var(--font-weight-Regular);
+}
+
+// M / R
+@mixin font-M-R {
+    font-size: var(--font-size-M);
+    font-weight: var(--font-weight-Regular);
+}
+
+// S / R
+@mixin font-S-R {
+    font-size: var(--font-size-S);
+    font-weight: var(--font-weight-Regular);
+}
+
+// XS / R
+@mixin font-XS-R {
+    font-size: var(--font-size-XS);
+    font-weight: var(--font-weight-Regular);
+}
+
+// XXS / R
+@mixin font-XXS-R {
+    font-size: var(--font-size-XXS);
+    font-weight: var(--font-weight-Regular);
+}
+
+// XXXS / R
+@mixin font-XXXS-R {
+    font-size: var(--font-size-XXXS);
+    font-weight: var(--font-weight-Regular);
+}
+
+// XXXXS / R
+@mixin font-XXXXS-R {
+    font-size: var(--font-size-XXXXS);
+    font-weight: var(--font-weight-Regular);
+}
+
+// --------------------------------------------------------------
+
+@mixin font-XXL-M {
+    font-size: var(--font-size-XXL);
+    font-weight: var(--font-weight-Medium);
+}
+
+// XL / M
+@mixin font-XL-M {
+    font-size: var(--font-size-XL);
+    font-weight: var(--font-weight-Medium);
+}
+
+// L / M
+@mixin font-L-M {
+    font-size: var(--font-size-L);
+    font-weight: var(--font-weight-Medium);
+}
+
+// M / M
+@mixin font-M-M {
+    font-size: var(--font-size-M);
+    font-weight: var(--font-weight-Medium);
+}
+
+// S / M
+@mixin font-S-M {
+    font-size: var(--font-size-S);
+    font-weight: var(--font-weight-Medium);
+}
+
+// XS / M
+@mixin font-XS-M {
+    font-size: var(--font-size-XS);
+    font-weight: var(--font-weight-Medium);
+}
+
+// XXS / M
+@mixin font-XXS-M {
+    font-size: var(--font-size-XXS);
+    font-weight: var(--font-weight-Medium);
+}
+
+// XXXS / M
+@mixin font-XXXS-M {
+    font-size: var(--font-size-XXXS);
+    font-weight: var(--font-weight-Medium);
+}
+
+// XXXXS / M
+@mixin font-XXXXS-M {
+    font-size: var(--font-size-XXXXS);
+    font-weight: var(--font-weight-Medium);
+}
+
+// --------------------------------------------------------------
+
+@mixin font-XXL-B {
+    font-size: var(--font-size-XXL);
+    font-weight: var(--font-weight-Bold);
+}
+
+// XL / B
+@mixin font-XL-B {
+    font-size: var(--font-size-XL);
+    font-weight: var(--font-weight-Bold);
+}
+
+// L / B
+@mixin font-L-B {
+    font-size: var(--font-size-L);
+    font-weight: var(--font-weight-Bold);
+}
+
+// M / B
+@mixin font-M-B {
+    font-size: var(--font-size-B);
+    font-weight: var(--font-weight-Bold);
+}
+
+// S / B
+@mixin font-S-B {
+    font-size: var(--font-size-S);
+    font-weight: var(--font-weight-Bold);
+}
+
+// XS / B
+@mixin font-XS-B {
+    font-size: var(--font-size-XS);
+    font-weight: var(--font-weight-Bold);
+}
+
+// XXS / B
+@mixin font-XXS-B {
+    font-size: var(--font-size-XXS);
+    font-weight: var(--font-weight-Bold);
+}
+
+// XXXS / B
+@mixin font-XXXS-B {
+    font-size: var(--font-size-XXXS);
+    font-weight: var(--font-weight-Bold);
+}
+
+// XXXXS / B
+@mixin font-XXXXS-B {
+    font-size: var(--font-size-XXXXS);
+    font-weight: var(--font-weight-Bold);
+}
