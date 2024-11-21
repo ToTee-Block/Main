@@ -24,7 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
@@ -45,7 +45,7 @@ public class ApiV1MemberController {
         String email = memberCreate.getEmail();
         String password = memberCreate.getPassword();
         String name = memberCreate.getName();
-        LocalDateTime birthDate = memberCreate.getBirthDate();
+        LocalDate birthDate = memberCreate.getBirthDate();
         MemberGender gender = memberCreate.getGender();
         MultipartFile profileImg = new EmptyMultipartFile();  // TODO: json으로 파일 처리를 못해서 빈 객체 생성. 추후에 post요청으로 받은 file로 변경하기
 
@@ -136,7 +136,7 @@ public class ApiV1MemberController {
         String email = memberCreate.getEmail();
         String newPassword = memberCreate.getPassword();
         String newName = memberCreate.getName();
-        LocalDateTime newBirthDate = memberCreate.getBirthDate();
+        LocalDate newBirthDate = memberCreate.getBirthDate();
         MemberGender newGender = memberCreate.getGender();
         MultipartFile newProfileImg = new EmptyMultipartFile();   // TODO: json으로 파일 처리를 못해서 빈 객체 생성. 추후에 post요청으로 받은 file로 변경하기
 

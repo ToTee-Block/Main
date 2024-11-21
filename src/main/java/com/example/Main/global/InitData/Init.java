@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Configuration
@@ -15,8 +16,8 @@ public class Init {
     CommandLineRunner initData(MemberService memberService) {
 
         return args -> {
-            memberService.join("admin@email.com", "0000", "admin", LocalDateTime.now(), MemberGender.O, "",  MemberRole.ADMIN);
-            memberService.join("mentor@email.com", "0000", "mentor", LocalDateTime.now(), MemberGender.O, "", MemberRole.MENTOR);
+            memberService.join("admin@email.com", "0000", "admin", LocalDate.now(), MemberGender.O, "",  MemberRole.ADMIN);
+            memberService.join("mentor@email.com", "0000", "mentor", LocalDate.now(), MemberGender.O, "", MemberRole.MENTOR);
         };
     }
 }
