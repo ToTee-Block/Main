@@ -1,0 +1,162 @@
+.login_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5%;
+
+  h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 3%; // 제목과 폼 사이 간격
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+
+    label {
+      font-size: 14px;
+      font-weight: 500; // Medium weight
+      color: #000;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px; // 라벨과 입력필드와의 간격
+      margin-bottom: 20px; // 입력 필드와 에러 메시지 간의 간격
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+      }
+    }
+
+    .error {
+      color: #ff0000;
+      font-size: 12px;
+      margin-top: -10px; // 에러 메시지를 입력 필드와 밀착
+      margin-bottom: 20px; // 다음 요소와의 간격
+    }
+
+    .password_group {
+      position: relative; // 비밀번호 표시 버튼 배치를 위해 설정
+      width: 100%;
+      max-height: 60px; // 최소 높이를 설정해 에러 메시지가 있을 때와 없을 때 높이를 통일
+
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+        padding-right: 40px; // 버튼 공간 확보
+
+        &:focus {
+          outline: none;
+          border-color: #007bff;
+          box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+      }
+
+      .password_toggle_btn {
+        position: absolute;
+        top: 75%; // 입력 필드의 수직 중앙
+        right: 5px; // 입력 필드의 오른쪽 끝에서 10px 떨어진 위치
+        transform: translateY(-50%); // 수직 중앙 정렬
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          width: 24px;
+          height: 24px;
+          transition: opacity 0.3s ease;
+        }
+
+        &:hover img {
+          opacity: 0.8; // 호버 시 투명도 조정
+        }
+      }
+    }
+
+    .additional_links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px; // 각 링크 간의 간격
+      margin-top: 30px; // 위 요소와의 간격
+      margin-bottom: 20px; // 아래 요소와의 간격
+      font-size: 12px;
+      font-weight: medium;
+      color: #000;
+
+      a {
+        text-decoration: none;
+        color: inherit;
+
+        &:hover {
+          color: #007bff; // 링크 호버 시 색상 변경
+          text-decoration: underline;
+        }
+      }
+
+      span {
+        color: #000; // 구분선 색상
+      }
+    }
+
+    button[type="submit"] {
+      width: 65%;
+      padding: 15px;
+      background-color: #2d3648;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      display: flex; // Flexbox 사용
+      align-items: center; // 세로 중앙 정렬
+      justify-content: center; // 가로 중앙 정렬
+
+      margin: 0 auto; // 버튼을 가로 중앙 정렬
+
+      &:hover {
+        background-color: #222936;
+      }
+    }
+
+    .links {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+
+      a {
+        color: #007bff;
+        font-size: 14px;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
