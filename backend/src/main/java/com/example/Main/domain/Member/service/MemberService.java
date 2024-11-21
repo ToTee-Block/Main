@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    public MemberDTO join(String email, String password, String name, LocalDateTime birthDate, MemberGender gender, String profileImg, MemberRole role) {
+    public MemberDTO join(String email, String password, String name, LocalDate birthDate, MemberGender gender, String profileImg, MemberRole role) {
         if (this.memberRepository.findByEmail(email).isPresent()) {
             return null;
         }
@@ -51,7 +51,7 @@ public class MemberService {
         return new MemberDTO(member);
     }
 
-    public Member modifyProfile(Member member, String newPassword, String newName, LocalDateTime newBirthDate, MemberGender newGender, String profileImg) {
+    public Member modifyProfile(Member member, String newPassword, String newName, LocalDate newBirthDate, MemberGender newGender, String profileImg) {
         member.setPassword(newPassword);
         member.setName(newName);
         member.setBirthDate(newBirthDate);
@@ -74,10 +74,7 @@ public class MemberService {
 
     public Member getMemberByEmail(String email) {
         Optional<Member> member = this.memberRepository.findByEmail(email);
-        if (member.isEmpty()) {
-            return null;
-        }
-        return member.get();
+        return member.orElse(null);
     }
 
     public boolean validateToken(String accessToken) {

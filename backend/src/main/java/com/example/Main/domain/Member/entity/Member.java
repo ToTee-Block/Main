@@ -12,8 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -32,7 +31,7 @@ public class Member extends BaseEntity {
     @Column(length = 50)
     private String name;
 
-    private LocalDateTime birthDate;
+    private LocalDate birthDate;
 
     private MemberGender gender;
 

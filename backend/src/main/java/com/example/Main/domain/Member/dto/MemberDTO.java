@@ -7,6 +7,7 @@ import com.example.Main.domain.Member.enums.MemberRole;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @ToString
@@ -18,7 +19,7 @@ public class MemberDTO {
 
     private final String name;
 
-    private final LocalDateTime birthDate;
+    private final LocalDate birthDate;
 
     private final MemberGender gender;
 
