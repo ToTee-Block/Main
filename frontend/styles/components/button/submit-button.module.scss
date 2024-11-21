@@ -1,0 +1,21 @@
+/* styles/components/submit-button.module.scss */
+.submitButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .submitButton:hover {
+    background-color: #0056b3;
+  }
+  
+  .submitButtonDisabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
