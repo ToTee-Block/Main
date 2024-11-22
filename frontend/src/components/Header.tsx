@@ -45,11 +45,6 @@ const Header: React.FC = () => {
               멘토신청
             </span>
           </Link>
-          <Link href="/member/join">
-            <span className={isActive("/member/join") ? styles.active : ""}>
-              회원가입
-            </span>
-          </Link>
         </nav>
         <LinkButton to="/member">Login</LinkButton>
       </div>

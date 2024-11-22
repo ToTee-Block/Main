@@ -1,7 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import axios, { AxiosError } from "axios";
-import "./login.scss";
+import classNames from 'classnames';
+import styles from "@/styles/pages/login.module.scss";
+import TextLinkButton from "@/components/button/TextLinkButton";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -41,10 +43,10 @@ export default function Login() {
   };
 
   return (
-    <div className="login_container">
+    <div className={styles.login_container}>
       <h1>로그인</h1>
       <form onSubmit={handleLogin}>
-        <div className="field_group">
+        <div className={styles.field_group}>
           <label htmlFor="email">아이디</label>
           <input
             type="text"
@@ -53,9 +55,9 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          {!email && <p className="error">아이디는 필수 항목입니다.</p>}
+          {!email && <p className={styles.error}>아이디는 필수 항목입니다.</p>}
         </div>
-        <div className="field_group password_group">
+        <div className={classNames(styles.field_group, styles.password_group)}>
           <label htmlFor="password">비밀번호</label>
           <input
             type={showPassword ? "text" : "password"}
@@ -66,7 +68,7 @@ export default function Login() {
           />
           <button
             type="button"
-            className="password_toggle_btn"
+            className={styles.password_toggle_btn}
             onClick={togglePasswordVisibility}
             aria-label="비밀번호 표시"
           >
@@ -75,15 +77,15 @@ export default function Login() {
               alt={showPassword ? "비밀번호 숨기기" : "비밀번호 표시"}
             />
           </button>
-          {!password && <p className="error">비밀번호는 필수 항목입니다.</p>}
+          {!password && <p className={styles.error}>비밀번호는 필수 항목입니다.</p>}
         </div>
-        {errorMessage && <p className="error">{errorMessage}</p>}
-        <div className="additional_links">
-          <a href="/member/join">회원가입</a>
+        {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+        <div className={styles.additional_links}>
+          <TextLinkButton to="/member/form">회원가입</TextLinkButton>
           <span>|</span>
-          <a href="/find-id">아이디 찾기</a>
+          <TextLinkButton to="/find-id">아이디 찾기</TextLinkButton>
           <span>|</span>
-          <a href="/reset-password">비밀번호 재설정</a>
+          <TextLinkButton to="/reset-password">비밀번호 재설정</TextLinkButton>
         </div>
         <button type="submit">로그인</button>
       </form>
