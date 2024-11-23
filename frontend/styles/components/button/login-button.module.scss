@@ -1,0 +1,12 @@
+@import "../../globals/font-mixin.scss";
+
+.loginButton {
+  display: center;
+  text-align: center;
+  background-color: var(--dark-color);
+  width: 260px;
+  height: 48px;
+  @include font-XXS-B;
+  color: #fdfdfd;
+  border-radius: 10px;
+}
