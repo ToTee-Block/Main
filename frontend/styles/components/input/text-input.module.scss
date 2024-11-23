@@ -22,7 +22,7 @@
   input {
     flex: 1; // 입력 필드가 남은 공간을 차지
     border: none; // 개별 테두리 제거
-    padding: 10px; // 내부 여백
+    margin: 10px;
     @include font-XXXS-M;
     border-radius: 5px 0 0 5px; // 왼쪽 테두리만 둥글게
     outline: none; // 포커스 시 기본 아웃라인 제거
@@ -32,7 +32,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
+    margin: 10px;
     border: none;
     background: none;
     cursor: pointer;
