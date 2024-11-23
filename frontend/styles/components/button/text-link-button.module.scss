@@ -1,0 +1,15 @@
+@import '../../globals/font-mixin.scss';
+
+
+.textLinkButton {
+    @include font-XXXXS-M; // 믹스인 사용
+    color: var(--text-black) !important;
+    transition: 0.3s;
+  }
+  
+  .textLinkButton:hover {
+    color: var(--text-secondary-color) !important;
+    text-decoration: none !important;
+  }
+  
+  

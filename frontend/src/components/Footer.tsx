@@ -9,18 +9,18 @@ const Footer: React.FC = () => {
   return (
     <footer className={styles.footer}>
       <div className={styles.footerContent}>
-        <span className={styles.logo}>Totee Block</span>
+        <span className={styles.logo}>ToTee Block</span>
         <nav className={styles.nav}>
-          <Link href="/개인정보처리방침">
+          <Link href="#">
           <span>Privacy Policy</span>
           </Link>
-          <Link href="/이용약관">
+          <Link href="#">
           <span>Terms & Conditions</span>
           </Link>
-          <Link href="/쿠키정책">
+          <Link href="#">
           <span>Cookie Policy</span>
           </Link>
-          <Link href="/연락처">
+          <Link href="#">
           <span>Contact</span>
           </Link>
         </nav>
