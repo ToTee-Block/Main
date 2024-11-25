@@ -31,14 +31,14 @@
 
 .link {
   @include font-XXXXS-M;
-  color: #555; // 링크 기본 색상
+  color: var(--gray-800); // 링크 기본 색상
   text-decoration: none;
 
   &:hover {
-    color: #000; // 호버 시 색상 변경
+    color: var(--text-black); // 호버 시 색상 변경
   }
 }
 
 .divider {
-  color: #ccc; // 구분선 색상
+  color: var(--border-color); // 구분선 색상
 }
