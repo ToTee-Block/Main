@@ -8,7 +8,6 @@ import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
-import com.example.Main.global.Util.Service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -73,8 +72,7 @@ public class MemberService {
     }
 
     public Member getMemberByEmail(String email) {
-        Optional<Member> member = this.memberRepository.findByEmail(email);
-        return member.orElse(null);
+        return this.memberRepository.findByEmail(email).orElse(null);
     }
 
     public boolean validateToken(String accessToken) {

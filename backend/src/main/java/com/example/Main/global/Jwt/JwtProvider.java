@@ -20,6 +20,7 @@ public class JwtProvider {
     private String secretKeyOrigin;
 
     private SecretKey cachedSecretKey;
+    private static final int A_DAY = 60 * 60 * 24;
 
     public SecretKey getSecretKey() {
         if (cachedSecretKey == null) cachedSecretKey = _getSecretKey();
@@ -33,11 +34,11 @@ public class JwtProvider {
     }
 
     public String genRefreshToken(Member member) {
-        return genToken(member, 60 * 60 * 24 * 365 * 1);
+        return genToken(member, A_DAY);
     }
 
     public String genAccessToken(Member member) {
-        return genToken(member, 5);
+        return genToken(member, A_DAY);
     }
 
 
@@ -61,7 +62,7 @@ public class JwtProvider {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(getSecretKey())
-                    .setAllowedClockSkewSeconds(60 * 60 * 24)  // 하루 24h 내에 발급된 토큰 한정
+                    .setAllowedClockSkewSeconds(A_DAY)  // 하루 24h 내에 발급된 토큰 한정
                     .build()
                     .parseClaimsJws(token);
         } catch (Exception e) {
@@ -74,7 +75,7 @@ public class JwtProvider {
     public Map<String, Object> getClaims(String token) {
         String body = Jwts.parserBuilder()
                 .setSigningKey(getSecretKey())
-                .setAllowedClockSkewSeconds(60 * 60 * 24)  //허용된 시간 차이(스큐) 설정 (24시간)
+                .setAllowedClockSkewSeconds(A_DAY)  //허용된 시간 차이(스큐) 설정 (24시간)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()

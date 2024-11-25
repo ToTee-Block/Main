@@ -24,7 +24,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     @SneakyThrows
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-        if (request.getRequestURI().contains("/api/v1/") || request.getRequestURI().equals("/api/v1/members/login") || request.getRequestURI().equals("/api/v1/members/logout")) {
+        // 회원가입, 로그인, 로그아웃 요청에 접근할 때는 토큰인증처리 불필요
+        if (request.getRequestURI().equals("/api/v1/members/join")
+                || request.getRequestURI().equals("/api/v1/members/login")
+                || request.getRequestURI().equals("/api/v1/members/logout"))
+        {
             filterChain.doFilter(request, response);
             return;
         }
@@ -51,6 +55,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private String _getCookie(String name) {
         Cookie[] cookies = req.getCookies();
+
+        if (cookies == null) {
+            return "";
+        }
 
         return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals(name))

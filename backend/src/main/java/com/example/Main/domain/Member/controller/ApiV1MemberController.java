@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -98,7 +99,6 @@ public class ApiV1MemberController {
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(0);
         res.addCookie(accessTokenCookie);
-
         Cookie refreshTokenCookie = new Cookie("refreshToken", null);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(0);
@@ -107,11 +107,11 @@ public class ApiV1MemberController {
         return RsData.of("200", "로그아웃 성공");
     }
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")  // 로그인된 사용자 정보 확인하기
     public RsData getMe (HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
         String accessToken = "";
+
         if (cookies == null) {
             return RsData.of("400", "유효성 검증 실패");
         }
@@ -126,12 +126,20 @@ public class ApiV1MemberController {
         String email = (String) claims.get("email");
         Member member = this.memberService.getMemberByEmail(email);
 
+        if (member == null) {
+            return RsData.of("400", "존재하지 않는 사용자입니다.");
+        }
         return RsData.of("200", "내 회원정보", new MemberDTO(member));
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/profile")
-    public RsData modifyProfile(@Valid @RequestBody MemberCreate memberCreate) {
+    private RsData modifyProfile(@Valid @RequestBody MemberCreate memberCreate, Principal principal) {
+        RsData checkAuthUserRD = this.checkAuthUser(
+                this.memberService.getMemberByEmail(memberCreate.getEmail()),
+                principal
+        );
+        if (checkAuthUserRD != null) return checkAuthUserRD;
+
         // 수정 시 필요한 필드 나열
         String email = memberCreate.getEmail();
         String newPassword = memberCreate.getPassword();
@@ -154,7 +162,13 @@ public class ApiV1MemberController {
     }
 
     @PatchMapping("/password")
-    public RsData modifyPassword(@Valid @RequestBody MemberRequest memberRequest) {
+    private RsData modifyPassword(@Valid @RequestBody MemberRequest memberRequest, Principal principal) {
+        RsData checkAuthUserRD = this.checkAuthUser(
+                this.memberService.getMemberByEmail(memberRequest.getEmail()),
+                principal
+        );
+        if (checkAuthUserRD != null) return checkAuthUserRD;
+
         Member member = this.memberService.modifyPassword(memberRequest.getEmail(), memberRequest.getPassword());
 
         return RsData.of("200", "비밀번호 변경 성공", new MemberDTO(member));
@@ -173,6 +187,22 @@ public class ApiV1MemberController {
         if (!this.generatedAuthcode.equals(authcodeRequest.getAuthcode())) {
             return RsData.of("400", "인증코드가 일치하지 않습니다.");
         }
+
         return RsData.of("200", "인증 성공", this.generatedAuthcode);
+    }
+
+    // 시큐리티의 로그인 정보 이용시 확인 및 예외처리
+    private RsData checkAuthUser(Member member, Principal principal) {
+        if (member == null) {
+            return RsData.of("400", "존재하지 않는 사용자입니다.");
+
+        } else if (principal == null) {
+            return RsData.of("401", "로그아웃 상태입니다.");
+
+        } else if (!principal.getName().equals(member.getName())) {
+            return RsData.of("403", "권한이 없습니다.");
+        }
+
+        return null;
     }
 }
