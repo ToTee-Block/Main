@@ -1,0 +1,189 @@
+@import "../globals//font-mixin.scss";
+
+.about_page {
+  width: 1000px;
+  margin: 0 auto;
+  
+  .mockup_section {
+    width: 100%;
+    height: 500px;
+    background-color: var(--secondary-color);
+    
+    .mockup_container {
+      width: 1000px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 60px 0;
+      display: flex;
+
+      .mockup_image {
+        width: 500px;
+        margin-left: 50px; 
+        
+        img {
+          width: auto;
+          height: auto;
+        }
+      }
+      .text_animation_container{
+        width: 400px;
+        height: 100px;
+        overflow: hidden;
+        margin-top: 130px;
+
+        .animated_text_slide{
+          animation: slideText 9s infinite;
+
+          .text_item{
+            height: 100px;
+            opacity: 0;
+            animation: fadeInOut 3s infinite;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+          }
+
+          h3{
+            @include font-XL-B;
+            margin-bottom: 24px;
+            color: var(--primary-color);
+          }
+         
+          @for $i from 1 through 3{
+            &:nth-child(#{$i}){
+              animation-delay: #{($i - 1) * 2}s;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .structure_section {
+    width: 1000px;
+    margin: 0 auto;
+    padding: 100px 0;
+    
+    .section_title {
+      text-align: center;
+      margin-bottom: 80px;
+      
+      h1 {
+        @include font-L-B;
+        color: var(--text-black);
+        margin-bottom: 16px;
+      }
+      
+      .subtitle {
+        @include font-M-B;
+        color: var(--text-black);
+      }
+    }
+    
+    .mentor_mentee_structure {
+      width: 1000px;
+      display: flex;
+      justify-content: center;
+
+      img{
+        width: auto;
+        height: auto;
+        max-width: 700px;
+      }
+    }
+  }
+  .feature_section{
+    width: 1000px;
+    margin:  0 auto;
+
+    .company_structure{
+      width: 100%;
+      height: 400px;
+      background-color: rgba(0, 0, 0, 0.8);
+      background-blend-mode: overlay;
+
+
+      .overlay_content{
+        width: 1000px;
+        display: flex;
+        flex-direction: column;
+      }
+        .section_title{
+          text-align: center;
+          margin-bottom: 100px;
+          margin-top: 60px;
+          color: #FDFDFD;
+
+          h1{
+            @include font-L-B;
+            margin-bottom: 16px;
+          }
+          .subtitle{
+            @include font-M-B;
+          }
+        }
+        .feature_list{
+          width: 1000px;
+          display: flex;
+          justify-content: center;
+          margin-top: 10px;
+
+          .feature_item{
+            text-align: center;
+            width: 160px;
+
+            .number{
+              width: 60px;
+              height: 60px;
+              background-color: rgba(255, 255, 255, 0.1);
+              border-radius: 50%;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              @include font-S-B;
+              color:white;
+              margin: 0 auto 20px;
+            }
+
+            .feature_content{
+              h3{
+                @include font-XXS-M;
+                margin-bottom: 8px;
+                color: #FDFDFD;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  @mixin slide-animation {
+    @keyframes slideText {
+      0%, 33.33% {
+        transform: translateY(0);
+      }
+      33.34%, 66.66% {
+        transform: translateY(-100px);
+      }
+      66.67%, 100% {
+        transform: translateY(-200px);
+      }
+    }
+  }
+  
+  @mixin fade-animation {
+    @keyframes fadeInOut {
+      0%, 100% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      20%, 80% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+  
+  // 애니메이션 믹스인 포함
+  @include slide-animation;
+  @include fade-animation;
