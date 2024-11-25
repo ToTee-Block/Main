@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiV1MentorController {
     private final MentorService mentorService;
 
-    @PostMapping("/registration")
+    /*@PostMapping("/registration")
     public RsData<?> mentorRegistration() {
 
-    }
+    }*/
 }
