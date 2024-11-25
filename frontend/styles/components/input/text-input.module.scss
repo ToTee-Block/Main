@@ -1,0 +1,50 @@
+@import "../../globals/font-mixin.scss";
+
+.inputBox {
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  align-content: center;
+  gap: 3px; // 간격을 조정
+  margin-bottom: 20px;
+}
+
+.inputWrapper {
+  display: flex; // 입력 필드와 버튼을 가로로 정렬
+  align-items: center; // 세로 중앙 정렬
+  width: 100%;
+  border: 1px solid var(--border-gray-color); // 입력 박스 테두리
+  border-radius: 5px;
+  background-color: var(--background);
+  @include font-XXXS-M;
+
+  input {
+    flex: 1; // 입력 필드가 남은 공간을 차지
+    margin: 10px;
+    @include font-XXXS-M;
+    outline: none; // 포커스 시 기본 아웃라인 제거
+    border: none;
+  }
+
+  .toggleButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+
+    img {
+      display: block;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.errorMessage {
+  @include font-XXXXS-M;
+  color: var(--text-danger-light-color);
+
+  &.hidden {
+    opacity: 0; // 숨김 상태
+  }
+}
