@@ -44,9 +44,15 @@ public class JwtProvider {
 
     public String genToken (Member member, int seconds) {
         Map<String, Object> claims = new HashMap<>();
+        /*
+            토큰에 ID, EMAIL, ROLE 등록
+            토큰에 저장될 사용자 정보는 키-값 쌍을 저장하는 Map으로 저장됨
 
+            ROLE: 스프링 시큐리티의 권한 인가(Authorization)는 "ROLE_"의 접두사를 자동으로 덧붙이므로, 추가해준다.
+         */
         claims.put("id", member.getId());
         claims.put("email", member.getEmail());
+        claims.put("rules", "ROLE_" + member.getRole());
 
         long now = new Date().getTime();
         Date accessTokenExpiresIn = new Date(now + 1000L * seconds);

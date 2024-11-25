@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -94,7 +94,8 @@ public class ApiV1MemberController {
     }
 
     @GetMapping("/logout")
-    public RsData logout(HttpServletResponse res) {
+    public RsData logout(HttpServletResponse res, HttpServletRequest req) {
+        // 쿠키 제거
         Cookie accessTokenCookie = new Cookie("accessToken", null);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(0);
@@ -103,6 +104,21 @@ public class ApiV1MemberController {
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(0);
         res.addCookie(refreshTokenCookie);
+
+        // SecurityContext에서 인증 정보 제거
+        SecurityContextHolder.clearContext();
+
+        // 쿠키 제거 확인
+        Cookie[] cookies = req.getCookies();
+        if (cookies !=null) {
+            return RsData.of("500", "로그아웃 실패: 쿠키", cookies);
+        }
+
+        // 시큐리티 인증 정보 제거 확인
+        Object securityAuthContent = SecurityContextHolder.getContext().getAuthentication();
+        if (securityAuthContent != null) {
+            return RsData.of("500", "로그아웃 실패: 시큐리티", securityAuthContent);
+        }
 
         return RsData.of("200", "로그아웃 성공");
     }
@@ -172,6 +188,33 @@ public class ApiV1MemberController {
         Member member = this.memberService.modifyPassword(memberRequest.getEmail(), memberRequest.getPassword());
 
         return RsData.of("200", "비밀번호 변경 성공", new MemberDTO(member));
+    }
+
+    @DeleteMapping("/delete/{memberId}")
+    private RsData deleteMy(@PathVariable(value="memberId") Long id, Principal principal) {
+        RsData checkAuthUserRD = this.checkAuthUser(
+                this.memberService.getMemberById(id),
+                principal
+        );
+        if (checkAuthUserRD != null) return checkAuthUserRD;
+
+        return this.delete(id);
+    }
+
+    protected RsData delete(Long id) {
+        Member member = this.memberService.getMemberById(id);
+        if (member == null) {
+            return RsData.of("400", "이미 존재하지 않는 사용자입니다.");
+        }
+
+        this.memberService.deleteMember(member);
+
+        Member deletedMember = this.memberService.getMemberById(id);
+        if (deletedMember == null) {
+            return RsData.of("200", "삭제 성공");
+        } else {
+            return RsData.of("500", "삭제 실패", deletedMember);
+        }
     }
 
     @PostMapping("/code/send")

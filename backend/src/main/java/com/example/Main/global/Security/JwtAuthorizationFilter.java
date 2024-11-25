@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -44,10 +45,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 _addHeaderCookie("accessToken", rs.getData());
             }
 
-            // securityUser 가져오기
-            SecurityMember securityMember = memberService.getUserFromAccessToken(accessToken);
-            // 인가 처리
-            SecurityContextHolder.getContext().setAuthentication(securityMember.genAuthentication());
+            // 토큰으로부터 사용자 인증 정보 추출
+            Authentication authentication = memberService.getUserFromAccessToken(accessToken)
+                                                         .genAuthentication();
+            // 시큐리티에 인증 정보 등록
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);

@@ -8,11 +8,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class ApiSecurityConfig {
+
+    private final JwtAuthorizationFilter jwtAuthorizationFilter;  // jwtAuthorizationFilter 주입
+
     @Bean
     SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http
@@ -45,7 +49,10 @@ public class ApiSecurityConfig {
                 ) // 폼 로그인 방식 끄기
                 .sessionManagement(
                         sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                ) // 세션 사용 안 함 (JWT 사용)
+                .addFilterBefore(
+                        jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class
+                ); // JwtAuthenticationFilter 등록, UPAF를 돌기 전에 등록된 필터를 먼저 진행함
         return http.build();
     }
 }
