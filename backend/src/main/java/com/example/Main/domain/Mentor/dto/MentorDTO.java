@@ -14,31 +14,27 @@ import java.time.LocalDateTime;
 public class MentorDTO {
     private final Long id;
 
-    private final String email;
-
-    private final String name;
-
-    private final LocalDate birthDate;
-
-    private final MemberGender gender;
-
-    private final MemberRole role;
-
-    private final String profileImg;
-
     private final LocalDateTime createdDate;
 
     private final LocalDateTime modifiedDate;
 
+    private final String name;
+
+    private final String profileImg;
+
+    private final String oneLineBio;
+
+    private final String bio;
+
+
+
     public MentorDTO(Member member) {
         this.id = member.getId();
-        this.email = member.getEmail();
-        this.name = member.getName();
-        this.birthDate = member.getBirthDate();
-        this.role = member.getRole();
-        this.profileImg = member.getProfileImg();
-        this.gender = member.getGender();
         this.createdDate = member.getCreatedDate();
         this.modifiedDate = member.getModifiedDate();
+        this.name = member.getName();
+        this.profileImg = member.getProfileImg();
+        this.oneLineBio = member.getMentorQualify().getOneLineBio();
+        this.bio = member.getMentorQualify().getBio();
     }
 }

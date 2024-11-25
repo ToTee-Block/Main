@@ -32,7 +32,7 @@ public class Mentor extends BaseEntity {
    private Boolean matchingStatus;
 
    @Column(length = 200)
-   private String oneLiner;
+   private String oneLineBio;
 
    /*내 멘티들*/
    @OneToMany(mappedBy = "mentor")
