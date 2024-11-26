@@ -34,6 +34,9 @@ public class Mentor extends BaseEntity {
    @Column(length = 200)
    private String oneLineBio;
 
+   @Column(columnDefinition = "text")
+   private String portfolio;
+
    /*내 멘티들*/
    @OneToMany(mappedBy = "mentor")
    private List<MentorMenteeMatching> myMentees;
