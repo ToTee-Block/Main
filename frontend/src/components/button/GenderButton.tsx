@@ -1,6 +1,5 @@
-// components/GenderButton.tsx
-import React, { useState } from "react";
-import styles from "@/styles/components/button/gender-button.module.scss"; // SCSS 모듈 임포트
+import React from "react";
+import styles from "@/styles/components/button/gender-button.module.scss";
 
 interface GenderButtonProps {
   label: string; // 버튼 라벨
@@ -24,11 +23,17 @@ const GenderButton: React.FC<GenderButtonProps> = ({
   );
 };
 
-const GenderSelector: React.FC = () => {
-  const [selectedGender, setSelectedGender] = useState<string | null>(null);
+interface GenderSelectorProps {
+  selectedGender: string | null; // 선택된 성별 값
+  onGenderChange: (gender: string) => void; // 성별 변경 핸들러
+}
 
+const GenderSelector: React.FC<GenderSelectorProps> = ({
+  selectedGender,
+  onGenderChange,
+}) => {
   const handleGenderSelect = (gender: string) => {
-    setSelectedGender(gender === selectedGender ? null : gender); // 이미 선택된 버튼을 클릭하면 해제
+    onGenderChange(gender === selectedGender ? "" : gender); // 이미 선택된 버튼 클릭 시 해제
   };
 
   return (

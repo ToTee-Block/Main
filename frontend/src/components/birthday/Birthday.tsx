@@ -1,26 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import styles from "@/styles/components/birthday/birthday.module.scss";
 
-interface BirthdayProps {}
+interface BirthdayProps {
+  value: { year: string; month: string; day: string }; // 생년월일 값
+  onChange: (value: { year: string; month: string; day: string }) => void; // 값 변경 이벤트 핸들러
+}
 
-const Birthday: React.FC<BirthdayProps> = () => {
-  const [year, setYear] = useState("");
-  const [month, setMonth] = useState("");
-  const [day, setDay] = useState("");
-  const [error, setError] = useState(false);
+const Birthday: React.FC<BirthdayProps> = ({ value, onChange }) => {
+  const { year, month, day } = value;
 
   const years = Array.from({ length: 100 }, (_, i) => 2025 - i);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
-  // 입력값 유효성 확인
-  useEffect(() => {
-    if (year && month && day) {
-      setError(false); // 모든 값이 입력되었으면 에러 숨기기
-    } else {
-      setError(true); // 하나라도 비어 있으면 에러 표시
-    }
-  }, [year, month, day]);
+  const handleChange = (key: "year" | "month" | "day", val: string) => {
+    onChange({ ...value, [key]: val });
+  };
 
   return (
     <div className={styles.birthdayForm}>
@@ -30,7 +25,7 @@ const Birthday: React.FC<BirthdayProps> = () => {
         <select
           id="birth-year"
           value={year}
-          onChange={(e) => setYear(e.target.value)}
+          onChange={(e) => handleChange("year", e.target.value)}
           className={styles.select}
         >
           <option value="">연도</option>
@@ -45,7 +40,7 @@ const Birthday: React.FC<BirthdayProps> = () => {
         <select
           id="birth-month"
           value={month}
-          onChange={(e) => setMonth(e.target.value)}
+          onChange={(e) => handleChange("month", e.target.value)}
           className={styles.select}
         >
           <option value="">월</option>
@@ -60,7 +55,7 @@ const Birthday: React.FC<BirthdayProps> = () => {
         <select
           id="birth-day"
           value={day}
-          onChange={(e) => setDay(e.target.value)}
+          onChange={(e) => handleChange("day", e.target.value)}
           className={styles.select}
         >
           <option value="">일</option>
@@ -72,7 +67,7 @@ const Birthday: React.FC<BirthdayProps> = () => {
         </select>
       </div>
       {/* 에러 메시지 조건부 렌더링 */}
-      {error && (
+      {(!year || !month || !day) && (
         <p className={styles.errorMessage}>생년월일은 필수 항목입니다.</p>
       )}
     </div>

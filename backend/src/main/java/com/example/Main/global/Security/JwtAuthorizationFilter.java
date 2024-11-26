@@ -30,27 +30,51 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
 
         String accessToken = _getCookie("accessToken");
-        // accessToken 검증 or refreshToken 발급
-        if (!accessToken.isBlank()) {
-            // 토큰 유효기간 검증
-            if (!memberService.validateToken(accessToken)) {
-                String refreshToken = _getCookie("refreshToken");
 
-                RsData<String> rs = memberService.refreshAccessToken(refreshToken);
-                _addHeaderCookie("accessToken", rs.getData());
+        // accessToken null 체크
+        if (accessToken == null || accessToken.isBlank()) {
+            // 토큰이 없으면 그냥 다음 필터로 진행
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // accessToken 검증 or refreshToken 발급
+        if (!memberService.validateToken(accessToken)) {
+            String refreshToken = _getCookie("refreshToken");
+
+            // refreshToken null 체크
+            if (refreshToken == null || refreshToken.isBlank()) {
+                // refreshToken도 없으면 다음 필터로 진행
+                filterChain.doFilter(request, response);
+                return;
             }
 
-            // securityUser 가져오기
-            SecurityMember securityMember = memberService.getUserFromAccessToken(accessToken);
+            RsData<String> rs = memberService.refreshAccessToken(refreshToken);
+            if (rs != null && rs.getData() != null) {
+                _addHeaderCookie("accessToken", rs.getData());
+                accessToken = rs.getData(); // 새로운 accessToken으로 업데이트
+            } else {
+                // refreshToken으로 갱신 실패 시 로그아웃 처리 등 추가 로직 필요
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }
+
+        // securityUser 가져오기
+        SecurityMember securityMember = memberService.getUserFromAccessToken(accessToken);
+        if (securityMember != null) {
             // 인가 처리
             SecurityContextHolder.getContext().setAuthentication(securityMember.genAuthentication());
         }
 
         filterChain.doFilter(request, response);
     }
-
     private String _getCookie(String name) {
         Cookie[] cookies = req.getCookies();
+
+        if (cookies == null) {
+            return null;
+        }
 
         return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals(name))
