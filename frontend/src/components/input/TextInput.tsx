@@ -33,7 +33,7 @@ const TextInput: React.FC<TextInputProps> = ({
 
   return (
     <div className={styles.inputBox}>
-      <p>{children}</p>
+      <p className={styles.inputP}>{children}</p>
       <div className={styles.inputWrapper}>
         <input
           type={isPassword && !showPassword ? "password" : "text"} // 비밀번호 상태에 따라 type 변경
