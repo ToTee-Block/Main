@@ -41,4 +41,7 @@ public class Mentor extends BaseEntity {
    /*나한테 달린 리뷰들*/
    @OneToMany(mappedBy = "mentor")
    private List<MentorReview> reviews;
+
+   @OneToMany(mappedBy = "mentor")
+   private List<MentorTechStack> techStacks;
 }
