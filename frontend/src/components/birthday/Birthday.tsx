@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "@/styles/components/birthday/birthday.module.scss";
 
 interface BirthdayProps {}
@@ -7,16 +7,24 @@ const Birthday: React.FC<BirthdayProps> = () => {
   const [year, setYear] = useState("");
   const [month, setMonth] = useState("");
   const [day, setDay] = useState("");
+  const [error, setError] = useState(false);
 
   const years = Array.from({ length: 100 }, (_, i) => 2025 - i);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
+  // 입력값 유효성 확인
+  useEffect(() => {
+    if (year && month && day) {
+      setError(false); // 모든 값이 입력되었으면 에러 숨기기
+    } else {
+      setError(true); // 하나라도 비어 있으면 에러 표시
+    }
+  }, [year, month, day]);
+
   return (
     <div className={styles.birthdayForm}>
-      <label htmlFor="birth-year" className={styles.label}>
-        생년월일
-      </label>
+      <p className={styles.birthdayP}>생년월일</p>
       <div className={styles.birthdaySelect}>
         {/* 연도 선택 */}
         <select
@@ -63,7 +71,10 @@ const Birthday: React.FC<BirthdayProps> = () => {
           ))}
         </select>
       </div>
-      <p className={styles.errorMessage}>생년월일은 필수 항목입니다.</p>
+      {/* 에러 메시지 조건부 렌더링 */}
+      {error && (
+        <p className={styles.errorMessage}>생년월일은 필수 항목입니다.</p>
+      )}
     </div>
   );
 };
