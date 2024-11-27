@@ -1,0 +1,180 @@
+// mentor-detail.module.scss
+@import "../globals/font-mixin.scss";
+
+.mentorDetail {
+  width: 1000px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .titleSection {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    
+    .title {
+      @include font-XXL-B;
+      color: var(--text-black);
+    }
+    
+    .divider {
+      width: 100%;
+      height: 4px;
+      background-color: var(--foreground);
+    }
+  }
+
+  .cardContainer {
+    width: 280px;
+    height: 400px;
+    background-color: var(--text-white);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+
+    .card {
+      width: 100%;
+      height: 340px;
+      background-color: var(--secondary-color);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .starIcon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          width: 100%;
+          height: 100%;
+        }
+
+        .starNumber {
+          @include font-XXS-B;
+          color: var(--text-black);
+        }
+      }
+
+      .image {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background-color: var(--gray-300);
+      }
+
+      .info {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .name {
+          @include font-XS-B;
+          color: var(--text-white);
+        }
+
+        .role {
+          @include font-M-B;
+          color: var(--text-white);
+        }
+      }
+
+      .status {
+        background-color: var(--primary-color);
+        border-radius: 20px;
+        width: fit-content;
+        display: flex;
+        align-items: center;
+
+        .statusText {
+          @include font-XS-M;
+          color: var(--text-black);
+        }
+      }
+    }
+  }
+
+  .content {
+    width: 100%;
+    height: auto;
+
+    .title {
+      @include font-L-B;
+      color: var(--text-black);
+      text-align: center;
+    }
+
+    .section {
+      width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+
+      .sectionTitle {
+        @include font-M-B;
+        color: var(--text-black);
+      }
+
+      .description {
+        @include font-S-R;
+        color: var(--text-black);
+      }
+
+      .skillTags {
+        display: flex;
+        gap: 8px;
+
+        .tag {
+          @include font-XS-M;
+          color: var(--text-black);
+          background-color: var(--gray-200);
+          border-radius: 16px;
+        }
+      }
+
+      .portfolioLink {
+        @include font-S-R;
+        color: var(--text-secondary-color);
+      }
+
+      .history {
+        display: flex;
+        flex-direction: column;
+
+        .historyItem {
+          @include font-S-R;
+          color: var(--text-black);
+          display: flex;
+          align-items: center;
+        }
+      }
+    }
+  }
+
+  .footer {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+
+    .submitButton {
+      width: fit-content;
+      background-color: var(--foreground);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .buttonText {
+        @include font-S-M;
+        color: var(--text-white);
+      }
+    }
+  }
+}
