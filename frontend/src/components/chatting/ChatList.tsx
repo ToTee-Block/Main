@@ -15,6 +15,7 @@ const ChatList: React.FC<ChatListProps> = ({
 }) => {
   return (
     <div className={styles.chatList}>
+      <h3 className={styles.chatListTitle}>채팅 리스트</h3> {/* 제목 추가 */}
       {rooms.map((room) => (
         <div
           key={room}

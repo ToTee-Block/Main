@@ -1,36 +1,48 @@
+// styles/components/chatting/ChatList.module.scss
+
 .chatList {
-  width: 120px;
+  padding: 0px;
+  background-color: #fff;
   border-right: 1px solid #ddd;
-  padding: 10px 0;
+  height: 100%;
   overflow-y: auto;
 }
 
+.chatListTitle {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 12px 8px;
+}
+
 .chatRoom {
-  padding: 10px;
   display: flex;
   align-items: center;
+  padding: 10px;
   cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* 흐릿한 선 추가 */
 
   &:hover {
-    background-color: #f0f0f0;
-  }
-
-  .status {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-right: 8px;
-
-    &.online {
-      background-color: green;
-    }
-
-    &.offline {
-      background-color: red;
-    }
+    background-color: #f1f1f1;
   }
 
   &.active {
     background-color: #e0e0e0;
+    font-weight: bold;
+  }
+}
+
+.status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 10px;
+
+  &.online {
+    background-color: green;
+  }
+
+  &.offline {
+    background-color: red;
   }
 }
