@@ -29,6 +29,8 @@ public class PostDTO {
 
     private final Boolean isDraft;
 
+    private final int likes;
+
     public PostDTO(Post post) {
         this.id = post.getId();
         this.subject = post.getSubject();
@@ -37,5 +39,6 @@ public class PostDTO {
         this.createdDate = post.getCreatedDate();
         this.modifiedDate = post.getModifiedDate();
         this.isDraft = post.getIsDraft();  // 임시 저장 여부 가져오기
+        this.likes = post.getLikes();
     }
 }

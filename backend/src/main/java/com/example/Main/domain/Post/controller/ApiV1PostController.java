@@ -1,7 +1,10 @@
 package com.example.Main.domain.Post.controller;
 
+import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.dto.request.PostCreateRequest;
+import com.example.Main.domain.Post.dto.request.PostLikeDTO;
 import com.example.Main.domain.Post.dto.request.PostModifyRequest;
 import com.example.Main.domain.Post.dto.response.PostCreateResponse;
 import com.example.Main.domain.Post.dto.response.PostModifyResponse;
@@ -10,7 +13,6 @@ import com.example.Main.domain.Post.dto.response.PostsResponse;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
 import com.example.Main.global.RsData.RsData;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ import java.util.List;
 @RequestMapping(value = "/api/v1/post")
 public class ApiV1PostController {
     private final PostService postService;
+    private final MemberService memberService;
 
     @GetMapping("") // 다건조회
     public RsData<PostsResponse> list() {
@@ -116,5 +119,25 @@ public class ApiV1PostController {
 
         this.postService.deleteDraft(id);
         return RsData.of("200", "%d 번 임시 저장 게시물 삭제 성공".formatted(id), null);
+    }
+
+    @PostMapping("/{id}/like") // 좋아요
+    public RsData<PostResponse> like(@PathVariable("id") Long id, @RequestBody PostLikeDTO postLikeDTO) {
+        Post post = this.postService.getPost(id);
+
+        if (post == null || post.getIsDraft()) {
+            return RsData.of("500", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
+        }
+
+        Member member = memberService.getMemberByEmail(postLikeDTO.getMemberEmail());
+
+        if (post.getLikedByMembers().contains(member)) {
+            this.postService.unlikePost(id, postLikeDTO.getMemberEmail());
+        } else {
+            this.postService.likePost(id, postLikeDTO.getMemberEmail());
+        }
+
+        PostDTO postDTO = new PostDTO(post);
+        return RsData.of("200", "%d 번 게시물에 좋아요 성공".formatted(id), new PostResponse(postDTO));
     }
 }

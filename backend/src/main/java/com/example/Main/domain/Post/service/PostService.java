@@ -1,6 +1,7 @@
 package com.example.Main.domain.Post.service;
 
 import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.Member.repository.MemberRepository;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
     private final MemberService memberService;
 
 
@@ -97,4 +99,23 @@ public class PostService {
             }
         }
     }
+    //  좋아요 추가
+    public void likePost(Long postId, String memberEmail) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+        Member member = memberRepository.findByEmail(memberEmail).orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+        // 좋아요 추가
+        post.addLike(member);
+        postRepository.save(post);
+    }
+
+    // 좋아요 취소
+    public void unlikePost(Long postId, String memberEmail) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+        Member member = memberRepository.findByEmail(memberEmail).orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+        post.removeLike(member);
+        postRepository.save(post);
+    }
+
 }
