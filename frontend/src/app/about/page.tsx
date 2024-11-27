@@ -1,7 +1,7 @@
 'use client'
+
 import styles from '@/styles/pages/about.module.scss';
 import Image from 'next/image';
-
 
 export default function About() {
   const features = [
@@ -32,21 +32,26 @@ export default function About() {
       <section className={styles.mockup_section}>
         <div className={styles.mockup_container}>
           <div className={styles.mockup_image}>
-            <Image src="/images/macmockup.png" alt="Site Preview"  width={500}  height={400} />
+            <Image 
+              src="/images/macmockup.png" 
+              alt="Site Preview" 
+              width={500} 
+              height={400} 
+            />
           </div>
           <div className={styles.text_animation_container}>
             <div className={styles.animated_text_slide}>
               <div className={styles.text_item}>
-              <h3>멘토매칭은 토티블럭</h3>
-            </div>
-            <div className={styles.text_item}>
-              <h3>개발소통은 토티블럭</h3>
-            </div>
-            <div className={styles.text_item}>
-              <h3>개발성장은 토티블럭</h3>
+                <h3>멘토매칭은 토티블럭</h3>
+              </div>
+              <div className={styles.text_item}>
+                <h3>개발소통은 토티블럭</h3>
+              </div>
+              <div className={styles.text_item}>
+                <h3>개발성장은 토티블럭</h3>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </section>
 
@@ -59,14 +64,25 @@ export default function About() {
         <div className={styles.mentor_mentee_structure}>
           <div className={styles.mentor_mentee}>
             <div className={styles.mentor_mentee}>
-              <Image src="/images/mentormentee.png" alt="멘토 멘티 구조"  width={700} height={500} />
+              <Image 
+                src="/images/mentormentee.png" 
+                alt="멘토 멘티 구조" 
+                width={700} 
+                height={500} 
+              />
             </div>
           </div>
         </div>
       </section>
-      
+
       <section className={styles.feature_section}>
-        <div className={styles.company_structure} style={{ backgroundImage: "url('/images/company.png')", backgroundSize: "cover" }}>
+        <div 
+          className={styles.company_structure} 
+          style={{ 
+            backgroundImage: "url('/images/company.png')", 
+            backgroundSize: "cover" 
+          }}
+        >
           <div className={styles.overlay_content}>
             <div className={styles.section_title}>
               <h1>개발자 성장의 모든 것</h1>
@@ -75,8 +91,8 @@ export default function About() {
 
             <div className={styles.feature_list}>
               {features.map((feature, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={styles.feature_item}
                 >
                   <div className={styles.number}>{feature.number}</div>
