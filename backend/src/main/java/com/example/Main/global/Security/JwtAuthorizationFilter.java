@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,56 +25,41 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     @SneakyThrows
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-        if (request.getRequestURI().contains("/api/v1/") || request.getRequestURI().equals("/api/v1/members/login") || request.getRequestURI().equals("/api/v1/members/logout")) {
+        // 회원가입, 로그인, 로그아웃 요청에 접근할 때는 토큰인증처리 불필요
+        if (request.getRequestURI().equals("/api/v1/members/join")
+                || request.getRequestURI().equals("/api/v1/members/login")
+                || request.getRequestURI().equals("/api/v1/members/logout"))
+        {
             filterChain.doFilter(request, response);
             return;
         }
 
         String accessToken = _getCookie("accessToken");
-
-        // accessToken null 체크
-        if (accessToken == null || accessToken.isBlank()) {
-            // 토큰이 없으면 그냥 다음 필터로 진행
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         // accessToken 검증 or refreshToken 발급
-        if (!memberService.validateToken(accessToken)) {
-            String refreshToken = _getCookie("refreshToken");
+        if (!accessToken.isBlank()) {
+            // 토큰 유효기간 검증
+            if (!memberService.validateToken(accessToken)) {
+                String refreshToken = _getCookie("refreshToken");
 
-            // refreshToken null 체크
-            if (refreshToken == null || refreshToken.isBlank()) {
-                // refreshToken도 없으면 다음 필터로 진행
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            RsData<String> rs = memberService.refreshAccessToken(refreshToken);
-            if (rs != null && rs.getData() != null) {
+                RsData<String> rs = memberService.refreshAccessToken(refreshToken);
                 _addHeaderCookie("accessToken", rs.getData());
-                accessToken = rs.getData(); // 새로운 accessToken으로 업데이트
-            } else {
-                // refreshToken으로 갱신 실패 시 로그아웃 처리 등 추가 로직 필요
-                filterChain.doFilter(request, response);
-                return;
             }
-        }
 
-        // securityUser 가져오기
-        SecurityMember securityMember = memberService.getUserFromAccessToken(accessToken);
-        if (securityMember != null) {
-            // 인가 처리
-            SecurityContextHolder.getContext().setAuthentication(securityMember.genAuthentication());
+            // 토큰으로부터 사용자 인증 정보 추출
+            Authentication authentication = memberService.getUserFromAccessToken(accessToken)
+                                                         .genAuthentication();
+            // 시큐리티에 인증 정보 등록
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         filterChain.doFilter(request, response);
     }
+
     private String _getCookie(String name) {
         Cookie[] cookies = req.getCookies();
 
         if (cookies == null) {
-            return null;
+            return "";
         }
 
         return Arrays.stream(cookies)
