@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000", // 환경 변수에서 URL 읽기
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8081", // 환경 변수에서 URL 읽기
   withCredentials: true, // 쿠키 전송 허용
 });
 

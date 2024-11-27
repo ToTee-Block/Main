@@ -15,19 +15,22 @@ export default function Join() {
   const [confirmPassword, setConfirmPassword] = useState<string>(""); // 비밀번호 확인 상태
   const [name, setName] = useState<string>(""); // 이름 상태
   const [birthdate, setBirthdate] = useState<{
-    year: number;
-    month: number;
-    day: number;
+    year: string;
+    month: string;
+    day: string;
   }>({
-    year: 0,
-    month: 0,
-    day: 0,
+    year: "",
+    month: "",
+    day: "",
   }); // 생년월일 상태
   const [gender, setGender] = useState<string | null>(null); // 성별 상태
   const [error, setError] = useState<string | null>(null); // 에러 메시지 상태
   const router = useRouter(); // Next.js useRouter 훅
 
   const register = async () => {
+    console.log("test month : " + birthdate.month);
+    console.log("test day : " + birthdate.day);
+
     // 비밀번호와 비밀번호 확인이 일치하는지 확인
     if (password !== confirmPassword) {
       setError("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
@@ -90,7 +93,7 @@ export default function Join() {
         {/* 생년월일 */}
         <Birthday
           value={birthdate}
-          onChange={(newValue) => setBirthdate(newValue)} // newValue는 { year, month, day } 형태의 객체
+          onChange={(newValue) => setBirthdate(newValue)} // newValue는 { year, month, day } 형태의 문자열 객체
         />
 
         {/* 성별 선택 */}

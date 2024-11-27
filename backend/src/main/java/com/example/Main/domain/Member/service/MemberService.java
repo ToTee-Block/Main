@@ -113,15 +113,29 @@ public class MemberService {
     }
 
     public SecurityMember getUserFromAccessToken(String accessToken) {
+        // JWT의 payload를 가져옴
         Map<String, Object> payloadBody = jwtProvider.getClaims(accessToken);
 
-        long id = (int) payloadBody.get("id");
+        // 필수 데이터 검증
+        if (!payloadBody.containsKey("id") || !payloadBody.containsKey("email")) {
+            throw new IllegalArgumentException("JWT 토큰에 필수 정보가 누락되었습니다.");
+        }
+
+        long id = Long.parseLong(payloadBody.get("id").toString());
         String email = (String) payloadBody.get("email");
-        String rules = (String) payloadBody.get("rules");  // "ROLE_USER,ROLE_ADMIN" 형태일 수 있음
+
+        // 권한 정보 처리
+        String rules = (String) payloadBody.getOrDefault("rules", "ROLE_USER"); // 기본값 "ROLE_USER"
+        if (rules == null || rules.isBlank()) {
+            rules = "ROLE_USER"; // 권한 정보가 없을 경우 기본값 설정
+        }
+
+        // 권한을 리스트로 변환
         List<GrantedAuthority> authorities = Arrays.stream(rules.split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
+        // SecurityMember 객체 생성 후 반환
         return new SecurityMember(id, email, "", authorities);
     }
 }
