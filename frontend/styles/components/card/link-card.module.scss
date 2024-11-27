@@ -1,0 +1,51 @@
+@import "../../globals/font-mixin.scss";
+
+.LinkCard {
+  flex: 1;
+  height: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background-color: var(--background);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+
+  &:hover {
+    transform: scale(1.03);
+    background-color: var(--success-color);
+  }
+}
+
+.content {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+
+  .title {
+    @include font-L-B;
+    color: var(--text-black);
+    text-shadow: var(--text-shadow-default);
+    margin-bottom: 8px;
+  }
+
+  .description {
+    @include font-XL-B;
+    color: var(--text-black);
+    text-shadow: var(--text-shadow-default);
+  }
+}
+
+.imageWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: end;
+  justify-content: end;
+  padding: 20px;
+
+  img {
+    width: 90%;
+    height: 100%;
+  }
+}
