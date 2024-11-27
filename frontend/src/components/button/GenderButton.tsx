@@ -32,20 +32,27 @@ const GenderSelector: React.FC<GenderSelectorProps> = ({
   selectedGender,
   onGenderChange,
 }) => {
-  const handleGenderSelect = (gender: string) => {
-    onGenderChange(gender === selectedGender ? "" : gender); // 이미 선택된 버튼 클릭 시 해제
+  // 화면 표시용 라벨과 Enum 값 매핑
+  const genderOptions = [
+    { label: "남자", value: "M" },
+    { label: "여자", value: "F" },
+    { label: "기타", value: "O" },
+  ];
+
+  const handleGenderSelect = (genderValue: string) => {
+    onGenderChange(genderValue === selectedGender ? "" : genderValue); // 이미 선택된 버튼 클릭 시 해제
   };
 
   return (
     <div className={styles.GenderBox}>
       <p className={styles.GenderP}>성별</p>
       <div className={styles.GenderSelector}>
-        {["남자", "여자", "기타"].map((gender) => (
+        {genderOptions.map(({ label, value }) => (
           <GenderButton
-            key={gender}
-            label={gender}
-            isSelected={selectedGender === gender}
-            onClick={() => handleGenderSelect(gender)}
+            key={value}
+            label={label}
+            isSelected={selectedGender === value}
+            onClick={() => handleGenderSelect(value)}
           />
         ))}
       </div>
