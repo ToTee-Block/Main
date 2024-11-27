@@ -1,6 +1,5 @@
-// components/GenderButton.tsx
-import React, { useState } from "react";
-import styles from "@/styles/components/button/gender-button.module.scss"; // SCSS 모듈 임포트
+import React from "react";
+import styles from "@/styles/components/button/gender-button.module.scss";
 
 interface GenderButtonProps {
   label: string; // 버튼 라벨
@@ -24,23 +23,36 @@ const GenderButton: React.FC<GenderButtonProps> = ({
   );
 };
 
-const GenderSelector: React.FC = () => {
-  const [selectedGender, setSelectedGender] = useState<string | null>(null);
+interface GenderSelectorProps {
+  selectedGender: string | null; // 선택된 성별 값
+  onGenderChange: (gender: string) => void; // 성별 변경 핸들러
+}
 
-  const handleGenderSelect = (gender: string) => {
-    setSelectedGender(gender === selectedGender ? null : gender); // 이미 선택된 버튼을 클릭하면 해제
+const GenderSelector: React.FC<GenderSelectorProps> = ({
+  selectedGender,
+  onGenderChange,
+}) => {
+  // 화면 표시용 라벨과 Enum 값 매핑
+  const genderOptions = [
+    { label: "남자", value: "M" },
+    { label: "여자", value: "F" },
+    { label: "기타", value: "O" },
+  ];
+
+  const handleGenderSelect = (genderValue: string) => {
+    onGenderChange(genderValue === selectedGender ? "" : genderValue); // 이미 선택된 버튼 클릭 시 해제
   };
 
   return (
     <div className={styles.GenderBox}>
       <p className={styles.GenderP}>성별</p>
       <div className={styles.GenderSelector}>
-        {["남자", "여자", "기타"].map((gender) => (
+        {genderOptions.map(({ label, value }) => (
           <GenderButton
-            key={gender}
-            label={gender}
-            isSelected={selectedGender === gender}
-            onClick={() => handleGenderSelect(gender)}
+            key={value}
+            label={label}
+            isSelected={selectedGender === value}
+            onClick={() => handleGenderSelect(value)}
           />
         ))}
       </div>
