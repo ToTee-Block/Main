@@ -2,6 +2,7 @@ package com.example.Main.domain.Post.entity;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.global.Jpa.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
@@ -20,4 +21,6 @@ public class Post extends BaseEntity {
     @ManyToOne
     private Member author;
 
+    @Column(name = "is_draft")
+    private Boolean isDraft;
 }

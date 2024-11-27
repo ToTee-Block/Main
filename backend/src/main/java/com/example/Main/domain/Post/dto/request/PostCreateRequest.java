@@ -10,9 +10,12 @@ import javax.validation.constraints.NotNull;
 public class PostCreateRequest {
     @NotNull
     private String subject;
+
     @NotNull
     private String content;
+
     @NotNull
     private String author;
-}
 
+    private Boolean isDraft = true;
+}

@@ -18,8 +18,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberService memberService;
 
+
     public List<PostDTO> getList() {
-        List<Post> postList = this.postRepository.findAll();
+        List<Post> postList = this.postRepository.findAllByIsDraftFalse();
 
         List<PostDTO> postDTOList = postList.stream()
                 .map(post -> new PostDTO(post))
@@ -33,27 +34,67 @@ public class PostService {
         return optionalPost.orElse(null);
     }
 
-    public Post write(String subject, String content, String userEmail) {
+    public Post write(String subject, String content, String userEmail, boolean isDraft) {
         Member member = memberService.getMemberByEmail(userEmail);
+
         Post post = Post.builder()
                 .subject(subject)
                 .content(content)
                 .author(member)
+                .isDraft(isDraft)
                 .build();
         this.postRepository.save(post);
         return post;
     }
 
-    public Post update(Post post, String content, String subject, String userEmail) {
+    public Post update(Post post, String content, String subject, String userEmail, boolean isDraft) {
         Member member = memberService.getMemberByEmail(userEmail);
         post.setSubject(subject);
         post.setContent(content);
         post.setAuthor(member);
+        post.setIsDraft(isDraft);
         this.postRepository.save(post);
         return post;
     }
 
     public void delete(Post post) {
         this.postRepository.delete(post);
+    }
+
+    // 임시 저장된 게시물 목록 조회
+    public List<PostDTO> getDrafts() {
+        List<Post> draftPosts = postRepository.findByIsDraftTrue();
+        return draftPosts.stream()
+                .map(PostDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    // 임시 저장된 게시글 가져오기
+    public Post continueDraft(Long postId, String content, String subject, String userEmail, boolean isDraft) {
+        Post post = this.getPost(postId);
+
+        if (post == null || !post.getIsDraft()) {
+            throw new IllegalArgumentException("임시 저장된 게시글이 존재하지 않거나, 삭제된 게시글입니다.");
+        }
+
+        Member member = memberService.getMemberByEmail(userEmail);
+        post.setContent(content);
+        post.setSubject(subject);
+        post.setAuthor(member);
+        post.setIsDraft(isDraft);
+        this.postRepository.save(post);
+        return post;
+    }
+
+
+    // 임시 저장된 게시물 삭제
+    public void deleteDraft(Long id) {
+        Optional<Post> optionalPost = this.postRepository.findById(id);
+        if (optionalPost.isPresent()) {
+            Post post = optionalPost.get();
+            if (post.getIsDraft()) {
+                this.postRepository.delete(post);
+            }
+        }
     }
 }

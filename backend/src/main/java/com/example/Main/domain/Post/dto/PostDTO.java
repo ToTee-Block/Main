@@ -20,19 +20,22 @@ public class PostDTO {
 
     private final String content;
 
-    private final Member author;
+    private final String authorEmail;
 
     private final LocalDateTime createdDate;
 
     @LastModifiedDate
     private final LocalDateTime modifiedDate;
 
+    private final Boolean isDraft;
+
     public PostDTO(Post post) {
         this.id = post.getId();
         this.subject = post.getSubject();
         this.content = post.getContent();
-        this.author = post.getAuthor();
+        this.authorEmail = post.getAuthor().getEmail();
         this.createdDate = post.getCreatedDate();
         this.modifiedDate = post.getModifiedDate();
+        this.isDraft = post.getIsDraft();  // 임시 저장 여부 가져오기
     }
 }

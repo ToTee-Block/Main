@@ -8,4 +8,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PostModifyResponse {
     private final Post post;
+    private final Boolean isDraft;
+
+    public PostModifyResponse(Post post) {
+        this.post = post;
+        this.isDraft = post.getIsDraft();
+    }
 }
