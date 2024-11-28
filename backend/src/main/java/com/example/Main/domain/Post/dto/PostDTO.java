@@ -1,6 +1,5 @@
 package com.example.Main.domain.Post.dto;
 
-import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.entity.Post;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +17,7 @@ public class PostDTO {
 
     private final String subject;
 
-    private final String content;
+    private String content;  // Markdown을 HTML로 변환한 결과를 저장하기 위해 final을 제거
 
     private final String authorEmail;
 
@@ -31,6 +30,7 @@ public class PostDTO {
 
     private final int likes;
 
+    // 포스트 등록, 수정, 임시저장 시, 마크다운 문법 그대로의 내용을 content에 설정
     public PostDTO(Post post) {
         this.id = post.getId();
         this.subject = post.getSubject();
@@ -38,7 +38,24 @@ public class PostDTO {
         this.authorEmail = post.getAuthor().getEmail();
         this.createdDate = post.getCreatedDate();
         this.modifiedDate = post.getModifiedDate();
-        this.isDraft = post.getIsDraft();  // 임시 저장 여부 가져오기
+        this.isDraft = post.getIsDraft();
         this.likes = post.getLikes();
+    }
+
+    // 포스트 등록, 수정, 임시저장 수정 시, 마크다운을 HTML로 변환한 후 그 값을 설정하여 응답
+    public PostDTO(Post post, String content) {
+        this.id = post.getId();
+        this.subject = post.getSubject();
+        this.content = content;
+        this.authorEmail = post.getAuthor().getEmail();
+        this.createdDate = post.getCreatedDate();
+        this.modifiedDate = post.getModifiedDate();
+        this.isDraft = post.getIsDraft();
+        this.likes = post.getLikes();
+    }
+
+    // content 값을 동적으로 수정하는 setter
+    public void setContent(String content) {
+        this.content = content;
     }
 }

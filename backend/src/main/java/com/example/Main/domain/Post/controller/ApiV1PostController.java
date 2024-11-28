@@ -12,6 +12,7 @@ import com.example.Main.domain.Post.dto.response.PostResponse;
 import com.example.Main.domain.Post.dto.response.PostsResponse;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
+import com.example.Main.global.Util.Markdown.MarkdownService;
 import com.example.Main.global.RsData.RsData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import java.util.List;
 public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
+    private final MarkdownService markdownService;
 
     @GetMapping("/search")
     public RsData<PostsResponse> search(@RequestParam("keyword") String keyword) {
@@ -58,11 +60,15 @@ public class ApiV1PostController {
 
     @PostMapping("") // 생성
     public RsData<PostCreateResponse> create(@Valid @RequestBody PostCreateRequest postCreateRequest) {
+        String htmlContent = markdownService.convertMarkdownToHtml(postCreateRequest.getContent());
+
         Post post = this.postService.write(
-                postCreateRequest.getSubject()
-                , postCreateRequest.getContent()
-                , postCreateRequest.getAuthor()
-                , postCreateRequest.getIsDraft());
+                postCreateRequest.getSubject(),
+                htmlContent,
+                postCreateRequest.getAuthor(),
+                postCreateRequest.getIsDraft()
+        );
+
         return RsData.of("200", "게시글 등록 성공", new PostCreateResponse(post));
     }
 
@@ -73,7 +79,10 @@ public class ApiV1PostController {
         if (post == null || post.getIsDraft())  // 임시 저장된 게시글은 수정할 수 없음
             return RsData.of("500", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
 
-        post = this.postService.update(post, postModifyRequest.getContent(), postModifyRequest.getSubject(), postModifyRequest.getAuthor(), postModifyRequest.getIsDraft());
+        String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
+
+        post = this.postService.update(post, htmlContent, postModifyRequest.getSubject(), postModifyRequest.getAuthor(), postModifyRequest.getIsDraft());
+
         return RsData.of("200", "게시글 수정 성공", new PostModifyResponse(post));
     }
 
@@ -110,9 +119,11 @@ public class ApiV1PostController {
             return RsData.of("404", "%d 번 임시 저장 게시물이 존재하지 않거나, 삭제되었습니다.".formatted(id), null);
         }
 
+        String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
+
         post = this.postService.continueDraft(
                 id,
-                postModifyRequest.getContent(),
+                htmlContent,
                 postModifyRequest.getSubject(),
                 postModifyRequest.getAuthor(),
                 postModifyRequest.getIsDraft()
