@@ -2,6 +2,8 @@
 
 import styles from '@/styles/pages/mentor-detail.module.scss';
 import Image from 'next/image';
+import MentorApplyButton from '@/components/button/MentorApplyButton';
+import EditButton from '@/components/button/EditButton';
 
 export default function MentorDetail() {
   const skills = ["Text", "Text", "Text"];
@@ -43,7 +45,7 @@ export default function MentorDetail() {
           </div>
         </div>
         <div className={styles.status}>
-          <span className={styles.statusText}>Mentor 신청</span>
+        <MentorApplyButton>Mentor 신청</MentorApplyButton>
         </div>
       </div>
 
@@ -85,9 +87,9 @@ export default function MentorDetail() {
         </div>
       </div>
 
-      <div className={styles.footer}>
+      <div className={styles.editButtonWrapper}>
         <div className={styles.submitButton}>
-          <span className={styles.buttonText}>수정</span>
+        <EditButton>수정</EditButton>
         </div>
       </div>
     </div>
