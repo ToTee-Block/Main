@@ -25,23 +25,28 @@ export default function MentorDetail() {
 
       <div className={styles.cardContainer}>
         <div className={styles.card}>
-          <div className={styles.starIcon}>
-            <img
-              src="/icon/star1.svg"
-              alt="star icon"
-            />
-            <span className={styles.starNumber}>01</span>
+          <div className={styles.starWrapper}>
+            <div className={styles.starContainer}>
+              <img
+                src="/icon/star1.svg"
+                alt="star icon"
+              />
+              <div className={styles.starNumber}>01</div>
+            </div>
           </div>
+          <div className={styles.contentWrapper}/>
           <div className={styles.image} />
+          <div className={styles.dividerLine} />
           <div className={styles.info}>
             <span className={styles.name}>박승수</span>
             <span className={styles.role}>Full-Stack 멘토</span>
           </div>
-          <div className={styles.status}>
-            <span className={styles.statusText}>Mentor 신청</span>
-          </div>
+        </div>
+        <div className={styles.status}>
+          <span className={styles.statusText}>Mentor 신청</span>
         </div>
       </div>
+
       <div className={styles.content}>
         <h1 className={styles.title}>HELLO EVERYONE</h1>
 
