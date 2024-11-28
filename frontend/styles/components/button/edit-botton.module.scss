@@ -1,10 +1,9 @@
-// styles/components/button/edit-button.module.scss
 @import "../../globals/font-mixin.scss";
 
 .editButton {
   width: 60px;
   height: 40px;
-  background-color: var(--foreground);
+  background-color: var(--dark-blue-color);
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -12,13 +11,12 @@
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: var(--text-white);  // 버튼 자체에 텍스트 색상 지정
+  color: var(--text-white);  
 
-  // span 태그 제거하고 직접 스타일 적용
   @include font-XS-M;
   
   &:hover {
-    background-color: var(--gray-700);  // 어두운 회색으로 변경
+    background-color: var(--gray-700); 
     color: var(--text-white);
   }
 
