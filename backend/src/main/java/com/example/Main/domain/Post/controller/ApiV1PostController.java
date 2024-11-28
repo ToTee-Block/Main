@@ -155,13 +155,15 @@ public class ApiV1PostController {
 
         Member member = memberService.getMemberByEmail(postLikeDTO.getMemberEmail());
 
-        if (post.getLikedByMembers().contains(member)) {
+        boolean isLiked = post.getLikedByMembers().contains(member);
+        if (isLiked) {
+            // 좋아요 취소
             this.postService.unlikePost(id, postLikeDTO.getMemberEmail());
+            return RsData.of("200", "%d 번 게시물의 좋아요가 취소되었습니다.".formatted(id), new PostResponse(new PostDTO(post)));
         } else {
+            // 좋아요
             this.postService.likePost(id, postLikeDTO.getMemberEmail());
+            return RsData.of("200", "%d 번 게시물에 좋아요 성공".formatted(id), new PostResponse(new PostDTO(post)));
         }
-
-        PostDTO postDTO = new PostDTO(post);
-        return RsData.of("200", "%d 번 게시물에 좋아요 성공".formatted(id), new PostResponse(postDTO));
     }
 }
