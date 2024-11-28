@@ -26,6 +26,19 @@ public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
 
+    @GetMapping("/search")
+    public RsData<PostsResponse> search(@RequestParam("keyword") String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return RsData.of("400", "검색어를 입력해 주세요.", null);
+        }
+        List<PostDTO> postDTOS = postService.searchPosts(keyword);
+        if (postDTOS.isEmpty()) {
+            return RsData.of("404", "검색 결과가 없습니다.", null);
+        }
+        return RsData.of("200", "검색 성공", new PostsResponse(postDTOS));
+    }
+
+
     @GetMapping("") // 다건조회
     public RsData<PostsResponse> list() {
         List<PostDTO> postDTOS = this.postService.getList();

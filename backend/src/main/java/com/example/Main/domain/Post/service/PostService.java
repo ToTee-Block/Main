@@ -118,4 +118,18 @@ public class PostService {
         postRepository.save(post);
     }
 
+    // 검색기능
+    public List<PostDTO> searchPosts(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return postRepository.findAll().stream()
+                    .map(PostDTO::new)
+                    .collect(Collectors.toList());
+        }
+        List<Post> postList = postRepository.searchByKeyword(keyword);
+
+        return postList.stream()
+                .map(PostDTO::new)
+                .collect(Collectors.toList());
+    }
+
 }
