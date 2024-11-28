@@ -29,27 +29,7 @@ public class ApiV1MentorController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/registration")
-    public RsData<?> mentorRegistration(@Valid @RequestBody MentorRegistrationRequest mentorRegistrationRequest,
-                                        HttpServletRequest req) {
-        Cookie[] cookies = req.getCookies();
-        String accessToken = "";
-        if (cookies == null) {
-            return RsData.of("400", "유효성 검증 실패");
-        }
-
-        for (Cookie cookie : cookies) {
-            if ("accessToken".equals(cookie.getName())) {
-                accessToken = cookie.getValue();
-            }
-        }
-
-        Map<String, Object> claims =  jwtProvider.getClaims(accessToken);
-        String email = (String) claims.get("email");
-        Member member = this.memberService.getMemberByEmail(email);
-        if (member == null) {
-            return RsData.of("400", "유효성 검증 실패");
-        }
-
+    public RsData<?> mentorRegistration(@Valid @RequestBody MentorRegistrationRequest mentorRegistrationRequest) {
         MentorDTO mentorDTO = this.mentorService.mentorRegistration(
                 member, mentorRegistrationRequest.getOneLineBio(),
                 mentorRegistrationRequest.getBio(), mentorRegistrationRequest.getPortfolio()
