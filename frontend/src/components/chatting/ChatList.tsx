@@ -24,12 +24,8 @@ const ChatList: React.FC<ChatListProps> = ({
           }`}
           onClick={() => onRoomSelect(room)}
         >
-          <div
-            className={`${styles.status} ${
-              room === "박승수" ? styles.online : styles.offline
-            }`}
-          ></div>
           <span>{room}</span>
+          {room === "박승수" && <div className={styles.status}></div>}
         </div>
       ))}
     </div>

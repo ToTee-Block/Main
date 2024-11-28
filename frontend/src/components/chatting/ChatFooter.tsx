@@ -12,7 +12,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend }) => {
     const input = document.getElementById("chatInput") as HTMLInputElement;
     const message = input.value.trim();
     if (message) {
-      onSend(message);
+      onSend(message); // 상위 컴포넌트로 메시지 전달
       input.value = "";
     }
   };

@@ -24,15 +24,21 @@ const ChatContainer = () => {
   });
 
   const handleSendMessage = (message: string) => {
-    if (!activeRoom) return; // Type Guard: activeRoom이 null일 때 return
+    if (!activeRoom) return;
 
-    setChatHistory((prev) => ({
-      ...prev,
-      [activeRoom]: [
+    setChatHistory((prev): ChatHistory => {
+      // 현재 채팅방에 메시지 추가
+      const updatedHistory: ChatMessage[] = [
         ...(prev[activeRoom] || []),
         { text: message, type: "sent" },
-      ],
-    }));
+        { text: "메시지를 받았습니다.", type: "received" },
+      ];
+
+      return {
+        ...prev,
+        [activeRoom]: updatedHistory,
+      };
+    });
   };
 
   return (

@@ -1,3 +1,9 @@
+.chatContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .chatMessages {
   flex: 1;
   padding: 10px;
@@ -18,6 +24,8 @@
   }
 
   &.received {
+    text-align: left;
+
     .message {
       background-color: #f0f0f0;
       color: #000;
@@ -30,5 +38,35 @@
     padding: 8px 12px;
     border-radius: 15px;
     font-size: 14px;
+  }
+}
+
+.chatInputContainer {
+  display: flex;
+  padding: 10px;
+  background-color: #fff;
+  border-top: 1px solid #ddd;
+}
+
+.chatInput {
+  flex: 1;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.sendButton {
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0056b3;
   }
 }

@@ -2,10 +2,21 @@
   background-color: #f1f1f1;
   padding: 16px;
   border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   h3 {
     margin: 0;
     font-size: 16px;
     font-weight: 500;
+    text-align: center;
+    flex-grow: 1;
+  }
+
+  img {
+    width: 16px;
+    height: 16px;
+    text-align: right;
   }
 }
