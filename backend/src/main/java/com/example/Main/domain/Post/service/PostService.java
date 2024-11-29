@@ -7,6 +7,7 @@ import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,9 +21,9 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final MemberService memberService;
 
-
+    // 게시글 전체 조회
     public List<PostDTO> getList() {
-        List<Post> postList = this.postRepository.findAllByIsDraftFalse();
+        List<Post> postList = this.postRepository.findAllByIsDraftFalse(Sort.by(Sort.Order.desc("createdDate")));
 
         List<PostDTO> postDTOList = postList.stream()
                 .map(post -> new PostDTO(post))
@@ -30,12 +31,23 @@ public class PostService {
         return postDTOList;
     }
 
+    // 게시글 단건 조회
     public Post getPost(Long id) {
         Optional<Post> optionalPost = this.postRepository.findById(id);
 
         return optionalPost.orElse(null);
     }
 
+    // 본인이 작성한 게시글 조회
+    public List<PostDTO> getPostsByAuthor(String authorEmail) {
+        List<Post> postsByAuthor = postRepository.findByAuthor_EmailAndIsDraftFalse(authorEmail, Sort.by(Sort.Order.desc("createdDate")));
+
+        return postsByAuthor.stream()
+                .map(PostDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    // 작성
     public Post write(String subject, String content, String userEmail, boolean isDraft) {
         Member member = memberService.getMemberByEmail(userEmail);
 
@@ -49,6 +61,7 @@ public class PostService {
         return post;
     }
 
+    // 수정
     public Post update(Post post, String content, String subject, String userEmail, boolean isDraft) {
         Member member = memberService.getMemberByEmail(userEmail);
         post.setSubject(subject);
@@ -59,13 +72,14 @@ public class PostService {
         return post;
     }
 
+    // 삭제
     public void delete(Post post) {
         this.postRepository.delete(post);
     }
 
     // 임시 저장된 게시물 목록 조회
     public List<PostDTO> getDrafts() {
-        List<Post> draftPosts = postRepository.findByIsDraftTrue();
+        List<Post> draftPosts = postRepository.findByIsDraftTrue(Sort.by(Sort.Order.desc("createdDate")));
         return draftPosts.stream()
                 .map(PostDTO::new)
                 .collect(Collectors.toList());
@@ -90,7 +104,7 @@ public class PostService {
 
     // 본인이 임시저장한 게시글 조회
     public List<PostDTO> getDraftsByAuthor(String authorEmail) {
-        List<Post> draftPosts = postRepository.findByAuthor_EmailAndIsDraftTrue(authorEmail);
+        List<Post> draftPosts = postRepository.findByAuthor_EmailAndIsDraftTrue(authorEmail, Sort.by(Sort.Order.desc("createdDate")));
 
         return draftPosts.stream()
                 .map(PostDTO::new)
@@ -131,15 +145,14 @@ public class PostService {
     // 검색기능
     public List<PostDTO> searchPosts(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
-            return postRepository.findAll().stream()
+            List<Post> postList = postRepository.findAllByIsDraftFalse(Sort.by(Sort.Order.desc("createdDate")));
+            return postList.stream()
                     .map(PostDTO::new)
                     .collect(Collectors.toList());
         }
-        List<Post> postList = postRepository.searchByKeyword(keyword);
-
+        List<Post> postList = postRepository.searchByKeyword(keyword, Sort.by(Sort.Order.desc("createdDate")));
         return postList.stream()
                 .map(PostDTO::new)
                 .collect(Collectors.toList());
     }
-
 }

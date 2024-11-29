@@ -12,9 +12,9 @@ import com.example.Main.domain.Post.dto.response.PostResponse;
 import com.example.Main.domain.Post.dto.response.PostsResponse;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
-import com.example.Main.global.Util.Markdown.MarkdownService;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
+import com.example.Main.global.Util.Markdown.MarkdownService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +31,7 @@ public class ApiV1PostController {
     private final MemberService memberService;
     private final MarkdownService markdownService;
 
+    //검색
     @GetMapping("/search")
     public RsData<PostsResponse> search(@RequestParam("keyword") String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
@@ -43,13 +44,15 @@ public class ApiV1PostController {
         return RsData.of("200", "검색 성공", new PostsResponse(postDTOS));
     }
 
-    @GetMapping("") // 다건조회
+    // 다건조회
+    @GetMapping("")
     public RsData<PostsResponse> list() {
         List<PostDTO> postDTOS = this.postService.getList();
         return RsData.of("200", "게시글 다건 조회 성공", new PostsResponse(postDTOS));
     }
 
-    @GetMapping("/{id}") // 단건조회
+    // 단건조회
+    @GetMapping("/{id}")
     public RsData<PostResponse> getPost(@PathVariable("id") Long id) {
         Post post = this.postService.getPost(id);
 
@@ -60,8 +63,24 @@ public class ApiV1PostController {
         return RsData.of("200", "게시글 단건 조회 성공", new PostResponse(postDTO));
     }
 
+    // 본인이 작성한 게시글 조회
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("") // 게시글 생성
+    @GetMapping("/myposts")
+    public RsData<PostsResponse> getMyPosts(@AuthenticationPrincipal SecurityMember loggedInUser) {
+        String loggedInUserEmail = loggedInUser.getEmail();
+
+        List<PostDTO> myPosts = postService.getPostsByAuthor(loggedInUserEmail);
+
+        if (myPosts.isEmpty()) {
+            return RsData.of("404", "본인이 작성한 게시물이 없습니다.", null);
+        }
+
+        return RsData.of("200", "본인이 작성한 게시글 조회 성공", new PostsResponse(myPosts));
+    }
+
+    // 게시글 생성
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("")
     public RsData<PostCreateResponse> create(@Valid @RequestBody PostCreateRequest postCreateRequest,
                                              @AuthenticationPrincipal SecurityMember loggedInUser) {
         if (loggedInUser == null) {
@@ -147,7 +166,7 @@ public class ApiV1PostController {
     }
 
 
-    // 임시 저장된 게시글 이어서 작성
+    // 임시 저장된 게시글 이어서 수정 작성
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/draft/{id}")
     public RsData<PostModifyResponse> continueDraft(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
@@ -199,23 +218,18 @@ public class ApiV1PostController {
                                      @RequestBody PostLikeDTO postLikeDTO,
                                      @AuthenticationPrincipal SecurityMember loggedInUser) {
 
-        // 로그인하지 않은 경우
         if (loggedInUser == null) {
             return RsData.of("401", "로그인 후 사용 가능합니다.", null);
         }
 
-        // 게시글 조회
         Post post = this.postService.getPost(id);
 
-        // 게시글이 없거나 임시 저장 상태일 경우 처리
         if (post == null || post.getIsDraft()) {
             return RsData.of("500", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
         }
 
-        // 로그인한 사용자의 이메일을 사용하여 좋아요 상태 확인
-        String loggedInUserEmail = loggedInUser.getEmail();  // 로그인한 사용자의 이메일
+        String loggedInUserEmail = loggedInUser.getEmail();
 
-        // 좋아요 상태 확인
         Member member = memberService.getMemberByEmail(loggedInUserEmail);
         boolean isLiked = post.getLikedByMembers().contains(member);
 
