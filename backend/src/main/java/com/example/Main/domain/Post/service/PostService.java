@@ -71,7 +71,7 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    // 임시 저장된 게시글 가져오기
+    // 임시 저장된 게시글 전체 조회
     public Post continueDraft(Long postId, String content, String subject, String userEmail, boolean isDraft) {
         Post post = this.getPost(postId);
 
@@ -87,6 +87,16 @@ public class PostService {
         this.postRepository.save(post);
         return post;
     }
+
+    // 본인이 임시저장한 게시글 조회
+    public List<PostDTO> getDraftsByAuthor(String authorEmail) {
+        List<Post> draftPosts = postRepository.findByAuthor_EmailAndIsDraftTrue(authorEmail);
+
+        return draftPosts.stream()
+                .map(PostDTO::new)
+                .collect(Collectors.toList());
+    }
+
 
 
     // 임시 저장된 게시물 삭제

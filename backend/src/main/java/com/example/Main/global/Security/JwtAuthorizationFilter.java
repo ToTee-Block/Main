@@ -24,27 +24,31 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     @SneakyThrows
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-        if (request.getRequestURI().contains("/api/v1/") || request.getRequestURI().equals("/api/v1/members/login") || request.getRequestURI().equals("/api/v1/members/logout")) {
-            filterChain.doFilter(request, response);
+        String accessToken = _getCookie("accessToken");
+        if (accessToken.isBlank()) {
+            filterChain.doFilter(request, response);  // 토큰이 없는 경우 그대로 요청을 진행
             return;
         }
 
-        String accessToken = _getCookie("accessToken");
-        // accessToken 검증 or refreshToken 발급
-        if (!accessToken.isBlank()) {
-            // 토큰 유효기간 검증
-            if (!memberService.validateToken(accessToken)) {
-                String refreshToken = _getCookie("refreshToken");
-
-                RsData<String> rs = memberService.refreshAccessToken(refreshToken);
-                _addHeaderCookie("accessToken", rs.getData());
+        // 토큰 검증
+        if (!memberService.validateToken(accessToken)) {
+            String refreshToken = _getCookie("refreshToken");
+            if (refreshToken.isBlank() || !memberService.validateToken(refreshToken)) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+                return;
             }
 
-            // securityUser 가져오기
-            SecurityMember securityMember = memberService.getUserFromAccessToken(accessToken);
-            // 인가 처리
-            SecurityContextHolder.getContext().setAuthentication(securityMember.genAuthentication());
+            // RefreshToken으로 새 AccessToken 발급
+            RsData<String> rs = memberService.refreshAccessToken(refreshToken);
+            _addHeaderCookie("accessToken", rs.getData());
+            accessToken = rs.getData();
         }
+
+        // AccessToken으로 사용자 정보 가져오기
+        SecurityMember securityMember = memberService.getUserFromAccessToken(accessToken);
+
+        // 인가 처리
+        SecurityContextHolder.getContext().setAuthentication(securityMember.genAuthentication());
 
         filterChain.doFilter(request, response);
     }
