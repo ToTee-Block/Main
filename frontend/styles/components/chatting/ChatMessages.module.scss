@@ -1,0 +1,85 @@
+.chatMessages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+.dateHeader {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 12px;
+  font-weight: bold;
+  color: #555;
+}
+
+.chatMessage {
+  margin-bottom: 20px;
+
+  &.sent {
+    text-align: right;
+
+    .message {
+      background-color: #007bff;
+      color: #fff;
+
+      .time {
+        color: #ddd;
+      }
+    }
+  }
+
+  &.received {
+    text-align: left;
+
+    .senderInfo {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+
+      .profileImage {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .senderName {
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+      }
+    }
+
+    .message {
+      background-color: #f0f0f0;
+      color: #000;
+
+      .time {
+        color: #555;
+      }
+    }
+  }
+
+  .message {
+    display: inline-block;
+    max-width: 70%;
+    min-width: 20%;
+    padding: 8px 12px;
+    padding-bottom: 18px; /* 시간 표시 공간 확보 */
+    border-radius: 10px;
+    font-size: 14px;
+    position: relative;
+    text-align: left;
+
+    word-wrap: break-word; /* 긴 단어가 줄을 넘어가도록 */
+    word-break: break-word; /* 단어가 너무 길 때 강제로 줄바꿈 */
+
+    .time {
+      font-size: 10px;
+      position: absolute;
+      bottom: 4px;
+      right: 8px;
+    }
+  }
+}
