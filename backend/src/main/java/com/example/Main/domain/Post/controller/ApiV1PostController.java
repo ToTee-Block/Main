@@ -21,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -66,8 +67,8 @@ public class ApiV1PostController {
     // 본인이 작성한 게시글 조회
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/myposts")
-    public RsData<PostsResponse> getMyPosts(@AuthenticationPrincipal SecurityMember loggedInUser) {
-        String loggedInUserEmail = loggedInUser.getEmail();
+    public RsData<PostsResponse> getMyPosts(Principal principal) {
+        String loggedInUserEmail = principal.getName();
 
         List<PostDTO> myPosts = postService.getPostsByAuthor(loggedInUserEmail);
 
@@ -82,7 +83,8 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("")
     public RsData<PostCreateResponse> create(@Valid @RequestBody PostCreateRequest postCreateRequest,
-                                             @AuthenticationPrincipal SecurityMember loggedInUser) {
+                                             Principal principal) {
+        String loggedInUser = principal.getName();
         if (loggedInUser == null) {
             return RsData.of("401", "로그인이 필요합니다.", null);
         }
@@ -92,7 +94,7 @@ public class ApiV1PostController {
         Post post = postService.write(
                 postCreateRequest.getSubject(),
                 htmlContent,
-                loggedInUser.getEmail(),  // 로그인한 사용자의 이메일을 작성자로 설정
+                loggedInUser,  // 로그인한 사용자의 이메일을 작성자로 설정
                 postCreateRequest.getIsDraft()
         );
 
@@ -103,20 +105,21 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}")
     public RsData<PostModifyResponse> modify(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
-                                             @AuthenticationPrincipal SecurityMember loggedInUser) {
+                                             Principal principal) {
         Post post = this.postService.getPost(id);
 
         if (post == null || post.getIsDraft()) {
             return RsData.of("500", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
         }
 
-        if (!post.getAuthor().getEmail().equals(loggedInUser.getEmail())) {
+        String loggedInUser = principal.getName();
+        if (!post.getAuthor().getEmail().equals(loggedInUser)) {
             return RsData.of("403", "본인만 게시글을 수정할 수 있습니다.", null);
         }
 
         String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
 
-        post = this.postService.update(post, htmlContent, postModifyRequest.getSubject(), loggedInUser.getEmail(), postModifyRequest.getIsDraft());
+        post = this.postService.update(post, htmlContent, postModifyRequest.getSubject(), loggedInUser, postModifyRequest.getIsDraft());
 
         return RsData.of("200", "게시글 수정 성공", new PostModifyResponse(post));
     }
@@ -124,14 +127,15 @@ public class ApiV1PostController {
     // 게시글 삭제
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
-    public RsData<PostResponse> delete(@PathVariable("id") Long id, @AuthenticationPrincipal SecurityMember loggedInUser) {
+    public RsData<PostResponse> delete(@PathVariable("id") Long id, Principal principal) {
         Post post = this.postService.getPost(id);
 
         if (post == null || post.getIsDraft()) {
             return RsData.of("500", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
         }
 
-        if (!post.getAuthor().getEmail().equals(loggedInUser.getEmail())) {
+        String loggedInUser = principal.getName();
+        if (!post.getAuthor().getEmail().equals(loggedInUser)) {
             return RsData.of("403", "본인만 게시글을 삭제할 수 있습니다.", null);
         }
 
@@ -155,8 +159,9 @@ public class ApiV1PostController {
     // 임시 저장된 게시물 목록 조회
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/drafts")
-    public RsData<PostsResponse> getDrafts(@AuthenticationPrincipal SecurityMember loggedInUser) {
-        List<PostDTO> draftPosts = this.postService.getDraftsByAuthor(loggedInUser.getEmail());
+    public RsData<PostsResponse> getDrafts(Principal principal) {
+        String loggedInUser = principal.getName();
+        List<PostDTO> draftPosts = this.postService.getDraftsByAuthor(loggedInUser);
 
         if (draftPosts.isEmpty()) {
             return RsData.of("404", "임시 저장된 게시물이 없습니다.", null);
@@ -170,14 +175,15 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/draft/{id}")
     public RsData<PostModifyResponse> continueDraft(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
-                                                    @AuthenticationPrincipal SecurityMember loggedInUser) {
+                                                    Principal principal) {
         Post post = this.postService.getPost(id);
 
         if (post == null || !post.getIsDraft()) {
             return RsData.of("404", "%d 번 임시 저장 게시물이 존재하지 않거나, 삭제되었습니다.".formatted(id), null);
         }
 
-        if (!post.getAuthor().getEmail().equals(loggedInUser.getEmail())) {
+        String loggedInUser = principal.getName();
+        if (!post.getAuthor().getEmail().equals(loggedInUser)) {
             return RsData.of("403", "본인만 임시 저장 게시글을 이어서 작성할 수 있습니다.", null);
         }
 
@@ -187,7 +193,7 @@ public class ApiV1PostController {
                 id,
                 htmlContent,
                 postModifyRequest.getSubject(),
-                loggedInUser.getEmail(),
+                loggedInUser,
                 postModifyRequest.getIsDraft()
         );
 
@@ -197,14 +203,15 @@ public class ApiV1PostController {
     // 임시 저장된 게시물 삭제
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/draft/{id}")
-    public RsData<PostResponse> deleteDraft(@PathVariable("id") Long id, @AuthenticationPrincipal SecurityMember loggedInUser) {
+    public RsData<PostResponse> deleteDraft(@PathVariable("id") Long id, Principal principal) {
         Post post = this.postService.getPost(id);
 
         if (post == null || !post.getIsDraft()) {
             return RsData.of("404", "%d 번 임시 저장 게시물이 존재하지 않습니다.".formatted(id), null);
         }
 
-        if (!post.getAuthor().getEmail().equals(loggedInUser.getEmail())) {
+        String loggedInUser = principal.getName();
+        if (!post.getAuthor().getEmail().equals(loggedInUser)) {
             return RsData.of("403", "본인만 임시 저장 게시물을 삭제할 수 있습니다.", null);
         }
 
@@ -216,8 +223,9 @@ public class ApiV1PostController {
     @PostMapping("/{id}/like")
     public RsData<PostResponse> like(@PathVariable("id") Long id,
                                      @RequestBody PostLikeDTO postLikeDTO,
-                                     @AuthenticationPrincipal SecurityMember loggedInUser) {
+                                     Principal principal) {
 
+        String loggedInUser = principal.getName();
         if (loggedInUser == null) {
             return RsData.of("401", "로그인 후 사용 가능합니다.", null);
         }
@@ -228,7 +236,7 @@ public class ApiV1PostController {
             return RsData.of("500", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
         }
 
-        String loggedInUserEmail = loggedInUser.getEmail();
+        String loggedInUserEmail = loggedInUser;
 
         Member member = memberService.getMemberByEmail(loggedInUserEmail);
         boolean isLiked = post.getLikedByMembers().contains(member);
