@@ -2,6 +2,7 @@
 
 .mentorDetail {
   width: 1000px;
+  margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,24 +13,24 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 28px;
+    gap: 40px;
 
     .title {
-      @include font-XXL-B;
+      @include font-XXXL-B;
       color: var(--text-blue);
       text-align: center;
     }
 
     .divider {
-      width: 280px;
-      height: 3px;
+      width: 500px;
+      height: 6px;
       background-color: var(--text-blue);
     }
   }
 
   .cardContainer {
-    width: 300px;
-    height: 420px;
+    width: 500px;
+    height: 699px;
     background-color: var(--text-white);
     border-radius: 30px;
     display: flex;
@@ -38,8 +39,8 @@
     box-shadow: 3px 3px 7px -2px rgba(0, 0, 0, 0.6);
 
     .card {
-      width: 100%;
-      height: 380px;
+      width: 500px;
+      height: 618px;
       background-color: var(--secondary-color);
       border-radius: 30px 30px 0 0;
       display: flex;
@@ -51,12 +52,12 @@
         width: 100%;
         display: flex;
         justify-content: center;
-        transform: translateY(30px);
+        transform: translateY(46px);
         flex: 0.28;
 
         .starContainer {
-          width: 35px;
-          height: 35px;
+          width: 100px;
+          height: 100px;
           display: flex;
           align-items: center;
           justify-content: center;        
@@ -71,7 +72,7 @@
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            @include font-XXXXS-B;
+            @include font-XXS-B;
             color: var(--text-blue);
           }
         }
@@ -80,23 +81,23 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 12px;
       }
 
       .image {
-        width: 180px;
-        height: 180px;
+        width: 300px;
+        height: 300px;
         align-items: center;
         border-radius: 50%;
-        background-color: var(--gray-300);
+        background-color: var(--gray-500);
         
       }
       
       .dividerLine {
-        width: 80px;
+        width: 150px;
         height: 1px;
         background-color: var(--background);
-        transform: translateY(-15px);
+        transform: translateY(-24px);
+      
       }
 
       .info {
@@ -104,23 +105,23 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 6px;
-        transform: translateY(-30px);
+        gap: 12px;
+        transform: translateY(-42px);
 
         .name {
-          @include font-XS-B;
+          @include font-M-B;
           color: var(--text-white);
         }
 
         .role {
-          @include font-M-B;
+          font-size: 30px;
           color: var(--text-white);
         }
       }
     }
     .status {
       width: 100%;             
-      height: 60px;           
+      height: 80px;           
       display: flex;
       align-items: center;    
       justify-content: center; 
@@ -132,10 +133,11 @@
     height: auto;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 30px;
 
     .title {
-      @include font-L-B;
+      @include font-XXL-B;
+      font-size: 60px;
       color: var(--dark-blue-color);
       text-align: center;
     }
@@ -147,7 +149,7 @@
       display: flex;
       flex-direction: column;
       padding: 16px;
-      gap: 8px;
+      gap: 24px;
 
       .sectionTitle {
         @include font-M-B;
@@ -155,26 +157,27 @@
       }
 
       .description {
-        @include font-XS-R;
+        @include font-XXS-B;
         color: var(--text-black);
       }
 
       .skillTags {
         display: flex;
-        gap: 8px;
+        gap: 16px;
 
         .tag {
-          @include font-XS-M;
+          @include font-XXS-B;
           color: var(--text-black);
-          background-color: var(--gray-200);
-          border-radius: 16px;
-          border: 1px solid var(--border-color);
-          padding: 4px 12px;
+          width: 65px;
+          height: 40px;
+          border-radius: 35px;
+          border: 1px solid var(--text-black);
+          padding: 8px 16px;
         }
       }
 
       .portfolioLink {
-        @include font-S-R;
+        @include font-XXS-B;
         color: var(--text-secondary-color);
       }
 
@@ -184,7 +187,7 @@
         gap: 16px;
 
         .historyItem {
-          @include font-S-R;
+          @include font-XXS-B;
           color: var(--text-black);
           display: flex;
           align-items: center;

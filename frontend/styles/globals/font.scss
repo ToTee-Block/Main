@@ -27,6 +27,7 @@
 :root {
   --font-family: 'Noto Sans', sans-serif;
 
+  --font-size-XXXL: 120px;
   --font-size-XXL: 56px;
   --font-size-XL: 48px;
   --font-size-L: 40px;
@@ -40,4 +41,8 @@
   --font-weight-Regular: normal;
   --font-weight-Medium: 500;
   --font-weight-Bold: bold;
+}
+
+html, html > body {
+  font-family: var(--font-family);
 }
