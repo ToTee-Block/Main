@@ -10,6 +10,8 @@ import ChatHeader from "./ChatHeader";
 interface ChatMessage {
   text: string;
   type: "sent" | "received";
+  time: string;
+  date: string;
 }
 
 type ChatHistory = {
@@ -23,15 +25,32 @@ const ChatContainer = () => {
     관리자: [],
   });
 
+  const getCurrentTime = (): string => {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const getCurrentDate = (): string => {
+    const now = new Date();
+    return now.toISOString().split("T")[0]; // YYYY-MM-DD
+  };
+
   const handleSendMessage = (message: string) => {
     if (!activeRoom) return;
 
+    const currentTime = getCurrentTime();
+    const currentDate = getCurrentDate();
+
     setChatHistory((prev): ChatHistory => {
-      // 현재 채팅방에 메시지 추가
       const updatedHistory: ChatMessage[] = [
         ...(prev[activeRoom] || []),
-        { text: message, type: "sent" },
-        { text: "메시지를 받았습니다.", type: "received" },
+        { text: message, type: "sent", time: currentTime, date: currentDate },
+        {
+          text: "메시지를 받았습니다.",
+          type: "received",
+          time: currentTime,
+          date: currentDate,
+        },
       ];
 
       return {
