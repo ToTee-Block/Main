@@ -3,24 +3,29 @@ import styles from "@/styles/components/input/text-input.module.scss"; // SCSS �
 import Image from "next/image"; // Next.js Image 컴포넌트
 
 interface TextInputProps {
-  children: React.ReactNode;
+  children: React.ReactNode; // 필드 제목
+  value: string; // 입력 필드 값 (외부에서 관리)
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; // 값 변경 핸들러
   isPassword?: boolean; // 비밀번호 입력 필드 여부
 }
 
 const TextInput: React.FC<TextInputProps> = ({
   children,
+  value,
+  onChange,
   isPassword = false,
 }) => {
-  const [inputValue, setInputValue] = useState(""); // 입력 값 상태
   const [showError, setShowError] = useState(true); // 에러 메시지 상태
   const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 상태
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value);
+    const inputValue = e.target.value;
+
+    // 외부로 전달된 onChange 핸들러 호출
+    onChange(e);
 
     // 글자가 입력되면 에러 숨기기
-    if (value.trim() !== "") {
+    if (inputValue.trim() !== "") {
       setShowError(false);
     } else {
       setShowError(true);
@@ -33,15 +38,14 @@ const TextInput: React.FC<TextInputProps> = ({
 
   return (
     <div className={styles.inputBox}>
-      <p>{children}</p>
+      <p className={styles.inputP}>{children}</p>
       <div className={styles.inputWrapper}>
         <input
           type={isPassword && !showPassword ? "password" : "text"} // 비밀번호 상태에 따라 type 변경
-          id="username"
-          name="username"
           placeholder={`${children}를 입력해주세요`}
-          value={inputValue}
+          value={value} // 외부에서 전달된 값 사용
           onChange={handleChange} // 입력 값 변화 시 처리
+          className={showError ? styles.inputError : ""} // 에러 상태 시 스타일 적용
         />
         {isPassword && (
           <button

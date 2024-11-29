@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,6 +25,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     @SneakyThrows
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+        // 회원가입, 로그인, 로그아웃 요청에 접근할 때는 토큰인증처리 불필요
+        if (request.getRequestURI().equals("/api/v1/members/join")
+                || request.getRequestURI().equals("/api/v1/members/login")
+                || request.getRequestURI().equals("/api/v1/members/logout"))
+        {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String accessToken = _getCookie("accessToken");
         if (accessToken.isBlank()) {
             filterChain.doFilter(request, response);  // 토큰이 없는 경우 그대로 요청을 진행
@@ -44,20 +54,25 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             accessToken = rs.getData();
         }
 
+            // 토큰으로부터 사용자 인증 정보 추출
+            Authentication authentication = memberService.getUserFromAccessToken(accessToken)
+                                                         .genAuthentication();
         // AccessToken으로 사용자 정보 가져오기
         SecurityMember securityMember = memberService.getUserFromAccessToken(accessToken);
+        // 시큐리티에 인증 정보 등록
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // 인가 처리
-        SecurityContextHolder.getContext().setAuthentication(securityMember.genAuthentication());
 
         filterChain.doFilter(request, response);
     }
 
     private String _getCookie(String name) {
         Cookie[] cookies = req.getCookies();
-        if(cookies==null){
+
+        if (cookies == null) {
             return "";
         }
+
         return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals(name))
                 .findFirst()
