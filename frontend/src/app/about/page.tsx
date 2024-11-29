@@ -79,7 +79,7 @@ export default function About() {
         <div 
           className={styles.company_structure} 
           style={{ 
-            backgroundImage: "url('/images/company.png')", 
+            backgroundImage: "url('/images/Background.png')", 
             backgroundSize: "cover" 
           }}
         >

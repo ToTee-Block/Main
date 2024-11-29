@@ -144,27 +144,47 @@
 
     .section {
       width: 100%;
-      border: 2px solid var(--dark-blue-color);
       border-radius: 12px;
       display: flex;
       flex-direction: column;
-      padding: 16px;
-      gap: 24px;
-
+      padding: 24px;
+      gap: 24px; 
+      
+      
+      background-image: 
+        linear-gradient(90deg, var(--dark-blue-color) 77px, transparent 80px),
+        linear-gradient(90deg, var(--dark-blue-color) 77px, transparent 80px),
+        linear-gradient(0deg, var(--dark-blue-color) 77px, transparent 80px),
+        linear-gradient(0deg, var(--dark-blue-color) 77px, transparent 80px);
+      
+      background-position: 
+        0 0,
+        0 100%,
+        0 0,
+        100% 0;
+      
+      background-size: 
+        80px 3px,
+        80px 7px,  
+        3px 80px,
+        3px 80px;
+      
+      background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+    
       .sectionTitle {
         @include font-M-B;
         color: var(--text-blue);
       }
-
+    
       .description {
         @include font-XXS-B;
         color: var(--text-black);
       }
-
+    
       .skillTags {
         display: flex;
         gap: 16px;
-
+    
         .tag {
           @include font-XXS-B;
           color: var(--text-black);
@@ -173,19 +193,20 @@
           border-radius: 35px;
           border: 1px solid var(--text-black);
           padding: 8px 16px;
+          line-height: 21px;
         }
       }
-
+    
       .portfolioLink {
         @include font-XXS-B;
         color: var(--text-secondary-color);
       }
-
+    
       .history {
         display: flex;
         flex-direction: column;
         gap: 16px;
-
+    
         .historyItem {
           @include font-XXS-B;
           color: var(--text-black);

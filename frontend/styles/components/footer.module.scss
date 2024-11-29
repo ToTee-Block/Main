@@ -12,29 +12,30 @@
 .footerContent {
   max-width: 100%;
   margin: 0;
-  padding: 0 20px;
+  padding: 0 24px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
 .logo {
-    @include font-L-B;
-    color: #ffd700;
+    @include font-XXL-B;
+    color: var(--primary-color);
+    align-self: flex-start;
   }
 
 
 .nav {
   display: flex;
   gap: 24px;
-  margin-top: 25px;
+  align-self: flex-end;
 
   a{
     text-decoration: none;
     
     span {
-      @include font-XXS-R;
-      color: #ffd700;
+      @include font-XXS-B;
+      color: var(--primary-color);
       transition: color 0.1s ease;
 
       &:hover {
