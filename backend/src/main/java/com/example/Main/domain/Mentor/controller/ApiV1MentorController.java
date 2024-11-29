@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +30,7 @@ public class ApiV1MentorController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/registration")
-    public RsData<?> mentorRegistration(@Valid @RequestBody MentorRegistrationRequest mentorRegistrationRequest) {
+    public RsData<?> mentorRegistration(@Valid @RequestBody MentorRegistrationRequest mentorRegistrationRequest, @AuthenticationPrincipal Member member) {
         MentorDTO mentorDTO = this.mentorService.mentorRegistration(
                 member, mentorRegistrationRequest.getOneLineBio(),
                 mentorRegistrationRequest.getBio(), mentorRegistrationRequest.getPortfolio()
