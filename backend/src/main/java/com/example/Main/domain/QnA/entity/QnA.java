@@ -24,5 +24,6 @@ public class QnA extends BaseEntity {
     @ManyToOne
     private Member author;
 
-
+    @Column(name = "is_draft")
+    private Boolean isDraft;  // 임시 저장 여부
 }

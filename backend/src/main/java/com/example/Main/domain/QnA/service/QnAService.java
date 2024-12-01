@@ -60,24 +60,26 @@ public class QnAService {
     }
 
     // 작성
-    public QnA write(String subject, String content, String userEmail) {
+    public QnA write(String subject, String content, String userEmail, boolean isDraft) {
         Member member = memberService.getMemberByEmail(userEmail);
 
         QnA qnA = QnA.builder()
                 .subject(subject)
                 .content(content)
                 .author(member)
+                .isDraft(isDraft)
                 .build();
         this.qnARepository.save(qnA);
         return qnA;
     }
 
     // 수정
-    public QnA update(QnA qnA, String content, String subject, String userEmail) {
+    public QnA update(QnA qnA, String content, String subject, String userEmail, boolean isDraft) {
         Member member = memberService.getMemberByEmail(userEmail);
         qnA.setSubject(subject);
         qnA.setContent(content);
         qnA.setAuthor(member);
+        qnA.setIsDraft(isDraft);
         this.qnARepository.save(qnA);
         return qnA;
     }
@@ -87,4 +89,47 @@ public class QnAService {
         this.qnARepository.delete(qnA);
     }
 
+    // 임시 저장된 QnA 게시글 목록 조회
+    public List<QnADTO> getDrafts() {
+        List<QnA> draftQnAs = qnARepository.findByIsDraftTrue(Sort.by(Sort.Order.desc("createdDate")));
+        return draftQnAs.stream()
+                .map(QnADTO::new)
+                .collect(Collectors.toList());
+    }
+
+    // 임시 저장된 QnA 게시글 이어서 작성
+    public QnA continueDraft(Long qnAId, String content, String subject, String userEmail, boolean isDraft) {
+        QnA qnA = this.getQnA(qnAId);
+
+        if (qnA == null || !qnA.getIsDraft()) {
+            throw new IllegalArgumentException("임시 저장된 QnA 게시글이 존재하지 않거나, 삭제된 게시글입니다.");
+        }
+
+        Member member = memberService.getMemberByEmail(userEmail);
+        qnA.setContent(content);
+        qnA.setSubject(subject);
+        qnA.setAuthor(member);
+        qnA.setIsDraft(isDraft);
+        this.qnARepository.save(qnA);
+        return qnA;
+    }
+
+    // 본인이 임시 저장한 QnA 게시글 조회
+    public List<QnADTO> getDraftsByAuthor(String authorEmail) {
+        List<QnA> draftQnAs = qnARepository.findByAuthor_EmailAndIsDraftTrue(authorEmail, Sort.by(Sort.Order.desc("createdDate")));
+        return draftQnAs.stream()
+                .map(QnADTO::new)
+                .collect(Collectors.toList());
+    }
+
+    // 임시 저장된 QnA 게시물 삭제
+    public void deleteDraft(Long id) {
+        Optional<QnA> optionalQnA = this.qnARepository.findById(id);
+        if (optionalQnA.isPresent()) {
+            QnA qnA = optionalQnA.get();
+            if (qnA.getIsDraft()) {
+                this.qnARepository.delete(qnA);
+            }
+        }
+    }
 }

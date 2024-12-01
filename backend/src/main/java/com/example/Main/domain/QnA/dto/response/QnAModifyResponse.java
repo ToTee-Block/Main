@@ -11,8 +11,10 @@ public class QnAModifyResponse {
 
     private final QnADTO qnADTO;
 
+    private final Boolean isDraft;
 
     public QnAModifyResponse(QnA qnA) {
         this.qnADTO = new QnADTO(qnA);
+        this.isDraft = qnA.getIsDraft();
     }
 }

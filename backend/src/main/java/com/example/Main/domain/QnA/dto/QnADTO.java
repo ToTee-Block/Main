@@ -1,3 +1,4 @@
+
 package com.example.Main.domain.QnA.dto;
 
 import com.example.Main.domain.Member.entity.Member;
@@ -31,14 +32,17 @@ public class QnADTO {
     @LastModifiedDate
     private final LocalDateTime modifiedDate;
 
+    private final Boolean isDraft;
+
     public QnADTO(QnA qna) {
         this.id = qna.getId();
         this.subject = qna.getSubject();
         this.content = qna.getContent();
         this.authorEmail = qna.getAuthor().getEmail();
+        this.isDraft = qna.getIsDraft();
         this.createdDate= qna.getCreatedDate();
         this.modifiedDate=qna.getModifiedDate();
-     }
+    }
 
     public void setContent(String content){
         this.content=content;

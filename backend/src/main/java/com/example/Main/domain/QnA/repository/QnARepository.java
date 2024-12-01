@@ -21,4 +21,10 @@ public interface QnARepository extends JpaRepository<QnA, Long> {
             "WHERE (q.subject LIKE %:keyword% OR q.content LIKE %:keyword%) " +
             "AND q.isDraft = false")
     List<QnA> searchByKeyword(@Param("keyword") String keyword, Sort sort);
+
+    // 임시 저장된 게시물 전체 조회
+    List<QnA> findByIsDraftTrue(Sort sort);
+
+    // 본인이 임시저장한 게시글 조회
+    List<QnA> findByAuthor_EmailAndIsDraftTrue(String authorEmail, Sort sort);
 }
