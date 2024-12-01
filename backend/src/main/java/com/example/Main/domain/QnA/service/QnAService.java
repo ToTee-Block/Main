@@ -132,4 +132,23 @@ public class QnAService {
             }
         }
     }
+
+    // 좋아요 추가
+    public void likePost(Long qnAId, String memberEmail) {
+        QnA qnA = qnARepository.findById(qnAId).orElseThrow(() -> new IllegalArgumentException("QnA 게시물을 찾을 수 없습니다."));
+        Member member = memberRepository.findByEmail(memberEmail).orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+        // 좋아요 추가
+        qnA.addLike(member);
+        qnARepository.save(qnA);
+    }
+
+    // 좋아요 취소
+    public void unlikePost(Long qnAId, String memberEmail) {
+        QnA qnA = qnARepository.findById(qnAId).orElseThrow(() -> new IllegalArgumentException("QnA 게시물을 찾을 수 없습니다."));
+        Member member = memberRepository.findByEmail(memberEmail).orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+
+        qnA.removeLike(member);
+        qnARepository.save(qnA);
+    }
 }

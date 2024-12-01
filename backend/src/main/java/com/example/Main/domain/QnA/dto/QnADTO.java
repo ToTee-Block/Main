@@ -1,4 +1,3 @@
-
 package com.example.Main.domain.QnA.dto;
 
 import com.example.Main.domain.Member.entity.Member;
@@ -34,6 +33,10 @@ public class QnADTO {
 
     private final Boolean isDraft;
 
+    private final int likes;
+
+    private final List<String> likedByEmails;
+
     public QnADTO(QnA qna) {
         this.id = qna.getId();
         this.subject = qna.getSubject();
@@ -42,6 +45,11 @@ public class QnADTO {
         this.isDraft = qna.getIsDraft();
         this.createdDate= qna.getCreatedDate();
         this.modifiedDate=qna.getModifiedDate();
+        this.likes = qna.getLikes();
+        Set<Member> likedByMembersSet = qna.getLikedByMembers() != null ? qna.getLikedByMembers() : Set.of();
+        this.likedByEmails = likedByMembersSet.stream()
+                .map(member -> member.getEmail())
+                .collect(Collectors.toList());
     }
 
     public void setContent(String content){

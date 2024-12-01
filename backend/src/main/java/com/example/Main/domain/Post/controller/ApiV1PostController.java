@@ -68,6 +68,10 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/myposts")
     public RsData<PostsResponse> getMyPosts(Principal principal) {
+        if (principal == null) {
+            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+        }
+
         String loggedInUserEmail = principal.getName();
 
         List<PostDTO> myPosts = postService.getPostsByAuthor(loggedInUserEmail);
@@ -84,10 +88,11 @@ public class ApiV1PostController {
     @PostMapping("")
     public RsData<PostCreateResponse> create(@Valid @RequestBody PostCreateRequest postCreateRequest,
                                              Principal principal) {
-        String loggedInUser = principal.getName();
-        if (loggedInUser == null) {
-            return RsData.of("401", "로그인이 필요합니다.", null);
+        if (principal == null) {
+            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
         }
+
+        String loggedInUser = principal.getName();
 
         String htmlContent = markdownService.convertMarkdownToHtml(postCreateRequest.getContent());
 
@@ -106,6 +111,10 @@ public class ApiV1PostController {
     @PatchMapping("/{id}")
     public RsData<PostModifyResponse> modify(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
                                              Principal principal) {
+        if (principal == null) {
+            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+        }
+
         Post post = this.postService.getPost(id);
 
         if (post == null || post.getIsDraft()) {
@@ -128,6 +137,10 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public RsData<PostResponse> delete(@PathVariable("id") Long id, Principal principal) {
+        if (principal == null) {
+            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+        }
+
         Post post = this.postService.getPost(id);
 
         if (post == null || post.getIsDraft()) {
@@ -160,6 +173,10 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/drafts")
     public RsData<PostsResponse> getDrafts(Principal principal) {
+        if (principal == null) {
+            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+        }
+
         String loggedInUser = principal.getName();
         List<PostDTO> draftPosts = this.postService.getDraftsByAuthor(loggedInUser);
 
@@ -176,6 +193,10 @@ public class ApiV1PostController {
     @PatchMapping("/draft/{id}")
     public RsData<PostModifyResponse> continueDraft(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
                                                     Principal principal) {
+        if (principal == null) {
+            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+        }
+
         Post post = this.postService.getPost(id);
 
         if (post == null || !post.getIsDraft()) {
@@ -204,6 +225,10 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/draft/{id}")
     public RsData<PostResponse> deleteDraft(@PathVariable("id") Long id, Principal principal) {
+        if (principal == null) {
+            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+        }
+
         Post post = this.postService.getPost(id);
 
         if (post == null || !post.getIsDraft()) {
@@ -224,11 +249,11 @@ public class ApiV1PostController {
     public RsData<PostResponse> like(@PathVariable("id") Long id,
                                      @RequestBody PostLikeDTO postLikeDTO,
                                      Principal principal) {
-
-        String loggedInUser = principal.getName();
-        if (loggedInUser == null) {
+        if (principal == null) {
             return RsData.of("401", "로그인 후 사용 가능합니다.", null);
         }
+
+        String loggedInUser = principal.getName();
 
         Post post = this.postService.getPost(id);
 
