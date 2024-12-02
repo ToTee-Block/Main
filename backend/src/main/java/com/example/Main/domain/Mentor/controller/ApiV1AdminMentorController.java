@@ -5,7 +5,7 @@ import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
-import com.example.Main.domain.Mentor.request.MentorRegistrationRequest;
+import com.example.Main.domain.Mentor.request.MentoringRequest;
 import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
@@ -27,7 +27,7 @@ public class ApiV1AdminMentorController {
     private final MemberService memberService;
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("")
+    @GetMapping("")    // 멘토 목록 - 아직 허가되지 않은 멘토 목록
     public RsData mentorRequestList(@RequestParam(value = "page", defaultValue = "0") int page) {
         Page<Mentor> mentors = this.mentorService.getApprovedFalse(page);
 
@@ -35,18 +35,26 @@ public class ApiV1AdminMentorController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/permit/{mentorId}")
-    public RsData mentorPermit(@PathVariable(value = "mentorId") Long mentorId) {
-        Member member = this.memberService.getMemberById(mentorId);
+    @PostMapping("/approve")    // 멘토 허가
+    public RsData mentorPermit(@Valid @RequestBody MentoringRequest mentoringRequest) {
+        // 멤버와 멘토로서 검증
+        Member member = this.memberService.getMemberById(mentoringRequest.getMentorId());
         if (member == null) {
             return RsData.of("400", "존재하는 멤버가 아닙니다.");
         }
-
-        Mentor mentor = this.mentorService.permitMentor(member);
+        Mentor mentor = this.mentorService.getMentorById(member.getMentorQualify().getId());
         if (mentor == null) {
             return RsData.of("400", "존재하는 멘토가 아닙니다.", new MemberDTO(member));
         }
 
-        return RsData.of("200", "멘토 허가 완료", new MentorDTO(mentor));
+        // approve가 true일 때
+        if (mentoringRequest.isApprove()) {
+            Mentor permittedMentor = this.mentorService.approveMentor(mentor);
+            return RsData.of("200", "멘토 승인 완료", new MentorDTO(permittedMentor));
+        }
+
+        // approve가 false일 때
+        this.mentorService.denyMentor(mentor);
+        return RsData.of("200", "멘토 거부 완료");
     }
 }
