@@ -53,7 +53,7 @@ public class Member extends BaseEntity {
     */
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "member", optional = true)
     @JsonIgnore
-    private Mentor mentor;
+    private Mentor mentorQualify;
 
     /*나와 멘토 관계인 멘토 리스트*/
     @OneToMany(mappedBy = "mentee")
