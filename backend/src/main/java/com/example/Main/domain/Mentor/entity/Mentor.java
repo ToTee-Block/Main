@@ -19,8 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 public class Mentor extends BaseEntity {
-   @OneToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "member_id")
+   @OneToOne
+   @JoinColumn(name = "member_id", nullable = false)
    @NotNull
    private Member member;
 

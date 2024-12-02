@@ -7,10 +7,7 @@ import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
 import com.example.Main.domain.Mentor.entity.MentorReview;
 import com.example.Main.global.Jpa.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -50,15 +47,19 @@ public class Member extends BaseEntity {
     @JsonIgnore
     private String refreshToken;
 
-    /*멘토 자격 컬럼*/
-    @OneToOne(mappedBy = "member")
-    private Mentor mentorQualify;
+    /*
+        멘토 자격 컬럼
+        FetchType.LAZY는 필요할 때만 불러오도록 하기 때문에 부모엔티티인 Member에 적용
+    */
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "member", optional = true)
+    @JsonIgnore
+    private Mentor mentor;
 
     /*나와 멘토 관계인 멘토 리스트*/
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "mentee")
     private List<MentorMenteeMatching> myMentors;
 
     /*내가 작성한 멘토 리뷰들*/
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "reviewer")
     private List<MentorReview> reviews;
 }

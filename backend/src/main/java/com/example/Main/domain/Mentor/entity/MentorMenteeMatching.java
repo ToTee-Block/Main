@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 public class MentorMenteeMatching extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member member;
+    private Member mentee;
 
     @ManyToOne
     @JoinColumn(name = "mentor_id")
