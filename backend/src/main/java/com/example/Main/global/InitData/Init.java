@@ -20,7 +20,6 @@ public class Init {
         return args -> {
             memberService.join("admin@email.com", "0000", "admin", LocalDate.now(), MemberGender.O, "",  MemberRole.ADMIN);
             memberService.join("mentor@email.com", "0000", "mentor", LocalDate.now(), MemberGender.O, "", MemberRole.MENTOR);
-            mentorService.mentorRegistration(memberService.getMemberById(id), "hi", "hii", "hiii");
         };
     }
 }
