@@ -39,6 +39,8 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/members/password").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/*/members/profile").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/members/delete/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/mentors/registration").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/mentors/profile/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

@@ -36,4 +36,12 @@ public class MentorService {
         this.mentorRepository.save(mentor);
         return new MentorDTO(mentor);
     }
+
+    public MentorDTO getMentorInfoByMember(Member member) {
+        Mentor mentor = mentorRepository.findByMember(member);
+        if (mentor == null) {
+            return null; // 멘토 정보가 없으면 null 반환
+        }
+        return new MentorDTO(mentor);
+    }
 }
