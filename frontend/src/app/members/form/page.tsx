@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import apiClient from "@/api/axiosConfig";
+import Birthday from "@/components/birthday/Birthday";
 import TextInput from "@/components/input/TextInput";
+import GenderButton from "@/components/button/GenderButton";
 import styles from "@/styles/pages/members/form.module.scss";
 
 export default function Join() {
@@ -10,6 +12,16 @@ export default function Join() {
   const [name, setName] = useState<string>(""); // 이름 상태
   const [loading, setLoading] = useState<boolean>(true); // 로딩 상태
   const [error, setError] = useState<string | null>(null); // 에러 상태
+  const [birthdate, setBirthdate] = useState<{
+    year: string;
+    month: string;
+    day: string;
+  }>({
+    year: "",
+    month: "",
+    day: "",
+  }); // 생년월일 상태
+  const [gender, setGender] = useState<string | null>(null); // 성별 상태
 
   useEffect(() => {
     const fetchMemberData = async () => {
@@ -17,9 +29,17 @@ export default function Join() {
         setLoading(true);
         const response = await apiClient.get("/api/v1/members/me");
         console.log("API Response:", response.data); // API 응답 디버깅
-        const { email, name } = response.data.data; // 응답 데이터 구조에서 email과 name 추출
+        const { email, name, birthDate, gender } = response.data.data; // 응답 데이터 구조에서 필요한 필드 추출
+
         setEmail(email); // 이메일 상태 업데이트
         setName(name); // 이름 상태 업데이트
+
+        if (birthDate) {
+          const [year, month, day] = birthDate.split("-"); // "2007-11-18" 형식 분리
+          setBirthdate({ year, month, day }); // 생년월일 상태 업데이트
+        }
+
+        setGender(gender); // 성별 상태 업데이트
       } catch (err: any) {
         console.error(
           "Error fetching data:",
@@ -53,6 +73,18 @@ export default function Join() {
         >
           이름
         </TextInput>
+
+        {/* 생년월일 */}
+        <Birthday
+          value={birthdate}
+          onChange={(newValue) => setBirthdate(newValue)}
+        />
+
+        {/* 성별 선택 */}
+        <GenderButton
+          selectedGender={gender}
+          onGenderChange={(newGender) => setGender(newGender)}
+        />
       </div>
     </div>
   );
