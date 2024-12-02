@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -108,12 +109,6 @@ public class ApiV1MemberController {
         // SecurityContext에서 인증 정보 제거
         SecurityContextHolder.clearContext();
 
-        // 쿠키 제거 확인
-        Cookie[] cookies = req.getCookies();
-        if (cookies !=null) {
-            return RsData.of("500", "로그아웃 실패: 쿠키", cookies);
-        }
-
         // 시큐리티 인증 정보 제거 확인
         Object securityAuthContent = SecurityContextHolder.getContext().getAuthentication();
         if (securityAuthContent != null) {
@@ -123,6 +118,7 @@ public class ApiV1MemberController {
         return RsData.of("200", "로그아웃 성공");
     }
 
+    @PreAuthorize("isAuthenticated")
     @GetMapping("/me")  // 로그인된 사용자 정보 확인하기
     public RsData getMe (HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
@@ -148,6 +144,7 @@ public class ApiV1MemberController {
         return RsData.of("200", "내 회원정보", new MemberDTO(member));
     }
 
+    @PreAuthorize("isAuthenticated")
     @PatchMapping("/profile")
     private RsData modifyProfile(@Valid @RequestBody MemberCreate memberCreate, Principal principal) {
         RsData checkAuthUserRD = this.checkAuthUser(
@@ -177,6 +174,7 @@ public class ApiV1MemberController {
         return RsData.of("200", "프로필 변경 성공", new MemberDTO(modifiedMember));
     }
 
+    @PreAuthorize("isAuthenticated")
     @PatchMapping("/password")
     private RsData modifyPassword(@Valid @RequestBody MemberRequest memberRequest, Principal principal) {
         RsData checkAuthUserRD = this.checkAuthUser(
@@ -190,6 +188,7 @@ public class ApiV1MemberController {
         return RsData.of("200", "비밀번호 변경 성공", new MemberDTO(member));
     }
 
+    @PreAuthorize("isAuthenticated")
     @DeleteMapping("/delete/{memberId}")
     private RsData deleteMy(@PathVariable(value="memberId") Long id, Principal principal) {
         RsData checkAuthUserRD = this.checkAuthUser(
