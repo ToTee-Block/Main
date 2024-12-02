@@ -31,7 +31,7 @@ public class ApiV1AdminMemberController {
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/delete/{memberId}")
-    private RsData delete(@PathVariable(value = "memberId")Long id, @AuthenticationPrincipal SecurityMember loggedInUser) {
+    private RsData delete(@PathVariable(value = "memberId")Long id) {
         return this.memberController.delete(id);
     }
 }
