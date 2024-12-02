@@ -7,8 +7,6 @@ import com.example.Main.domain.Mentor.request.MentorRegistrationRequest;
 import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +27,9 @@ public class ApiV1MentorController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/registration")
-    public RsData<?> mentorRegistration(@Valid @RequestBody MentorRegistrationRequest mentorRegistrationRequest) {
+    public RsData<?> mentorRegistration(@Valid @RequestBody MentorRegistrationRequest mentorRegistrationRequest, Principal principal) {
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+
         MentorDTO mentorDTO = this.mentorService.mentorRegistration(
                 member, mentorRegistrationRequest.getOneLineBio(),
                 mentorRegistrationRequest.getBio(), mentorRegistrationRequest.getPortfolio()
