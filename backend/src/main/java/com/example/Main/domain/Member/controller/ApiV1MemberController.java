@@ -70,6 +70,10 @@ public class ApiV1MemberController {
     public RsData login (@Valid @RequestBody MemberRequest memberRequest, HttpServletResponse res) {
         Member member = this.memberService.getMemberByEmail(memberRequest.getEmail());
 
+        if (member == null) {
+            return RsData.of("400", "존재하지 않는 사용자입니다.");
+        }
+
         if (!passwordEncoder.matches(memberRequest.getPassword(), member.getPassword())) {
             return RsData.of("400", "비밀번호가 일치하지 않습니다.");
         }
@@ -155,7 +159,6 @@ public class ApiV1MemberController {
 
         // 수정 시 필요한 필드 나열
         String email = memberCreate.getEmail();
-        String newPassword = memberCreate.getPassword();
         String newName = memberCreate.getName();
         LocalDate newBirthDate = memberCreate.getBirthDate();
         MemberGender newGender = memberCreate.getGender();
@@ -169,7 +172,7 @@ public class ApiV1MemberController {
 
         Member member = this.memberService.getMemberByEmail(email);
 
-        Member modifiedMember = this.memberService.modifyProfile(member, newPassword, newName, newBirthDate, newGender, savedProfileImg);
+        Member modifiedMember = this.memberService.modifyProfile(member, newName, newBirthDate, newGender, savedProfileImg);
 
         return RsData.of("200", "프로필 변경 성공", new MemberDTO(modifiedMember));
     }

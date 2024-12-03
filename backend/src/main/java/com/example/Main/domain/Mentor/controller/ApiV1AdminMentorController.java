@@ -5,7 +5,7 @@ import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
-import com.example.Main.domain.Mentor.request.MentoringRequest;
+import com.example.Main.domain.Mentor.request.ApproveMentorRequest;
 import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
@@ -33,15 +33,10 @@ public class ApiV1AdminMentorController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/approve")    // 멘토 허가
-    public RsData mentorPermit(@Valid @RequestBody MentoringRequest mentoringRequest) {
-        // 멤버와 멘토로서 검증
-        Member member = this.memberService.getMemberById(mentoringRequest.getMentorId());
-        if (member == null) {
-            return RsData.of("400", "존재하는 멤버가 아닙니다.");
-        }
-        Mentor mentor = this.mentorService.getMentorById(member.getMentorQualify().getId());
+    public RsData mentorPermit(@Valid @RequestBody ApproveMentorRequest mentoringRequest) {
+        Mentor mentor = this.mentorService.getMentorById(mentoringRequest.getMentorId());
         if (mentor == null) {
-            return RsData.of("400", "존재하는 멘토가 아닙니다.", new MemberDTO(member));
+            return RsData.of("400", "존재하는 멘토가 아닙니다.");
         }
 
         // approve가 true일 때

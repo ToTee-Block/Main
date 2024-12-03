@@ -40,6 +40,9 @@ public class MentorService {
                 .build();
         this.mentorRepository.save(mentor);
 
+        member.setMentorQualify(mentor);    // 멘토 정보, 개인 유저 테이블에 등록
+        this.memberRepository.save(member);
+
         return new MentorDTO(mentor);
     }
 
@@ -63,6 +66,7 @@ public class MentorService {
         this.memberRepository.save(member);
 
         mentor.setApproved(true);    // 멘토 승인상태로 변경
+        mentor.setMember(member);
         this.mentorRepository.save(mentor);
 
         return mentor;
