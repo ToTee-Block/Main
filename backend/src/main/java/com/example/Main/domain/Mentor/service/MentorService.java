@@ -79,4 +79,12 @@ public class MentorService {
     public Mentor getMentorById(Long id) {
         return this.mentorRepository.findById(id).orElse(null);
     }
+  
+    public MentorDTO getMentorInfoByMember(Member member) {
+        Mentor mentor = mentorRepository.findByMember(member);
+        if (mentor == null) {
+            return null; // 멘토 정보가 없으면 null 반환
+        }
+        return new MentorDTO(mentor);
+    }
 }

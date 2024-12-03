@@ -9,7 +9,11 @@ import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,5 +39,22 @@ public class ApiV1MentorController {
                 mentorRegistrationRequest.getBio(), mentorRegistrationRequest.getPortfolio()
         );
         return RsData.of("200", "멘토 등록 신청 성공", mentorDTO);
+    }
+
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<?> getMentorProfile(@PathVariable(value = "id") Long id) {
+        Member member = memberService.getMemberById(id);
+        if (member == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(RsData.of("404", "해당 ID의 멤버를 찾을 수 없습니다.", null));
+        };
+        MentorDTO mentorDTO = mentorService.getMentorInfoByMember(member);
+        if (mentorDTO == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body(RsData.of("204", "멘토 정보를 찾을 수 없습니다.", null));
+        }
+        return ResponseEntity.ok(RsData.of("200", "멘토 정보 가져오기 성공", mentorDTO));
     }
 }
