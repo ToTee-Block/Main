@@ -9,14 +9,24 @@ interface ChatMessage {
   time: string;
 }
 
-const ChatApp = () => {
+interface ChatListProps {
+  activeRoom: string | null;
+  rooms: string[];
+  onRoomSelect: (roomName: string) => void;
+}
+
+const ChatList: React.FC<ChatListProps> = ({
+  activeRoom,
+  rooms,
+  onRoomSelect,
+}) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [client, setClient] = useState<Client | null>(null);
 
   // WebSocket 연결 및 메시지 송수신 설정
   useEffect(() => {
     const stompClient = new Client({
-      brokerURL: "ws://localhost:8080/ws", // 서버의 WebSocket 엔드포인트
+      brokerURL: "ws://localhost:8081/ws", // 서버의 WebSocket 엔드포인트
       connectHeaders: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // JWT 토큰 추가 (선택 사항)
       },
@@ -96,4 +106,4 @@ const ChatApp = () => {
   );
 };
 
-export default ChatApp;
+export default ChatList;
