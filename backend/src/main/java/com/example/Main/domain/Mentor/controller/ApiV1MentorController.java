@@ -13,9 +13,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +32,10 @@ public class ApiV1MentorController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/registration")
-    public RsData<?> mentorRegistration(@Valid @RequestBody MentorRegistrationRequest mentorRegistrationRequest, @AuthenticationPrincipal Member member) {
+
+    public RsData<?> mentorRegistration(@Valid @RequestBody MentorRegistrationRequest mentorRegistrationRequest, Principal principal) {
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+
         MentorDTO mentorDTO = this.mentorService.mentorRegistration(
                 member, mentorRegistrationRequest.getOneLineBio(),
                 mentorRegistrationRequest.getBio(), mentorRegistrationRequest.getPortfolio()
