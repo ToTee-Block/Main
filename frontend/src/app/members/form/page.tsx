@@ -7,36 +7,79 @@ import Birthday from "@/components/birthday/Birthday";
 import TextInput from "@/components/input/TextInput";
 import GenderButton from "@/components/button/GenderButton";
 import LoginButton from "@/components/button/Loginbutton";
+import ProfileImage from "@/components/profile/profileimage";
 import styles from "@/styles/pages/members/form.module.scss";
 
+interface BirthdayType {
+  year: string;
+  month: string;
+  day: string;
+}
+
 export default function ProfileForm() {
-  const [email, setEmail] = useState<string>(""); // 이메일 상태
-  const [name, setName] = useState<string>(""); // 이름 상태
-  const [loading, setLoading] = useState<boolean>(true); // 로딩 상태
-  const [error, setError] = useState<string | null>(null); // 에러 상태
-  const [birthdate, setBirthdate] = useState<{
-    year: string;
-    month: string;
-    day: string;
-  }>({
+  const [email, setEmail] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [birthdate, setBirthdate] = useState<BirthdayType>({
     year: "",
     month: "",
     day: "",
-  }); // 생년월일 상태
-  const [gender, setGender] = useState<string | null>(null); // 성별 상태
+  });
+  const [gender, setGender] = useState<string | null>(null);
 
   const router = useRouter();
 
-  // 사용자 데이터를 가져오는 함수
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("profileImg", file);
+
+      const response = await apiClient.patch(
+        "/api/v1/members/profile",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.resultCode === "200") {
+        setProfileImage(response.data.data.profileImg);
+      }
+    } catch (err) {
+      console.error("이미지 업로드 실패:", err);
+      setError("이미지 업로드에 실패했습니다.");
+    }
+  };
+
+  const handleImageDelete = async () => {
+    try {
+      const response = await apiClient.delete("/api/v1/members/profile-image");
+      if (response.data.resultCode === "200") {
+        setProfileImage(null);
+      }
+    } catch (err) {
+      console.error("이미지 삭제 실패:", err);
+      setError("이미지 삭제에 실패했습니다.");
+    }
+  };
+
   const fetchMemberData = async () => {
     try {
       setLoading(true);
       const response = await apiClient.get("/api/v1/members/me");
-      console.log("API Response:", response.data);
+      console.log("API 응답:", response.data);
 
-      const { email, name, birthDate, gender } = response.data.data;
+      const { email, name, birthDate, gender, profileImg } = response.data.data;
       setEmail(email);
       setName(name);
+      setProfileImage(profileImg);
 
       if (birthDate) {
         const [year, month, day] = birthDate.split("-");
@@ -45,8 +88,7 @@ export default function ProfileForm() {
 
       setGender(gender);
     } catch (err: any) {
-      console.error("Error fetching data:", err.response?.data || err.message);
-
+      console.error("데이터 가져오기 오류:", err.response?.data || err.message);
       if (err.response?.status === 403) {
         setError("권한이 없습니다. 로그인 페이지로 이동합니다.");
         setTimeout(() => router.push("/login"), 3000);
@@ -58,7 +100,6 @@ export default function ProfileForm() {
     }
   };
 
-  // 프로필 업데이트 함수
   const handleUpdate = async () => {
     try {
       setLoading(true);
@@ -76,7 +117,7 @@ export default function ProfileForm() {
       }
 
       const updateData = {
-        email, // 이메일 포함
+        email,
         name,
         birthDate: `${birthdate.year}-${birthdate.month}-${birthdate.day}`,
         gender,
@@ -86,13 +127,13 @@ export default function ProfileForm() {
         "/api/v1/members/profile",
         updateData
       );
-      console.log("Update Response:", response.data);
 
-      alert("프로필이 성공적으로 업데이트되었습니다!");
-      router.push("/"); // 메인 페이지로 리다이렉트
+      if (response.data.resultCode === "200") {
+        alert("프로필이 성공적으로 업데이트되었습니다!");
+        router.push("/");
+      }
     } catch (err: any) {
-      console.error("Error updating data:", err.response?.data || err.message);
-
+      console.error("데이터 업데이트 오류:", err.response?.data || err.message);
       if (err.response?.status === 403) {
         setError("권한이 없습니다. 로그인 페이지로 이동합니다.");
         setTimeout(() => router.push("/login"), 3000);
@@ -105,7 +146,7 @@ export default function ProfileForm() {
   };
 
   useEffect(() => {
-    console.log("JWT Token:", localStorage.getItem("token"));
+    console.log("JWT 토큰:", localStorage.getItem("token"));
     fetchMemberData();
   }, []);
 
@@ -121,29 +162,27 @@ export default function ProfileForm() {
     <div className={styles.container}>
       <p className={styles.formTitle}>프로필</p>
       <div className={styles.formbox}>
-        {/* 이메일 (수정 불가) */}
+        <ProfileImage
+          profileImage={profileImage || "/icon/user.svg"}
+          onImageUpload={handleImageUpload}
+          onImageDelete={handleImageDelete}
+        />
+
         <TextInput value={email} isNotModify>
           이메일
         </TextInput>
-
-        {/* 이름 */}
         <TextInput value={name} onChange={(e) => setName(e.target.value)}>
           이름
         </TextInput>
-
-        {/* 생년월일 */}
         <Birthday
           value={birthdate}
           onChange={(newValue) => setBirthdate(newValue)}
         />
-
-        {/* 성별 */}
         <GenderButton
           selectedGender={gender}
           onGenderChange={(newGender) => setGender(newGender)}
         />
       </div>
-      {/* 수정 버튼 */}
       <LoginButton onClick={handleUpdate}>수정</LoginButton>
     </div>
   );
