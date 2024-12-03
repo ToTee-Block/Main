@@ -241,7 +241,7 @@ public class ApiV1MemberController {
         } else if (principal == null) {
             return RsData.of("401", "로그아웃 상태입니다.");
 
-        } else if (!principal.getName().equals(member.getName())) {
+        } else if (!principal.getName().equals(member.getEmail())) {
             return RsData.of("403", "권한이 없습니다.");
         }
 
