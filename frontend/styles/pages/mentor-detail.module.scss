@@ -152,24 +152,24 @@
       
       
       background-image: 
-        linear-gradient(90deg, var(--dark-blue-color) 77px, transparent 80px),
-        linear-gradient(90deg, var(--dark-blue-color) 77px, transparent 80px),
-        linear-gradient(0deg, var(--dark-blue-color) 77px, transparent 80px),
-        linear-gradient(0deg, var(--dark-blue-color) 77px, transparent 80px);
-      
-      background-position: 
-        0 0,
-        0 100%,
-        0 0,
-        100% 0;
-      
-      background-size: 
-        80px 3px,
-        80px 7px,  
-        3px 80px,
-        3px 80px;
-      
-      background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+      linear-gradient(90deg, var(--dark-blue-color) 65px, transparent 65px),
+      linear-gradient(90deg, var(--dark-blue-color) 65px, transparent 65px),
+      linear-gradient(0deg, var(--dark-blue-color) 65px, transparent 65px),
+      linear-gradient(0deg, var(--dark-blue-color) 65px, transparent 65px);
+    
+    background-position: 
+      0 0,
+      0 100%,
+      0 0,
+      100% 0;
+    
+    background-size: 
+      67px 3px,
+      67px 7px,  
+      3px 67px,
+      3px 67px;
+    
+    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
     
       .sectionTitle {
         @include font-M-B;
