@@ -25,4 +25,6 @@ public class MentorMenteeMatching extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "mentor_id")
     private Mentor mentor;
+
+    private Boolean approved;    // 멘토의 승인여부
 }
