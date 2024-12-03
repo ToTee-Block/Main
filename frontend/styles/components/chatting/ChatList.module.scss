@@ -1,51 +1,47 @@
-/* ChatList.module.scss */
+@import "../../globals/font-mixin.scss";
 
-.chatContainer {
+// styles/components/chatting/ChatList.module.scss
+.chatList {
+  padding: 0px;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  width: 159px;
+  height: 100%;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  height: 80vh; /* 화면에서 차지하는 공간 */
+  align-items: center;
 }
 
-.chatMessages {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  background-color: #f9f9f9;
+.chatListTitle {
+  @include font-XXXXS-M;
+  padding: 23px 25px;
 }
 
-.chatMessage {
-  margin-bottom: 10px;
-  padding: 8px;
-  border-radius: 5px;
-  background-color: #eee;
-}
-
-.chatFooter {
+.chatRoom {
   display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 10px;
-  border-top: 1px solid #ddd;
-  background-color: #fff;
-
-  input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* 흐릿한 선 추가 */
+  width: 100%;
+  &:hover {
+    background-color: #f1f1f1;
   }
 
-  button {
-    margin-left: 10px;
-    padding: 8px 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 14px;
-
-    &:hover {
-      background-color: #0056b3;
-    }
+  &.active {
+    background-color: #e0e0e0;
+    font-weight: bold;
   }
+}
+
+.status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: red; /* 읽지 않은 메시지가 있을 때 빨간색 */
+  flex-shrink: 0;
+  margin-left: 10px;
 }

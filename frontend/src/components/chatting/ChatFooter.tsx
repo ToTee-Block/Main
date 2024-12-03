@@ -1,5 +1,3 @@
-// ChatFooter.tsx
-
 "use client";
 
 import styles from "@/styles/components/chatting/ChatFooter.module.scss";
@@ -35,12 +33,6 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend }) => {
           type="text"
           id="chatInput"
           placeholder="메시지를 입력하세요..."
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              onSend((e.target as HTMLInputElement).value); // 여기서 sendMessage를 onSend로 수정
-              (e.target as HTMLInputElement).value = ""; // 입력창 초기화
-            }
-          }}
         />
 
         {/* 멘션 버튼 */}
@@ -52,15 +44,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend }) => {
           />
         </button>
 
-        <button
-          type="submit"
-          className={styles.iconButton}
-          onClick={() =>
-            onSend(
-              (document.getElementById("chatInput") as HTMLInputElement).value
-            )
-          } // sendMessage를 onSend로 수정
-        >
+        <button type="submit" className={styles.iconButton}>
           <img
             src={"/icon/location_arrow.svg"} // 전송버튼
             alt={"전송버튼"}

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,14 +28,14 @@ public class ChatController {
     private  final JwtProvider jwtProvider;
     private  final MemberService memberService;
 
-    @GetMapping("/chat/{id}") //채팅 리스트 반환
-    public ResponseEntity<List<ChatDTO>> getChatDTO(@PathVariable Long id) {
-        // 예: DB에서 메시지 가져오기 (현재는 임시 데이터)
-        ChatDTO test = new ChatDTO(1L, "test", "Hello from server!", LocalDateTime.now());
-        return ResponseEntity.ok().body(List.of(test));
+    @GetMapping("/api/v1/chat/{id}") // id는 사용자 ID
+    public ResponseEntity<List<String>> getChatRooms(@PathVariable Long id) {
+        List<String> chatRooms = List.of("박승수", "관리자"); // 예시 데이터
+        // DB 연동 시 실제 데이터를 반환하도록 수정
+        return ResponseEntity.ok().body(chatRooms);
     }
 
-    @MessageMapping("/message")//메세지 송신 및 수신,pub가 생략된 모습 클라이언트 단 에선 /pub/message로 요청
+    @MessageMapping("/api/v1/message")//메세지 송신 및 수신,pub가 생략된 모습 클라이언트 단 에선 /pub/message로 요청
     public ResponseEntity<Void> receiveMessage(@RequestBody ChatDTO chat, HttpServletRequest req) {
         // JWT를 통해 로그인된 사용자 정보 가져오기
         Member member = getAuthenticatedMember(req);
@@ -50,7 +51,7 @@ public class ChatController {
         );
 
         // WebSocket을 통해 클라이언트로 메시지 전송
-        templates.convertAndSend("/sub/chatroom/1", enrichedChat);
+        templates.convertAndSend("/api/v1/sub/chatroom/1", enrichedChat);
 
         return ResponseEntity.ok().build();
     }
