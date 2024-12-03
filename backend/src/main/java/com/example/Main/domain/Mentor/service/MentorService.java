@@ -3,14 +3,20 @@ package com.example.Main.domain.Mentor.service;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.domain.Member.repository.MemberRepository;
-import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
 import com.example.Main.domain.Mentor.repository.MentorMenteeMatchingRepository;
 import com.example.Main.domain.Mentor.repository.MentorRepository;
 import com.example.Main.domain.Mentor.repository.MentorReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,18 +28,41 @@ public class MentorService {
 
     public MentorDTO mentorRegistration(Member member, /*List<MentorTechStack> techStacks,*/
                                      String oneLineBio, String bio, String portfolio) {
-        member.setRole(MemberRole.MENTOR);
-        this.memberRepository.save(member);/*TODO: 현재는 신청만 하면 자격 부여되게 해놓음. 나중에 지워야 됨*/
 
         Mentor mentor = Mentor.builder()
                 .member(member)
                 .oneLineBio(oneLineBio)
                 .bio(bio)
                 .portfolio(portfolio)/*.techStacks(techStacks)*/
-                .approved(true)/*테스트용으로 트루로 해둠. 원래는 false*/
+                .approved(false)/* 신청할 시 멘토 리스트에 등록, but 허가되지 않음 */
                 .matchingStatus(true)
                 .build();
         this.mentorRepository.save(mentor);
         return new MentorDTO(mentor);
+    }
+
+    // 멘토 리스트 - 멘토에 이름은 올렸지만 허가(approved)가 false인 멘토만 불러옴
+    public Page<Mentor> getApprovedFalse(int page) {
+        if (page < 0) {
+            throw new IllegalArgumentException("페이지 수는 0 이상의 값이 필요합니다.");
+        }
+
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("createdDate"));  // 작성일 기준 내림차순
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+
+        return this.mentorRepository.findAllByApprovedFalse(pageable);
+    }
+
+    public Mentor permitMentor(Member member) {
+        member.setRole(MemberRole.MENTOR);
+        this.memberRepository.save(member);
+
+        Mentor mentor = this.mentorRepository.findById(member.getId()).orElse(null);
+        mentor.setApproved(true);
+        this.mentorRepository.save(mentor);
+
+        return mentor;
     }
 }
