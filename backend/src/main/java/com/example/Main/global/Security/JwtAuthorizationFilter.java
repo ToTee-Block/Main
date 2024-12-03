@@ -28,7 +28,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         // 회원가입, 로그인, 로그아웃 요청에 접근할 때는 토큰인증처리 불필요
         if (request.getRequestURI().equals("/api/v1/members/join")
                 || request.getRequestURI().equals("/api/v1/members/login")
-                || request.getRequestURI().equals("/api/v1/members/logout"))
+                || request.getRequestURI().equals("/api/v1/members/logout")
+                || request.getRequestURI().equals("/api/v1/mentors/profile/**"))
         {
             filterChain.doFilter(request, response);
             return;
