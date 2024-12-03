@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -67,7 +68,7 @@ public class ApiV1MemberController {
     }
 
     @PostMapping("/login")
-    public RsData login (@Valid @RequestBody MemberRequest memberRequest, HttpServletResponse res) {
+    public RsData login(@Valid @RequestBody MemberRequest memberRequest, HttpServletResponse res) {
         Member member = this.memberService.getMemberByEmail(memberRequest.getEmail());
 
         if (!passwordEncoder.matches(memberRequest.getPassword(), member.getPassword())) {
@@ -75,23 +76,28 @@ public class ApiV1MemberController {
         }
 
         String accessToken = jwtProvider.genAccessToken(member);
-        Cookie accessTokenCookie  = new Cookie("accessToken", accessToken);
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setSecure(true);
         accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(60 * 60 * 24);   // 로그인 지속 시간: 24h
+        accessTokenCookie.setMaxAge(60 * 60 * 24); // 로그인 지속 시간: 24h
         res.addCookie(accessTokenCookie);
 
-
         String refreshToken = member.getRefreshToken();
-        Cookie refreshTokenCookie  = new Cookie("refreshToken", refreshToken);
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(60 * 60 * 24);   // 로그인 지속 시간: 24h
+        refreshTokenCookie.setMaxAge(60 * 60 * 24); // 로그인 지속 시간: 24h
         res.addCookie(refreshTokenCookie);
 
-        return RsData.of("200", "토큰 발급 성공: " + accessToken , new MemberDTO(member));
+        // 응답 데이터 생성
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("accessToken", accessToken);
+        responseData.put("refreshToken", refreshToken);
+        responseData.put("user", new MemberDTO(member)); // 사용자 정보 포함
+
+        return RsData.of("200", "토큰 발급 성공", responseData);
     }
 
     @GetMapping("/logout")
@@ -155,7 +161,6 @@ public class ApiV1MemberController {
 
         // 수정 시 필요한 필드 나열
         String email = memberCreate.getEmail();
-        String newPassword = memberCreate.getPassword();
         String newName = memberCreate.getName();
         LocalDate newBirthDate = memberCreate.getBirthDate();
         MemberGender newGender = memberCreate.getGender();
@@ -169,7 +174,7 @@ public class ApiV1MemberController {
 
         Member member = this.memberService.getMemberByEmail(email);
 
-        Member modifiedMember = this.memberService.modifyProfile(member, newPassword, newName, newBirthDate, newGender, savedProfileImg);
+        Member modifiedMember = this.memberService.modifyProfile(member, newName, newBirthDate, newGender, savedProfileImg);
 
         return RsData.of("200", "프로필 변경 성공", new MemberDTO(modifiedMember));
     }
