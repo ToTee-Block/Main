@@ -1,7 +1,24 @@
+'use client';
+
+import React, { useState } from 'react';
 import styles from '@/styles/pages/mentorform.module.scss'
 import Image from 'next/image';
+import MentorButton from '@/components/button/MentorButton';
 
 export default function MentorForm() {
+  const [isApplyDisabled, setIsApplyDisabled] = useState(false);
+  const [isReapplyDisabled, setIsReapplyDisabled] = useState(false);
+
+  const handleApplyClick = () => {
+    // 신청 버튼 클릭 시 동작 구현
+    setIsApplyDisabled(true);
+  };
+
+  const handleReapplyClick = () => {
+    // 재신청 버튼 클릭 시 동작 구현
+    setIsReapplyDisabled(true);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.titleSection}>
@@ -24,16 +41,16 @@ export default function MentorForm() {
             <Image 
               src="/icon/basicimage.svg" 
               alt="Upload" 
-              width={24} 
-              height={24}
+              width={32} 
+              height={32}
             />
           </button>
           <button className={styles.iconButton}>
             <Image 
               src="/icon/trash.svg" 
               alt="Delete" 
-              width={24} 
-              height={24}
+              width={32} 
+              height={32}
             />
           </button>
         </div>
@@ -64,6 +81,19 @@ export default function MentorForm() {
           className={styles.input}
           placeholder="입력해주세요."
         />
+      </div>
+
+        <div className={styles.buttonWrapper}>
+        <div className={styles.submitButton}>
+          <MentorButton onClick={handleApplyClick} disabled={isApplyDisabled}>
+            신청
+          </MentorButton>
+        </div>
+        <div className={styles.submitButton}>
+          <MentorButton onClick={handleReapplyClick} disabled={isReapplyDisabled}>
+            재신청
+          </MentorButton>
+        </div>
       </div>
     </div>
   );

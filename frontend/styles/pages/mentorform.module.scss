@@ -19,7 +19,7 @@
   
   .title {
     @include font-XXXL-B;
-    color: var(--dark-blue-color);
+    color: var(--text-blue);
     white-space: nowrap;
   }
   
@@ -57,7 +57,7 @@
   
   .iconGroup {
     display: flex;
-    gap: 3px;
+    gap: 8px;
   }
   
   .iconButton {
@@ -73,14 +73,15 @@
     width: 800px;
     height: 50px;
     border-radius: 8px;
+    border: 1px solid var(--gray-300); 
     display: flex;
     text-align: center;
     align-items: center;  
     justify-content: center;
     @include font-S-B;
     font-size: 30px;
-    background-color: var(--gray-200);
-    color: var(--gray-500);
+    background-color: var(--gray-100);
+    color: var(--gray-400);
   }
   
   .formBox {
@@ -115,16 +116,17 @@
   .boxTitle {
     @include font-M-B;
     color: var(--text-blue);
-    margin-bottom: 16px;
   }
   
   .textarea {
-    width: 100%;
-    height: 120px;
-    padding: 12px;
+    width: 952px;
+    height: 100px;
     border: 1px solid var(--gray-300);
+    background-color: var(--gray-100);
+    @include font-XXS-B;
     border-radius: 8px;
     resize: none;
+    padding: 15px 0 0 12px;
     
     &::placeholder {
       color: var(--gray-400);
@@ -149,13 +151,22 @@
   }
   
   .input {
-    width: 100%;
-    height: 48px;
-    padding: 12px;
+    width: 952px;
+    height: 32px;
     border: 1px solid var(--gray-300);
+    background-color: var(--gray-100);
     border-radius: 8px;
+    padding: 12px;
     
     &::placeholder {
       color: var(--gray-400);
+    
     }
+  }
+  .buttonWrapper {
+    width: 100%;
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+    align-items: center;
   }

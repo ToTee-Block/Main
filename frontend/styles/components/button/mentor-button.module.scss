@@ -1,0 +1,27 @@
+@import "../../globals/font-mixin.scss";
+
+
+.mentorButton {
+    width: 69px;  
+    height: 48px;
+    background-color: var(--dark-blue-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-white);
+    @include font-XXS-B;
+  
+    &:hover {
+      background-color: var(--gray-700);
+      color: var(--text-white);
+    }
+  
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
