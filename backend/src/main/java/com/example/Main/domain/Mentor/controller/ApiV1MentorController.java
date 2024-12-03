@@ -36,7 +36,7 @@ public class ApiV1MentorController {
     }
 
     @GetMapping("/profile/{id}")
-    public ResponseEntity<RsData> getMentorProfile(@PathVariable(value = "id") Long id) {
+    public ResponseEntity<?> getMentorProfile(@PathVariable(value = "id") Long id) {
         Member member = memberService.getMemberById(id);
         if (member == null) {
             return ResponseEntity
