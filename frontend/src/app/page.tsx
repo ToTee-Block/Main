@@ -9,46 +9,6 @@ const posts = [
     href: "/#",
     title: "Post",
     description: "예시 텍스트 입니다.",
-    user: "admin02",
-    date: "2024.11.20",
-    imageUrl: "/images/Rectangle.png"
-  },
-  {
-    href: "/#",
-    title: "Post",
-    description: "예시 텍스트 입니다.",
-    user: "admin03",
-    date: "2024.11.20",
-    imageUrl: "/images/Rectangle.png"
-  },
-  {
-    href: "/#",
-    title: "Post",
-    description: "예시 텍스트 입니다.",
-    user: "admin04",
-    date: "2024.11.20",
-    imageUrl: "/images/Rectangle.png"
-  },
-  {
-    href: "/#",
-    title: "Post",
-    description: "예시 텍스트 입니다.",
-    user: "admin05",
-    date: "2024.11.20",
-    imageUrl: "/images/Rectangle.png"
-  },
-  {
-    href: "/#",
-    title: "Post",
-    description: "예시 텍스트 입니다.",
-    user: "admin06",
-    date: "2024.11.20",
-    imageUrl: "/images/Rectangle.png"
-  },
-  {
-    href: "/#",
-    title: "Post",
-    description: "예시 텍스트 입니다.",
     user: "admin07",
     date: "2024.11.20",
     imageUrl: "/images/Rectangle.png"
@@ -58,6 +18,22 @@ const posts = [
     title: "Post",
     description: "예시 텍스트 입니다.",
     user: "admin08",
+    date: "2024.11.20",
+    imageUrl: "/images/Rectangle.png"
+  },
+  {
+    href: "/#",
+    title: "Post",
+    description: "예시 텍스트 입니다.",
+    user: "admin09",
+    date: "2024.11.20",
+    imageUrl: "/images/Rectangle.png"
+  },
+  {
+    href: "/#",
+    title: "Post",
+    description: "예시 텍스트 입니다.",
+    user: "admin09",
     date: "2024.11.20",
     imageUrl: "/images/Rectangle.png"
   },
@@ -96,6 +72,20 @@ export default function Home() {
         </div>
         <div className={styles.container}>
           <p>Post</p>
+          <div className={classNames(styles.containerItemBox, styles.containerItemBox_mb)}>
+            {posts.map((post, index) => (
+              <PostCard
+                key={index} // 각 카드에 고유한 key 값을 지정
+                href={post.href}
+                title={post.title}
+                description={post.description}
+                user={post.user}
+                date={post.date}
+                imageUrl={post.imageUrl}
+              />
+            ))}
+          </div>
+          
           <div className={styles.containerItemBox}>
             {posts.map((post, index) => (
               <PostCard

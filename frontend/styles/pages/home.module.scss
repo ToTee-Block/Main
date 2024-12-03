@@ -8,11 +8,15 @@
 .container {
   width: 100%;
   height: auto;
-  padding: 40px 120px;
+  padding: 40px 100px;
 
   &>p {
     @include font-XS-B;
     margin-bottom: 24px;
+  }
+
+  &>.containerItemBox_mb {
+    margin-bottom: 20px;
   }
 }
 
@@ -21,21 +25,20 @@
   background-size: 100%;
   background-repeat: no-repeat;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 
   .banner_card {
     width: 500px;
     height: 500px;
     background-image: url(../../public/images/card.jpg);
+    margin-right: 14px;
   }
 
   .link_cardBox {
-    width: calc(100% - 520px);
     height: 450px;
     display: flex;
     gap: 10px;
-
   }
 }
 
@@ -43,5 +46,5 @@
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: space-between;
+  justify-content: center;
 }
