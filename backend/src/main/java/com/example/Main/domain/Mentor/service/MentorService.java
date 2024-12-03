@@ -5,6 +5,7 @@ import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.domain.Member.repository.MemberRepository;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
+import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
 import com.example.Main.domain.Mentor.repository.MentorMenteeMatchingRepository;
 import com.example.Main.domain.Mentor.repository.MentorRepository;
 import com.example.Main.domain.Mentor.repository.MentorReviewRepository;
@@ -38,6 +39,7 @@ public class MentorService {
                 .matchingStatus(true)
                 .build();
         this.mentorRepository.save(mentor);
+
         return new MentorDTO(mentor);
     }
 
@@ -55,14 +57,30 @@ public class MentorService {
         return this.mentorRepository.findAllByApprovedFalse(pageable);
     }
 
-    public Mentor permitMentor(Member member) {
-        member.setRole(MemberRole.MENTOR);
+    public Mentor approveMentor(Mentor mentor) {
+        Member member = mentor.getMember();
+        member.setRole(MemberRole.MENTOR);    // ROLE을 MENTOR로 변경
         this.memberRepository.save(member);
 
-        Mentor mentor = this.mentorRepository.findById(member.getId()).orElse(null);
-        mentor.setApproved(true);
+        mentor.setApproved(true);    // 멘토 승인상태로 변경
         this.mentorRepository.save(mentor);
 
         return mentor;
+    }
+
+    public void denyMentor(Mentor mentor) {
+        this.mentorRepository.delete(mentor);
+    }
+
+    public MentorMenteeMatching requestMentoring(Member mentee, Mentor mentor) {
+        MentorMenteeMatching matching = new MentorMenteeMatching(mentee, mentor, false);
+
+        this.mentorMenteeMatchingRepository.save(matching);
+
+        return matching;
+    }
+
+    public Mentor getMentorById(Long id) {
+        return this.mentorRepository.findById(id).orElse(null);
     }
 }
