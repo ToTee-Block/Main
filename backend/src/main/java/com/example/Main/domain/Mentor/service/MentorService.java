@@ -76,14 +76,6 @@ public class MentorService {
         this.mentorRepository.delete(mentor);
     }
 
-    public MentorMenteeMatching requestMentoring(Member mentee, Mentor mentor) {
-        MentorMenteeMatching matching = new MentorMenteeMatching(mentee, mentor, false);
-
-        this.mentorMenteeMatchingRepository.save(matching);
-
-        return matching;
-    }
-
     public Mentor getMentorById(Long id) {
         return this.mentorRepository.findById(id).orElse(null);
     }

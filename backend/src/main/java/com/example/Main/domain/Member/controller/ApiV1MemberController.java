@@ -9,6 +9,11 @@ import com.example.Main.domain.Member.request.AuthcodeRequest;
 import com.example.Main.domain.Member.request.MemberCreate;
 import com.example.Main.domain.Member.request.MemberRequest;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Mentor.dto.MentorDTO;
+import com.example.Main.domain.Mentor.entity.Mentor;
+import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
+import com.example.Main.domain.Mentor.service.MentorMenteeMatchingService;
+import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.TEST.EmptyMultipartFile;
@@ -34,6 +39,8 @@ import java.util.Map;
 @RequestMapping("/api/v1/members")
 public class ApiV1MemberController {
     private final MemberService memberService;
+    private final MentorService mentorService;
+    private final MentorMenteeMatchingService matchingService;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
@@ -201,6 +208,28 @@ public class ApiV1MemberController {
         if (checkAuthUserRD != null) return checkAuthUserRD;
 
         return this.delete(id);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/mentor/request/{mentorId}")    // 멘티가 멘토에게 멘토링 신청
+    public RsData requestMentoring(@PathVariable("mentorId")Long mentorId, Principal principal) {
+        Member mentee = this.memberService.getMemberByEmail(principal.getName());
+        Mentor mentor = this.mentorService.getMentorById(mentorId);
+
+        // 사용자 검증
+        RsData checkAuthUserRD = this.checkAuthUser(
+                this.memberService.getMemberById(mentee.getId()),
+                principal
+        );
+        if (checkAuthUserRD != null) return checkAuthUserRD;
+
+        if (mentor == null){
+            return RsData.of("400", "존재하는 멘토가 아닙니다.");
+        }
+
+        MentorMenteeMatching matching = this.matchingService.requestMentoring(mentee, mentor);
+
+        return RsData.of("200", "멘토링 신청 성공", new MentorDTO(mentor));
     }
 
     protected RsData delete(Long id) {
