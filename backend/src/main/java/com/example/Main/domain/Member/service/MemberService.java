@@ -52,8 +52,7 @@ public class MemberService {
         return new MemberDTO(member);
     }
 
-    public Member modifyProfile(Member member, String newPassword, String newName, LocalDate newBirthDate, MemberGender newGender, String profileImg) {
-        member.setPassword(newPassword);
+    public Member modifyProfile(Member member, String newName, LocalDate newBirthDate, MemberGender newGender, String profileImg) {
         member.setName(newName);
         member.setBirthDate(newBirthDate);
         member.setGender(newGender);

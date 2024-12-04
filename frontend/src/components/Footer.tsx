@@ -11,17 +11,17 @@ const Footer: React.FC = () => {
       <div className={styles.footerContent}>
         <span className={styles.logo}>ToTee Block</span>
         <nav className={styles.nav}>
-          <Link href="#">
-            <span>Privacy Policy</span>
+          <Link href="/privacy">
+          <span>Privacy Policy</span>
           </Link>
-          <Link href="#">
-            <span>Terms & Conditions</span>
+          <Link href="/terms">
+          <span>Terms & Conditions</span>
           </Link>
-          <Link href="#">
-            <span>Cookie Policy</span>
+          <Link href="/cookie">
+          <span>Cookie Policy</span>
           </Link>
-          <Link href="#">
-            <span>Contact</span>
+          <Link href="/contact">
+          <span>Contact</span>
           </Link>
         </nav>
       </div>

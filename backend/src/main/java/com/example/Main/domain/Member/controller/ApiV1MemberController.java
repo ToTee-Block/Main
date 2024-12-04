@@ -9,6 +9,11 @@ import com.example.Main.domain.Member.request.AuthcodeRequest;
 import com.example.Main.domain.Member.request.MemberCreate;
 import com.example.Main.domain.Member.request.MemberRequest;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Mentor.dto.MentorDTO;
+import com.example.Main.domain.Mentor.entity.Mentor;
+import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
+import com.example.Main.domain.Mentor.service.MentorMenteeMatchingService;
+import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.TEST.EmptyMultipartFile;
@@ -19,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +39,8 @@ import java.util.Map;
 @RequestMapping("/api/v1/members")
 public class ApiV1MemberController {
     private final MemberService memberService;
+    private final MentorService mentorService;
+    private final MentorMenteeMatchingService matchingService;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
@@ -68,6 +76,10 @@ public class ApiV1MemberController {
     @PostMapping("/login")
     public RsData login (@Valid @RequestBody MemberRequest memberRequest, HttpServletResponse res) {
         Member member = this.memberService.getMemberByEmail(memberRequest.getEmail());
+
+        if (member == null) {
+            return RsData.of("400", "존재하지 않는 사용자입니다.");
+        }
 
         if (!passwordEncoder.matches(memberRequest.getPassword(), member.getPassword())) {
             return RsData.of("400", "비밀번호가 일치하지 않습니다.");
@@ -108,12 +120,6 @@ public class ApiV1MemberController {
         // SecurityContext에서 인증 정보 제거
         SecurityContextHolder.clearContext();
 
-        // 쿠키 제거 확인
-        Cookie[] cookies = req.getCookies();
-        if (cookies !=null) {
-            return RsData.of("500", "로그아웃 실패: 쿠키", cookies);
-        }
-
         // 시큐리티 인증 정보 제거 확인
         Object securityAuthContent = SecurityContextHolder.getContext().getAuthentication();
         if (securityAuthContent != null) {
@@ -123,6 +129,7 @@ public class ApiV1MemberController {
         return RsData.of("200", "로그아웃 성공");
     }
 
+    @PreAuthorize("isAuthenticated")
     @GetMapping("/me")  // 로그인된 사용자 정보 확인하기
     public RsData getMe (HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
@@ -148,6 +155,7 @@ public class ApiV1MemberController {
         return RsData.of("200", "내 회원정보", new MemberDTO(member));
     }
 
+    @PreAuthorize("isAuthenticated")
     @PatchMapping("/profile")
     private RsData modifyProfile(@Valid @RequestBody MemberCreate memberCreate, Principal principal) {
         RsData checkAuthUserRD = this.checkAuthUser(
@@ -158,7 +166,6 @@ public class ApiV1MemberController {
 
         // 수정 시 필요한 필드 나열
         String email = memberCreate.getEmail();
-        String newPassword = memberCreate.getPassword();
         String newName = memberCreate.getName();
         LocalDate newBirthDate = memberCreate.getBirthDate();
         MemberGender newGender = memberCreate.getGender();
@@ -172,11 +179,12 @@ public class ApiV1MemberController {
 
         Member member = this.memberService.getMemberByEmail(email);
 
-        Member modifiedMember = this.memberService.modifyProfile(member, newPassword, newName, newBirthDate, newGender, savedProfileImg);
+        Member modifiedMember = this.memberService.modifyProfile(member, newName, newBirthDate, newGender, savedProfileImg);
 
         return RsData.of("200", "프로필 변경 성공", new MemberDTO(modifiedMember));
     }
 
+    @PreAuthorize("isAuthenticated")
     @PatchMapping("/password")
     private RsData modifyPassword(@Valid @RequestBody MemberRequest memberRequest, Principal principal) {
         RsData checkAuthUserRD = this.checkAuthUser(
@@ -190,6 +198,7 @@ public class ApiV1MemberController {
         return RsData.of("200", "비밀번호 변경 성공", new MemberDTO(member));
     }
 
+    @PreAuthorize("isAuthenticated")
     @DeleteMapping("/delete/{memberId}")
     private RsData deleteMy(@PathVariable(value="memberId") Long id, Principal principal) {
         RsData checkAuthUserRD = this.checkAuthUser(
@@ -199,6 +208,28 @@ public class ApiV1MemberController {
         if (checkAuthUserRD != null) return checkAuthUserRD;
 
         return this.delete(id);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/mentor/request/{mentorId}")    // 멘티가 멘토에게 멘토링 신청
+    public RsData requestMentoring(@PathVariable("mentorId")Long mentorId, Principal principal) {
+        Member mentee = this.memberService.getMemberByEmail(principal.getName());
+        Mentor mentor = this.mentorService.getMentorById(mentorId);
+
+        // 사용자 검증
+        RsData checkAuthUserRD = this.checkAuthUser(
+                this.memberService.getMemberById(mentee.getId()),
+                principal
+        );
+        if (checkAuthUserRD != null) return checkAuthUserRD;
+
+        if (mentor == null){
+            return RsData.of("400", "존재하는 멘토가 아닙니다.");
+        }
+
+        MentorMenteeMatching matching = this.matchingService.requestMentoring(mentee, mentor);
+
+        return RsData.of("200", "멘토링 신청 성공", new MentorDTO(mentor));
     }
 
     protected RsData delete(Long id) {
@@ -242,7 +273,7 @@ public class ApiV1MemberController {
         } else if (principal == null) {
             return RsData.of("401", "로그아웃 상태입니다.");
 
-        } else if (!principal.getName().equals(member.getName())) {
+        } else if (!principal.getName().equals(member.getEmail())) {
             return RsData.of("403", "권한이 없습니다.");
         }
 

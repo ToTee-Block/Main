@@ -39,7 +39,22 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/members/password").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/*/members/profile").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/members/delete/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/mentors/registration").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/mentors/profile/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+
+                        // post 관련 API에 대한 권한 설정 추가
+                        .requestMatchers(HttpMethod.GET, "/api/*/post/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/post/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/post/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/*/post/**").permitAll()
+
+                        // QnA 관련 API에 대한 권한 설정 추가
+                        .requestMatchers(HttpMethod.GET, "/api/*/qna/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/qna/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/qna/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/*/qna/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())
