@@ -1,0 +1,23 @@
+@import "../../globals/font-mixin.scss";
+
+.checkButton {
+  width: 76px;
+  height: 41px;
+  align-items: center;
+  margin-top: 4%;
+  display: flex;
+  justify-content: center;
+  background-color: var(--secondary-color);
+  color: var(--background);
+  border-radius: 4px;
+  @include font-XXXS-M;
+  transition: background-color 0.2s ease;
+
+  &:hover(:disabled) {
+    background-color: var(--success-color);
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--secondary-color);
+  }
+}
