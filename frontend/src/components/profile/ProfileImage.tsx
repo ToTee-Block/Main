@@ -5,6 +5,8 @@ import React, { useRef } from "react";
 import Image from "next/image";
 import styles from "@/styles/components/profile/profile.module.scss";
 import basicProfileImage from "/public/icon/basicimage.svg";
+import uploadIcon from "/public/icon/basicimage.svg";
+import deleteIcon from "/public/icon/trash.svg";
 
 interface ProfileImageProps {
   profileImage: string;
@@ -28,7 +30,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
         height={100}
         className={styles.profileImage}
       />
-      <div className={styles.imageButtons}>
+      <div className={styles.imageControls}>
         <input
           type="file"
           ref={fileInputRef}
@@ -36,17 +38,15 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
           accept="image/*"
           style={{ display: "none" }}
         />
-        <div className={styles.buttonGroup}>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className={styles.imageButton}
-          >
-            변경
-          </button>
-          <button onClick={onImageDelete} className={styles.imageButton}>
-            삭제
-          </button>
-        </div>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className={styles.imageControlButton}
+        >
+          <Image src={uploadIcon} alt="Upload" width={24} height={24} />
+        </button>
+        <button onClick={onImageDelete} className={styles.imageControlButton}>
+          <Image src={deleteIcon} alt="Delete" width={24} height={24} />
+        </button>
       </div>
     </div>
   );

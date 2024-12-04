@@ -13,3 +13,13 @@
   padding: 15px;
   margin-bottom: 10px;
 }
+
+.formbox {
+  display: flex;
+  flex-direction: column;
+}
+
+.image {
+  display: flex;
+  justify-content: center;
+}
