@@ -164,19 +164,35 @@ public class ApiV1MemberController {
         String newName = memberCreate.getName();
         LocalDate newBirthDate = memberCreate.getBirthDate();
         MemberGender newGender = memberCreate.getGender();
-        MultipartFile newProfileImg = new EmptyMultipartFile();   // TODO: json으로 파일 처리를 못해서 빈 객체 생성. 추후에 post요청으로 받은 file로 변경하기
-
-        // 프로필 사진 저장
-        String savedProfileImg = null;
-        if (!newProfileImg.isEmpty()) {
-            savedProfileImg = this.imageService.saveImage("user", newProfileImg);
-        }
 
         Member member = this.memberService.getMemberByEmail(email);
 
-        Member modifiedMember = this.memberService.modifyProfile(member, newName, newBirthDate, newGender, savedProfileImg);
+        Member modifiedMember = this.memberService.modifyProfile(member, newName, newBirthDate, newGender);
 
         return RsData.of("200", "프로필 변경 성공", new MemberDTO(modifiedMember));
+    }
+
+    @PreAuthorize("isAuthenticated")
+    @PostMapping("/profileImg/{email}")
+    public RsData modifyProfileImg(@PathVariable(value = "email")String email,
+                                   @RequestParam(value = "profileImg")MultipartFile image, Principal principal) {
+        Member member = this.memberService.getMemberByEmail(email);
+
+        RsData checkAuthUserRD = this.checkAuthUser(
+                member,
+                principal
+        );
+        if (checkAuthUserRD != null) return checkAuthUserRD;
+
+        // 프로필 사진 저장
+        String savedProfileImg = null;
+        if (!image.isEmpty()) {
+            savedProfileImg = this.imageService.saveImage("user", image);
+        } else {
+            savedProfileImg = member.getProfileImg();
+        }
+
+        return RsData.of("200", "프로필 이미지 변경 성공", savedProfileImg);
     }
 
     @PreAuthorize("isAuthenticated")

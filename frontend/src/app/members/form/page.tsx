@@ -39,8 +39,8 @@ export default function ProfileForm() {
       const formData = new FormData();
       formData.append("profileImg", file);
 
-      const response = await apiClient.patch(
-        "/api/v1/members/profile",
+      const response = await apiClient.post(
+        `/api/v1/members/profileImg/${email}`,
         formData,
         {
           headers: {
@@ -50,10 +50,10 @@ export default function ProfileForm() {
       );
 
       if (response.data.resultCode === "200") {
-        setProfileImage(response.data.data.profileImg);
+        setProfileImage(`http://localhost:8081/file/${response.data.data}`);
       }
     } catch (err) {
-      console.error("이미지 업로드 실패:", err);
+      console.log("이미지 업로드 실패: " + err);
       setError("이미지 업로드에 실패했습니다.");
     }
   };
