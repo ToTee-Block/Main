@@ -6,7 +6,9 @@ import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
 import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
+import com.example.Main.domain.Mentor.request.ApproveMentoringRequest;
 import com.example.Main.domain.Mentor.request.MentorRegistrationRequest;
+import com.example.Main.domain.Mentor.service.MentorMenteeMatchingService;
 import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
@@ -15,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ public class ApiV1MentorController {
     private final MentorService mentorService;
     private final JwtProvider jwtProvider;
     private final MemberService memberService;
+    private final MentorMenteeMatchingService matchingService;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/registration")
