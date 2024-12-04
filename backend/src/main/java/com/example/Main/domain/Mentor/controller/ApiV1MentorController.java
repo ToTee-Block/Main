@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +31,6 @@ public class ApiV1MentorController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/registration")
-
     public RsData<?> mentorRegistration(@Valid @RequestBody MentorRegistrationRequest mentorRegistrationRequest, Principal principal) {
         Member member = this.memberService.getMemberByEmail(principal.getName());
 
