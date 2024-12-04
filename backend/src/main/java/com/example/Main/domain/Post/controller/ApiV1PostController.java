@@ -254,9 +254,6 @@ public class ApiV1PostController {
         }
 
         String loggedInUser = principal.getName();
-        if (loggedInUser == null) {
-            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
-        }
 
         Post post = this.postService.getPost(id);
 
