@@ -15,43 +15,11 @@ interface Message {
 
 interface ChatMessagesProps {
   roomName: string; // 채팅방 이름
-  initialMessages: Message[]; // 초기 메시지 (Optional, 부모 컴포넌트에서 전달)
+  messages: Message[]; // 부모 컴포넌트에서 전달된 메시지
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({
-  roomName,
-  initialMessages,
-}) => {
-  const [messages, setMessages] = useState<Message[]>(initialMessages); // 초기 메시지를 상태로 설정
+const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
-
-  // 백엔드에서 메시지 가져오기
-  useEffect(() => {
-    setIsLoading(true);
-    fetch(`http://localhost:8081/chat/${roomName}/messages`) // 해당 채팅방의 메시지 가져오기
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch messages.");
-        return res.json();
-      })
-      .then((data) => {
-        const formattedMessages: Message[] = data.map((msg: any) => ({
-          text: msg.text,
-          type: msg.sender === "Me" ? "sent" : "received", // 발신자 구분
-          senderName: msg.senderName || "익명", // 이름이 없다면 "익명"
-          senderProfile: msg.senderProfile || "/icon/circle_user.svg", // 프로필이 없다면 기본 이미지
-          time: new Date(msg.timestamp).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          date: new Date(msg.timestamp).toISOString().split("T")[0], // 날짜 포맷
-        }));
-
-        // 받은 메시지 상태 업데이트
-        setMessages(formattedMessages);
-      })
-      .catch((err) => console.error("Error fetching messages:", err))
-      .finally(() => setIsLoading(false)); // 로딩 상태 false로 설정
-  }, [roomName]); // roomName이 변경될 때마다 메시지 재로딩
 
   // 날짜별로 메시지 그룹화
   const groupedMessages = messages.reduce<Record<string, Message[]>>(

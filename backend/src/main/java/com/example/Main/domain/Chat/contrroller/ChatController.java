@@ -67,7 +67,7 @@ public class ChatController {
     }
 
     @GetMapping("/chat/{roomId}")
-    public ResponseEntity<Map<String, Object>> getChatRoomDetails(@PathVariable Long roomId) {
+    public ResponseEntity<Map<String, Object>> getChatRoomDetails(@PathVariable("roomId") Long roomId) {
         try {
             var roomDetails = chatService.getRoomDetails(roomId);
             return ResponseEntity.ok(Map.of(
