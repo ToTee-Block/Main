@@ -52,15 +52,6 @@ public class Post extends BaseEntity {
 
     // 댓글 목록
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @OrderBy("createdDate DESC")
     private List<Comment> comments;
-
-    // 댓글 ID 순차 관리용 필드
-    @Column(name = "comment_sequence")
-    private Long commentSequence = 0L;  // 기본값을 0으로 설정
-
-    // 댓글 ID 증가 메서드
-    public Long incrementCommentSequence() {
-        commentSequence++;
-        return commentSequence;
-    }
 }

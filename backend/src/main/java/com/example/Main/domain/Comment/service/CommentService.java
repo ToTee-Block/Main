@@ -1,5 +1,6 @@
 package com.example.Main.domain.Comment.service;
 
+import com.example.Main.domain.Comment.dto.CommentDTO;
 import com.example.Main.domain.Comment.entity.Comment;
 import com.example.Main.domain.Comment.repository.CommentRepository;
 import com.example.Main.domain.Member.entity.Member;
@@ -7,9 +8,11 @@ import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,9 +23,44 @@ public class CommentService {
     private final PostRepository postRepository;
     private final MemberService memberService;
 
-    // 댓글 등록
+    // 댓글 목록 조회
+    public List<CommentDTO> getCommentsByPostId(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElse(null);
+
+        if (post == null) {
+            return null;
+        }
+
+        List<Comment> comments = commentRepository.findByPost(post, Sort.by(Sort.Order.desc("createdDate")));
+        return comments.stream()
+                .map(CommentDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    // 댓글 단일 조회
+    public Optional<Comment> getComment(Long commentId) {
+        return commentRepository.findById(commentId);
+    }
+
+    // 본인이 작성한 댓글 조회
+    public List<CommentDTO> getPostsCommentsByUserAndPostId(String email, Long postId) {
+        List<Comment> comments = commentRepository.findByPostIdAndAuthorEmail(postId, email);
+
+        return comments.stream()
+                .map(CommentDTO::new)
+                .collect(Collectors.toList());
+    }
+
+
+    // 댓글 작성
     public Comment addComment(Long postId, String userEmail, String content) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+        Post post = postRepository.findById(postId)
+                .orElse(null);
+        if (post == null) {
+            return null;
+        }
+
         Member member = memberService.getMemberByEmail(userEmail);
 
         Comment comment = Comment.builder()
@@ -36,62 +74,62 @@ public class CommentService {
 
     // 댓글 수정
     public Comment updateComment(Long commentId, String content, String userEmail) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
-        if (!comment.getAuthor().getEmail().equals(userEmail)) {
-            throw new IllegalArgumentException("본인만 댓글을 수정할 수 있습니다.");
+        Optional<Comment> commentOpt = commentRepository.findById(commentId);
+
+        if (commentOpt.isEmpty()) {
+            return null;  //
         }
 
+        Comment comment = commentOpt.get();
         comment.setContent(content);
         return commentRepository.save(comment);
     }
 
     // 댓글 삭제
-    public void deleteComment(Long commentId, String userEmail) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
-        if (!comment.getAuthor().getEmail().equals(userEmail)) {
-            throw new IllegalArgumentException("본인만 댓글을 삭제할 수 있습니다.");
+    public boolean deleteComment(Long commentId) {
+        Optional<Comment> commentOpt = commentRepository.findById(commentId);
+
+        if (commentOpt.isEmpty()) {
+            return false;
         }
-        commentRepository.delete(comment);  // 삭제
+
+        Comment comment = commentOpt.get();
+        commentRepository.delete(comment);
+        return true;
     }
 
     // 댓글 좋아요 추가
-    public void likeComment(Long commentId, String userEmail) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+    public boolean likeComment(Long commentId, String userEmail) {
+        Optional<Comment> commentOpt = commentRepository.findById(commentId);
+
+        if (commentOpt.isEmpty()) {
+            return false;
+        }
+
+        Comment comment = commentOpt.get();
         Member member = memberService.getMemberByEmail(userEmail);
 
-        // 좋아요 추가 로직
-        comment.addLike(member);  // 해당 메서드를 Comment 엔티티에서 구현
+        comment.addLike(member);
         commentRepository.save(comment);
+        return true;
     }
 
     // 댓글 좋아요 취소
-    public void unlikeComment(Long commentId, String userEmail) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+    public boolean unlikeComment(Long commentId, String userEmail) {
+        Optional<Comment> commentOpt = commentRepository.findById(commentId);
+
+        if (commentOpt.isEmpty()) {
+            return false;
+        }
+
+        Comment comment = commentOpt.get();
         Member member = memberService.getMemberByEmail(userEmail);
 
-        // 좋아요 취소 로직
-        comment.removeLike(member);  // 해당 메서드를 Comment 엔티티에서 구현
+        comment.removeLike(member);
         commentRepository.save(comment);
+        return true;
     }
 
-    // 특정 게시물에 대한 모든 댓글 조회
-    public List<Comment> getCommentsByPost(Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
-        return commentRepository.findByPost(post);  // Post 엔티티와 연결된 댓글들을 조회
-    }
 
-    // 특정 사용자가 작성한 댓글 조회
-    public List<Comment> getCommentsByAuthor(String userEmail) {
-        Member member = memberService.getMemberByEmail(userEmail);
-        return commentRepository.findByAuthor(member);  // 사용자가 작성한 댓글들을 조회
-    }
-
-    // CommentService에 추가된 메서드
-    public Comment getCommentById(Long commentId) {
-        return commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
-    }
 
 }
