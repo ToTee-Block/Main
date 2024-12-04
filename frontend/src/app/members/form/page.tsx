@@ -7,7 +7,7 @@ import Birthday from "@/components/birthday/Birthday";
 import TextInput from "@/components/input/TextInput";
 import GenderButton from "@/components/button/GenderButton";
 import LoginButton from "@/components/button/Loginbutton";
-import ProfileImage from "@/components/profile/profileimage";
+import ProfileImage from "@/components/profile/ProfileImage";
 import styles from "@/styles/pages/members/form.module.scss";
 
 interface BirthdayType {
