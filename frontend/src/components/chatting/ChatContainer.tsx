@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import styles from "@/styles/components/chatting/ChatContainer.module.scss";
 import ChatList from "./ChatList";
@@ -13,11 +15,11 @@ interface ChatMessage {
 }
 
 type ChatHistory = {
-  [roomName: string]: ChatMessage[];
+  [roomId: string]: ChatMessage[]; // roomId를 키로 사용
 };
 
 const ChatContainer = () => {
-  const [activeRoom, setActiveRoom] = useState<string | null>(null);
+  const [activeRoom, setActiveRoom] = useState<string | null>(null); // activeRoom은 roomId로 저장
   const [chatHistory, setChatHistory] = useState<ChatHistory>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,19 +33,36 @@ const ChatContainer = () => {
     return now.toISOString().split("T")[0]; // YYYY-MM-DD
   };
 
+  // 채팅방 목록을 백엔드에서 가져오기
+  const [rooms, setRooms] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch("http://localhost:8081/chat/rooms")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch chat rooms.");
+        return res.json();
+      })
+      .then((data) => {
+        setRooms(data); // 채팅방 목록 설정
+      })
+      .catch((err) => console.error("Error fetching chat rooms:", err))
+      .finally(() => setIsLoading(false));
+  }, []);
+
   // 백엔드에서 특정 채팅방의 채팅 기록을 불러오기
   useEffect(() => {
     if (activeRoom) {
       setIsLoading(true);
-      fetch(`http://localhost:8081/chat/${activeRoom}`)
+      fetch(`http://localhost:8081/chat/${activeRoom}/messages`) // activeRoom은 roomId
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch chat messages.");
           return res.json();
         })
         .then((data) => {
           const fetchedMessages: ChatMessage[] = data.map((msg: any) => ({
-            text: msg.text,
-            type: msg.sender === "Me" ? "sent" : "received",
+            text: msg.message,
+            type: msg.senderName === "Me" ? "sent" : "received",
             time: new Date(msg.timestamp).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -92,9 +111,9 @@ const ChatContainer = () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        roomId: activeRoom,
+        roomId: activeRoom, // roomId를 사용
         senderName: "Me",
-        message,
+        message, // 클라이언트에서 보낸 메시지
       }),
     }).catch((err) => console.error("Error sending message:", err));
   };
@@ -103,13 +122,17 @@ const ChatContainer = () => {
     <div className={styles.chatContainer}>
       <ChatList
         activeRoom={activeRoom}
-        rooms={Object.keys(chatHistory)}
-        onRoomSelect={setActiveRoom}
+        rooms={rooms} // rooms는 이제 id와 name이 포함된 객체 배열로 전달됨
+        onRoomSelect={(roomId) => setActiveRoom(String(roomId))} // roomId를 activeRoom으로 설정
       />
       <div className={styles.chatContent}>
         {activeRoom ? (
           <>
-            <ChatHeader roomName={activeRoom} />
+            <ChatHeader
+              roomName={
+                rooms.find((room) => room.id === Number(activeRoom))?.name || ""
+              }
+            />
             {isLoading ? (
               <p>Loading messages...</p>
             ) : (
