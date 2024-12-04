@@ -1,5 +1,6 @@
 package com.example.Main.domain.Post.dto;
 
+import com.example.Main.domain.Comment.dto.CommentDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.entity.Post;
 import jakarta.persistence.GeneratedValue;
@@ -37,6 +38,9 @@ public class PostDTO {
     // 좋아요한 멤버들의 이메일 리스트
     private final List<String> likedByEmails;
 
+    // 댓글 목록
+    private final List<CommentDTO> comments; // 포스트에 달린 댓글들
+
     // 포스트 등록 수정 임시수정시 마크다운 문법으로 작성
     public PostDTO(Post post) {
         this.id = post.getId();
@@ -55,6 +59,12 @@ public class PostDTO {
         this.likedByEmails = likedByMembersSet.stream()
                 .map(member -> member.getEmail())  // 이메일만 추출
                 .collect(Collectors.toList());
+
+        // 댓글 목록
+        this.comments = post.getComments() != null ?
+                post.getComments().stream()
+                        .map(CommentDTO::new)
+                        .collect(Collectors.toList()) : List.of();
     }
 
     // content 값을 동적으로 수정하는 setter

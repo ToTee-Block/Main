@@ -1,5 +1,6 @@
 package com.example.Main.domain.Post.entity;
 
+import com.example.Main.domain.Comment.entity.Comment;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.global.Jpa.BaseEntity;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -46,5 +48,19 @@ public class Post extends BaseEntity {
     public void removeLike(Member member) {
         likedByMembers.remove(member);
         likes = likedByMembers.size(); // 좋아요 수 업데이트
+    }
+
+    // 댓글 목록
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<Comment> comments;
+
+    // 댓글 ID 순차 관리용 필드
+    @Column(name = "comment_sequence")
+    private Long commentSequence = 0L;  // 기본값을 0으로 설정
+
+    // 댓글 ID 증가 메서드
+    public Long incrementCommentSequence() {
+        commentSequence++;
+        return commentSequence;
     }
 }
