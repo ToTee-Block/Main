@@ -62,12 +62,13 @@ public class ApiV1MentorController {
         return ResponseEntity.ok(RsData.of("200", "멘토 정보 가져오기 성공", mentorDTO));
     }
 
-
-
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/myMentoring/requests")
-    public RsData myMentoring() {
-        List<MentorMenteeMatching> matchings = this.matchingService.myMentoringRequestList();
+    public RsData getMyMentoring(Principal principal) {
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+        Mentor mentor = this.mentorService.getMentorById(member.getMentorQualify().getId());
+
+        List<MentorMenteeMatching> matchings = this.matchingService.myMentoringList(mentor);
         List<MemberDTO> mentees = matchings.stream()    // 멘티의 정보만 DTO의 형식으로 재구성하여 리스트 만들기
                 .map(matching -> new MemberDTO(matching.getMentee()))
                 .collect(Collectors.toList());
@@ -77,11 +78,11 @@ public class ApiV1MentorController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/myMentoring/inProgress")
-    public RsData myMentoringInProgress(Principal principal) {
+    public RsData getMyMentoringInProgress(Principal principal) {
         Member member = this.memberService.getMemberByEmail(principal.getName());
         Mentor mentor = this.mentorService.getMentorById(member.getMentorQualify().getId());
 
-        List<MentorMenteeMatching> matchings = this.matchingService.myMentoringList(mentor);
+        List<MentorMenteeMatching> matchings = this.matchingService.myApprovedMentoringList(mentor);
         List<MemberDTO> mentees = matchings.stream()    // 멘티의 정보만 DTO의 형식으로 재구성하여 리스트 만들기
                 .map(matching -> new MemberDTO(matching.getMentee()))
                 .collect(Collectors.toList());
