@@ -1,6 +1,8 @@
 package com.example.Main.domain.Chat.contrroller;
 
 import com.example.Main.domain.Chat.dto.ChatDTO;
+import com.example.Main.domain.Chat.entity.Chat;
+import com.example.Main.domain.Chat.serivce.ChatService;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.global.Jwt.JwtProvider;
@@ -11,69 +13,115 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class ChatController {
+    private final ChatService chatService;
+    private final SimpMessageSendingOperations templates;
+    private final JwtProvider jwtProvider;
+    private final MemberService memberService;
 
-    private  final SimpMessageSendingOperations templates;
-    private  final JwtProvider jwtProvider;
-    private  final MemberService memberService;
+    @GetMapping("/chat/rooms")
+    public ResponseEntity<List<Map<String, Object>>> getChatRooms() {
+        List<Map<String, Object>> chatRooms = chatService.getAllRooms().stream()
+                .map(room -> {
+                    Map<String, Object> roomMap = new HashMap<>();
+                    roomMap.put("id", room.getId());
+                    roomMap.put("name", room.getName());
+                    return roomMap;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(chatRooms);
+    }
 
-    @GetMapping("/chat/rooms") // 새로운 엔드포인트 추가
-    public ResponseEntity<List<String>> getChatRooms() {
+    @PostMapping("/chat/rooms")
+    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody) {
+        String roomName = requestBody.get("name");
+        if (roomName == null || roomName.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Room name cannot be empty"));
+        }
+        var newRoom = chatService.createRoom(roomName);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "id", newRoom.getId(),
+                "name", newRoom.getName()
+        ));
+    }
+
+    @DeleteMapping("/chat/{roomId}")
+    public ResponseEntity<Map<String, Object>> deleteChatRoom(@PathVariable Long roomId) {
         try {
-            // 예시 채팅방 목록 반환
-            List<String> chatRooms = List.of("박승수", "관리자"); // 임시 데이터
-            return ResponseEntity.ok().body(chatRooms); // 200 OK 반환
-        } catch (Exception e) {
-            // 예외 발생 시 500 Internal Server Error 반환
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of("Error fetching chat rooms"));
+            chatService.deleteRoom(roomId);
+            return ResponseEntity.ok(Map.of("message", "Room deleted successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Invalid room ID"));
         }
     }
 
-    @GetMapping("/chat/{id}") //채팅 리스트 반환
-    public ResponseEntity<List<ChatDTO>> getChatDTO(@PathVariable Long id) {
-        // 예: DB에서 메시지 가져오기 (현재는 임시 데이터)
-        ChatDTO test = new ChatDTO(1L, "test", "Hello from server!", LocalDateTime.now());
-        return ResponseEntity.ok().body(List.of(test));
+    @GetMapping("/chat/{roomId}")
+    public ResponseEntity<Map<String, Object>> getChatRoomDetails(@PathVariable Long roomId) {
+        try {
+            var roomDetails = chatService.getRoomDetails(roomId);
+            return ResponseEntity.ok(Map.of(
+                    "id", roomDetails.getId(),
+                    "name", roomDetails.getName(),
+                    "createdAt", roomDetails.getCreatedAt()
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Room not found"));
+        }
     }
 
-    @MessageMapping("/message")//메세지 송신 및 수신,pub가 생략된 모습 클라이언트 단 에선 /pub/message로 요청
-    public ResponseEntity<Void> receiveMessage(@RequestBody ChatDTO chat, HttpServletRequest req) {
-        // JWT를 통해 로그인된 사용자 정보 가져오기
+    @MessageMapping("/message")
+    public ResponseEntity<Void> receiveMessage(@RequestBody ChatDTO chatDTO, HttpServletRequest req) {
         Member member = getAuthenticatedMember(req);
         if (member == null) {
-            return ResponseEntity.status(401).build(); // 인증 실패
+            return ResponseEntity.status(401).build();
         }
-        // 로그인된 사용자 정보를 포함한 ChatDTO 생성
-        ChatDTO enrichedChat = new ChatDTO(
-                member.getId(),
+
+        // 메시지 저장
+        chatService.saveMessage(chatDTO, member);
+
+        // WebSocket으로 전송
+        ChatDTO enrichedChatDTO = new ChatDTO(
+                chatDTO.getId(),
                 member.getName(),
-                chat.getMessage(),
+                chatDTO.getMessage(),
                 LocalDateTime.now()
         );
-
-        // WebSocket을 통해 클라이언트로 메시지 전송
-        templates.convertAndSend("/sub/chatroom/1", enrichedChat);
+        templates.convertAndSend("/sub/chatroom/" + chatDTO.getId(), enrichedChatDTO);
 
         return ResponseEntity.ok().build();
     }
 
-    // 인증된 사용자 정보 가져오기
+    @GetMapping("/chat/{roomId}/messages")
+    public ResponseEntity<List<ChatDTO>> getMessages(@PathVariable("roomId") Long roomId) {
+        try {
+            List<Chat> messages = chatService.getMessagesByRoomId(roomId);
+            List<ChatDTO> messageDTOs = messages.stream()
+                    .map(chatService::toDTO)
+                    .toList();
+            return ResponseEntity.ok(messageDTOs);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            e.printStackTrace(); // 디버깅용 로그
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     private Member getAuthenticatedMember(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
         String accessToken = "";
 
-        // 쿠키에서 accessToken 추출
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if ("accessToken".equals(cookie.getName())) {
@@ -84,10 +132,9 @@ public class ChatController {
         }
 
         if (accessToken.isEmpty() || !memberService.validateToken(accessToken)) {
-            return null; // 유효하지 않은 토큰
+            return null;
         }
 
-        // JWT에서 이메일 추출 및 사용자 조회
         Map<String, Object> claims = jwtProvider.getClaims(accessToken);
         String email = (String) claims.get("email");
         return memberService.getMemberByEmail(email);
