@@ -1,7 +1,7 @@
 package com.example.Main.domain.Mentor.repository;
 
-import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Mentor.entity.Mentor;
+import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
 import org.springframework.data.jpa.repository.JpaRepository;
 

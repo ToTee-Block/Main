@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MentorRepository extends JpaRepository<Mentor, Long> {
     Page<Mentor> findAllByApprovedFalse(Pageable pageable);
-  
+
     Mentor findByMember(Member member);
 }

@@ -7,7 +7,7 @@ import com.example.Main.domain.Mentor.repository.MentorMenteeMatchingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
