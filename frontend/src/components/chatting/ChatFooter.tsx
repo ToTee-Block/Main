@@ -11,37 +11,15 @@ interface ChatFooterProps {
 const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
   const [message, setMessage] = useState<string>("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || !activeRoom) return;
 
-    // 백엔드로 메시지 전송
-    try {
-      const response = await fetch("http://localhost:8081/chat/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        body: JSON.stringify({
-          roomName: activeRoom,
-          message,
-        }),
-      });
+    // 부모 컴포넌트로 메시지 전달
+    onSend(message);
 
-      if (response.ok) {
-        // 메시지 전송 성공, 부모 컴포넌트로 메시지 전달
-        onSend(message);
-
-        // 입력창 초기화
-        setMessage("");
-      } else {
-        const data = await response.json();
-        console.error("Error sending message:", data.message);
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
+    // 입력창 초기화
+    setMessage("");
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

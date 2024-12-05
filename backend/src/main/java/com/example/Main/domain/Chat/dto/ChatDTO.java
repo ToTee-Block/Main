@@ -12,12 +12,12 @@ public class ChatDTO {
     private  Long id;
     private  String name;
     private  String message;
-    private  LocalDateTime senTime;
+    private  LocalDateTime sendTime;
 
-    public ChatDTO(Long id, String name, String message, LocalDateTime senTime){
+    public ChatDTO(Long id, String name, String message, LocalDateTime sendTime){
         this.id= id;
         this.name= name;
         this.message = message;
-        this.senTime=  senTime;
+        this.sendTime=  sendTime;
     }
 }

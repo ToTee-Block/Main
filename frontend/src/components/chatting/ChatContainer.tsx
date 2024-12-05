@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import styles from "@/styles/components/chatting/ChatContainer.module.scss";
 import ChatList from "./ChatList";
 import ChatMessages from "./ChatMessages";
 import ChatFooter from "./ChatFooter";
 import ChatHeader from "./ChatHeader";
+import { Client } from "@stomp/stompjs";
 
 interface ChatMessage {
   text: string;
@@ -13,13 +14,21 @@ interface ChatMessage {
 }
 
 type ChatHistory = {
-  [roomName: string]: ChatMessage[];
+  [roomId: string]: ChatMessage[];
 };
+
+interface RoomDetails {
+  id: number;
+  name: string;
+  createdAt: string;
+}
 
 const ChatContainer = () => {
   const [activeRoom, setActiveRoom] = useState<string | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatHistory>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [rooms, setRooms] = useState<{ id: number; name: string }[]>([]);
+  const [roomDetails, setRoomDetails] = useState<RoomDetails | null>(null);
+  const [stompClient, setStompClient] = useState<Client | null>(null);
 
   const getCurrentTime = (): string => {
     const now = new Date();
@@ -28,96 +37,136 @@ const ChatContainer = () => {
 
   const getCurrentDate = (): string => {
     const now = new Date();
-    return now.toISOString().split("T")[0]; // YYYY-MM-DD
+    return now.toISOString().split("T")[0];
   };
 
-  // 백엔드에서 특정 채팅방의 채팅 기록을 불러오기
+  // 채팅방 목록 가져오기
   useEffect(() => {
-    if (activeRoom) {
-      setIsLoading(true);
-      fetch(`http://localhost:8081/chat/${activeRoom}`)
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to fetch chat messages.");
-          return res.json();
-        })
-        .then((data) => {
-          const fetchedMessages: ChatMessage[] = data.map((msg: any) => ({
-            text: msg.text,
-            type: msg.sender === "Me" ? "sent" : "received",
-            time: new Date(msg.timestamp).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            date: new Date(msg.timestamp).toISOString().split("T")[0],
-          }));
+    fetch("http://localhost:8081/chat/rooms")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch chat rooms.");
+        return res.json();
+      })
+      .then((data) => setRooms(data))
+      .catch((err) => console.error("Error fetching chat rooms:", err));
+  }, []);
 
-          setChatHistory((prev) => ({
-            ...prev,
-            [activeRoom]: fetchedMessages,
-          }));
-        })
-        .catch((err) => console.error("Error fetching chat messages:", err))
-        .finally(() => setIsLoading(false));
-    }
-  }, [activeRoom]);
-
-  // 메시지 전송 후 백엔드에 저장
-  const handleSendMessage = (message: string) => {
-    if (!activeRoom) return;
-
-    const currentTime = getCurrentTime();
-    const currentDate = getCurrentDate();
-
-    const newMessage: ChatMessage = {
-      text: message,
-      type: "sent",
-      time: currentTime,
-      date: currentDate,
-    };
-
-    setChatHistory((prev): ChatHistory => {
-      const updatedHistory: ChatMessage[] = [
-        ...(prev[activeRoom] || []),
-        newMessage,
-      ];
-
-      return {
-        ...prev,
-        [activeRoom]: updatedHistory,
-      };
+  // STOMP 클라이언트 초기화
+  useEffect(() => {
+    const client = new Client({
+      brokerURL: "ws://localhost:8081/ws", // WebSocket URL (SockJS 제거)
+      reconnectDelay: 5000, // 연결 재시도 간격
+      debug: (str) => console.log(str),
     });
 
-    // 백엔드로 메시지 전송
-    fetch("http://localhost:8081/pub/message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        roomId: activeRoom,
-        senderName: "Me",
-        message,
-      }),
-    }).catch((err) => console.error("Error sending message:", err));
+    client.onConnect = (frame) => {
+      console.log(`Connected: ${frame}`);
+      setStompClient(client);
+    };
+
+    client.onStompError = (frame) => {
+      console.error("STOMP error:", frame.headers["message"]);
+    };
+
+    client.activate();
+
+    return () => {
+      client.deactivate();
+    };
+  }, []);
+
+  // 채팅방 선택 및 구독
+  const handleRoomSelect = (roomId: string) => {
+    if (!stompClient) return;
+
+    setActiveRoom(roomId);
+
+    stompClient.subscribe(`/sub/chatroom/${roomId}`, (messageOutput) => {
+      const data = JSON.parse(messageOutput.body);
+      console.log("Received message:", data); // 메시지 수신 디버깅 로그
+      if (data.type === "message") {
+        setChatHistory((prev): ChatHistory => {
+          const updatedHistory: ChatMessage[] = [
+            ...(prev[roomId] || []),
+            {
+              text: data.message,
+              type: data.sender === "Me" ? "sent" : "received", // 정확히 "sent" 또는 "received"로 지정
+              time: new Date(data.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              date: new Date(data.timestamp).toISOString().split("T")[0],
+            },
+          ];
+          return { ...prev, [roomId]: updatedHistory };
+        });
+      }
+    });
+
+    // 채팅방 세부 정보 가져오기
+    fetch(`http://localhost:8081/chat/${roomId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch room details.");
+        return res.json();
+      })
+      .then((data) => {
+        setRoomDetails({
+          id: data.id,
+          name: data.name,
+          createdAt: data.createdAt,
+        });
+      })
+      .catch((err) => console.error("Error fetching room details:", err));
+  };
+
+  // 메시지 전송
+  const handleSendMessage = (message: string) => {
+    if (!stompClient || !activeRoom) return;
+
+    const payload = {
+      type: "message",
+      roomId: activeRoom,
+      message,
+      sender: "Me",
+      timestamp: new Date().toISOString(),
+    };
+
+    console.log("Sending message:", payload); // 메시지 송신 디버깅 로그
+
+    stompClient.publish({
+      destination: `/pub/message`, // 경로 수정
+      body: JSON.stringify(payload),
+    });
+
+    setChatHistory((prev) => {
+      const updatedHistory: ChatMessage[] = [
+        ...(prev[activeRoom] || []),
+        {
+          text: message,
+          type: "sent",
+          time: getCurrentTime(),
+          date: getCurrentDate(),
+        },
+      ];
+      return { ...prev, [activeRoom]: updatedHistory };
+    });
   };
 
   return (
     <div className={styles.chatContainer}>
       <ChatList
         activeRoom={activeRoom}
-        rooms={Object.keys(chatHistory)}
-        onRoomSelect={setActiveRoom}
+        rooms={rooms}
+        onRoomSelect={handleRoomSelect}
       />
       <div className={styles.chatContent}>
         {activeRoom ? (
           <>
-            <ChatHeader roomName={activeRoom} />
-            {isLoading ? (
-              <p>Loading messages...</p>
-            ) : (
-              <ChatMessages
-                initialMessages={chatHistory[activeRoom] || []}
-                roomName={activeRoom}
-              />
-            )}
+            <ChatHeader roomDetails={roomDetails} />
+            <ChatMessages
+              roomName={activeRoom}
+              messages={chatHistory[activeRoom] || []}
+            />
             <ChatFooter onSend={handleSendMessage} activeRoom={activeRoom} />
           </>
         ) : (
