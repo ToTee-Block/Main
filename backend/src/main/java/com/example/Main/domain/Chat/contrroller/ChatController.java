@@ -13,8 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -81,16 +84,21 @@ public class ChatController {
     }
 
     @MessageMapping("/message")
-    public ResponseEntity<Void> receiveMessage(@RequestBody ChatDTO chatDTO, HttpServletRequest req) {
-        Member member = getAuthenticatedMember(req);
+    @PreAuthorize("isAuthenticated()")
+    public void receiveMessage(ChatDTO chatDTO, Principal principal) {
+        Member member = this
+                .memberService.getMemberByEmail(principal.getName());
         if (member == null) {
-            return ResponseEntity.status(401).build();
+            System.out.println("Unauthorized message received");
+            return;
         }
+
+        System.out.println("Message received: " + chatDTO);
 
         // 메시지 저장
         chatService.saveMessage(chatDTO, member);
 
-        // WebSocket으로 전송
+        // 메시지 브로드캐스트
         ChatDTO enrichedChatDTO = new ChatDTO(
                 chatDTO.getId(),
                 member.getName(),
@@ -98,9 +106,9 @@ public class ChatController {
                 LocalDateTime.now()
         );
         templates.convertAndSend("/sub/chatroom/" + chatDTO.getId(), enrichedChatDTO);
-
-        return ResponseEntity.ok().build();
+        System.out.println("Message broadcasted to: /sub/chatroom/" + chatDTO.getId());
     }
+
 
     @GetMapping("/chat/{roomId}/messages")
     public ResponseEntity<List<ChatDTO>> getMessages(@PathVariable("roomId") Long roomId) {

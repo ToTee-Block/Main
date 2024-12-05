@@ -4,7 +4,6 @@ import ChatList from "./ChatList";
 import ChatMessages from "./ChatMessages";
 import ChatFooter from "./ChatFooter";
 import ChatHeader from "./ChatHeader";
-import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 
 interface ChatMessage {
@@ -52,55 +51,57 @@ const ChatContainer = () => {
       .catch((err) => console.error("Error fetching chat rooms:", err));
   }, []);
 
-  // 채팅방 선택 및 웹소켓 연결
-  const handleRoomSelect = (roomId: string) => {
-    setActiveRoom(roomId);
-
-    // 채팅방에 대해 웹소켓 연결
-    const socket = new SockJS("http://localhost:8081/ws");
+  // STOMP 클라이언트 초기화
+  useEffect(() => {
     const client = new Client({
-      webSocketFactory: () => socket,
+      brokerURL: "ws://localhost:8081/ws", // WebSocket URL (SockJS 제거)
+      reconnectDelay: 5000, // 연결 재시도 간격
       debug: (str) => console.log(str),
-      onConnect: (frame) => {
-        console.log(`Connected: ${frame}`);
-
-        // 채팅방 입장 요청
-        client.publish({
-          destination: `/app/chat/${roomId}`,
-          body: JSON.stringify({ type: "join", roomId }),
-        });
-
-        // 채팅방 메시지 구독
-        client.subscribe(`/topic/chatroom/${roomId}`, (messageOutput) => {
-          const data = JSON.parse(messageOutput.body);
-          if (data.type === "message") {
-            setChatHistory((prev) => {
-              const updatedHistory = [
-                ...(prev[data.roomId] || []),
-                {
-                  text: data.message,
-                  type: data.sender === "Me" ? "sent" : "received",
-                  time: new Date(data.timestamp).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }),
-                  date: new Date(data.timestamp).toISOString().split("T")[0],
-                },
-              ];
-              return { ...prev, [data.roomId]: updatedHistory };
-            });
-          }
-        });
-
-        setStompClient(client);
-      },
-      onStompError: (frame) => {
-        console.error("STOMP error:", frame);
-      },
     });
 
-    // 활성화하여 WebSocket 연결
+    client.onConnect = (frame) => {
+      console.log(`Connected: ${frame}`);
+      setStompClient(client);
+    };
+
+    client.onStompError = (frame) => {
+      console.error("STOMP error:", frame.headers["message"]);
+    };
+
     client.activate();
+
+    return () => {
+      client.deactivate();
+    };
+  }, []);
+
+  // 채팅방 선택 및 구독
+  const handleRoomSelect = (roomId: string) => {
+    if (!stompClient) return;
+
+    setActiveRoom(roomId);
+
+    stompClient.subscribe(`/sub/chatroom/${roomId}`, (messageOutput) => {
+      const data = JSON.parse(messageOutput.body);
+      console.log("Received message:", data); // 메시지 수신 디버깅 로그
+      if (data.type === "message") {
+        setChatHistory((prev): ChatHistory => {
+          const updatedHistory: ChatMessage[] = [
+            ...(prev[roomId] || []),
+            {
+              text: data.message,
+              type: data.sender === "Me" ? "sent" : "received", // 정확히 "sent" 또는 "received"로 지정
+              time: new Date(data.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              date: new Date(data.timestamp).toISOString().split("T")[0],
+            },
+          ];
+          return { ...prev, [roomId]: updatedHistory };
+        });
+      }
+    });
 
     // 채팅방 세부 정보 가져오기
     fetch(`http://localhost:8081/chat/${roomId}`)
@@ -130,8 +131,10 @@ const ChatContainer = () => {
       timestamp: new Date().toISOString(),
     };
 
+    console.log("Sending message:", payload); // 메시지 송신 디버깅 로그
+
     stompClient.publish({
-      destination: `/app/chat/${activeRoom}`,
+      destination: `/pub/message`, // 경로 수정
       body: JSON.stringify(payload),
     });
 
@@ -140,7 +143,7 @@ const ChatContainer = () => {
         ...(prev[activeRoom] || []),
         {
           text: message,
-          type: "sent", // "sent" | "received" 중 하나로 명시
+          type: "sent",
           time: getCurrentTime(),
           date: getCurrentDate(),
         },
