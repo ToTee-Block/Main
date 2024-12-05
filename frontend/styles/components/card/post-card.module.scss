@@ -1,0 +1,45 @@
+@import "../../globals/font-mixin.scss";
+
+.PostCard {
+  flex: 1;
+  min-width: 317px;
+  height: 300px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.imageWrapper {
+  width: 100%;
+  height: 60%;
+
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.content {
+  width: 100%;
+  height: 40%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+.title {
+  @include font-XXXS-M;
+  color: var(--text-secondary-color);
+}
+
+.description {
+  @include font-XS-B;
+  height: 100%;
+  padding: 10px 0px;
+}
+
+.textBox {
+  & > span {
+    @include font-XXXS-M;
+    margin-right: 8px;
+    color: var(--gray-600);
+  }
+}
