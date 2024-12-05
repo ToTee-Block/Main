@@ -39,6 +39,8 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/members/password").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/*/members/profile").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/members/delete/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/mentors/registration").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/mentors/profile/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         // post 관련 API에 대한 권한 설정 추가
@@ -69,7 +71,7 @@ public class ApiSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
 

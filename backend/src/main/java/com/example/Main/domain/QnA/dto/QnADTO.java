@@ -6,6 +6,7 @@ import com.example.Main.domain.QnA.entity.QnA;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -64,7 +65,7 @@ public class QnADTO {
                         .collect(Collectors.toList()) : List.of();
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setContent(String content){
+        this.content=content;
     }
 }
