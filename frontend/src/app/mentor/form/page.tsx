@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import styles from '@/styles/pages/mentorform.module.scss'
+import styles from '@/styles/pages/mentor-form.module.scss';
 import Image from 'next/image';
-import MentorButton from '@/components/button/MentorButton';
+import ApplyButton from '@/components/button/ApplyButton';
 
 export default function MentorForm() {
   const [isApplyDisabled, setIsApplyDisabled] = useState(false);
@@ -107,14 +107,14 @@ export default function MentorForm() {
 
       <div className={styles.buttonWrapper}>
         <div className={styles.submitButton}>
-          <MentorButton onClick={handleApplyClick} disabled={isApplyDisabled}>
+          <ApplyButton onClick={handleApplyClick} disabled={isApplyDisabled}>
             신청
-          </MentorButton>
+          </ApplyButton>
         </div>
         <div className={styles.submitButton}>
-          <MentorButton onClick={handleReapplyClick} disabled={isReapplyDisabled}>
+          <ApplyButton onClick={handleReapplyClick} disabled={isReapplyDisabled}>
             재신청
-          </MentorButton>
+          </ApplyButton>
         </div>
       </div>
     </div>
