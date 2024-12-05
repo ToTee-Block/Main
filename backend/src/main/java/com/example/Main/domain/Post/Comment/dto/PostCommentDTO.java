@@ -1,6 +1,6 @@
 package com.example.Main.domain.Post.Comment.dto;
 
-import com.example.Main.domain.Post.Comment.entity.Comment;
+import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.Member.entity.Member;
 import lombok.Getter;
 
@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
-public class CommentDTO {
+public class PostCommentDTO {
 
     private final Long id;
     private final String content;
@@ -18,9 +18,9 @@ public class CommentDTO {
     private final List<String> likedByEmails;
     private final Long postId;
     private final Long parentCommentId;
-    private final List<CommentDTO> replies;
+    private final List<PostCommentDTO> replies;
 
-    public CommentDTO(Comment comment) {
+    public PostCommentDTO(PostComment comment) {
         this.id = comment.getId();
         this.content = comment.getContent();
         this.authorEmail = comment.getAuthor().getEmail();
@@ -35,7 +35,7 @@ public class CommentDTO {
         // 대댓글
         this.parentCommentId = comment.getParentComment() != null ? comment.getParentComment().getId() : null;
         this.replies = comment.getReplies().stream()
-                .map(CommentDTO::new)
+                .map(PostCommentDTO::new)
                 .collect(Collectors.toList());
 
         // 게시글 ID 설정

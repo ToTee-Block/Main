@@ -1,14 +1,14 @@
 package com.example.Main.domain.Post.Comment.dto.response;
 
-import com.example.Main.domain.Post.Comment.dto.CommentDTO;
-import com.example.Main.domain.Post.Comment.entity.Comment;
+import com.example.Main.domain.Post.Comment.dto.PostCommentDTO;
+import com.example.Main.domain.Post.Comment.entity.PostComment;
 import lombok.Getter;
 
 @Getter
 public class CommentCreateResponse {
-    private final CommentDTO comment;
+    private final PostCommentDTO comment;
 
-    public CommentCreateResponse(Comment comment){
-        this.comment = new CommentDTO(comment);
+    public CommentCreateResponse(PostComment comment){
+        this.comment = new PostCommentDTO(comment);
     }
 }

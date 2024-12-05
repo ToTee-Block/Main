@@ -19,7 +19,7 @@ import java.util.Set;
 @NoArgsConstructor
 @SuperBuilder
 @ToString(callSuper = true)
-public class Comment extends BaseEntity {
+public class PostComment extends BaseEntity {
     private String content;
 
     @ManyToOne
@@ -37,6 +37,11 @@ public class Comment extends BaseEntity {
     private Set<Member> likedByMembers = new HashSet<>();
 
     private int likes;
+    @ManyToOne
+    @JoinColumn(name = "parent_comment_id")
+    private PostComment parentComment;
+    @OneToMany(mappedBy = "parentComment")
+    private List<PostComment> replies = new ArrayList<>();
 
     // 좋아요 추가
     public void addLike(Member member) {
@@ -49,11 +54,4 @@ public class Comment extends BaseEntity {
         likedByMembers.remove(member);
         likes = likedByMembers.size();
     }
-
-    @ManyToOne
-    @JoinColumn(name = "parent_comment_id")
-    private Comment parentComment;
-
-    @OneToMany(mappedBy = "parentComment")
-    private List<Comment> replies = new ArrayList<>();
 }

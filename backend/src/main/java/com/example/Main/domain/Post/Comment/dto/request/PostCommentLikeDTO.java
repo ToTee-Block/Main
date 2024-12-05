@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CommentLikeDTO {
+public class PostCommentLikeDTO {
     private String memberEmail;
 }

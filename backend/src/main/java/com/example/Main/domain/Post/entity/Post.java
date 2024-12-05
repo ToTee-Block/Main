@@ -1,6 +1,6 @@
 package com.example.Main.domain.Post.entity;
 
-import com.example.Main.domain.Post.Comment.entity.Comment;
+import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.global.Jpa.BaseEntity;
 import jakarta.persistence.*;
@@ -52,5 +52,5 @@ public class Post extends BaseEntity {
     // 댓글 목록
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     @OrderBy("createdDate DESC")
-    private List<Comment> comments;
+    private List<PostComment> comments;
 }
