@@ -1,6 +1,6 @@
-package com.example.Main.domain.Comment.dto.response;
+package com.example.Main.domain.Post.Comment.dto.response;
 
-import com.example.Main.domain.Comment.dto.CommentDTO;
+import com.example.Main.domain.Post.Comment.dto.CommentDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

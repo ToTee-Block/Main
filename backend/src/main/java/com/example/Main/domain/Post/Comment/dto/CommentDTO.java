@@ -1,6 +1,6 @@
-package com.example.Main.domain.Comment.dto;
+package com.example.Main.domain.Post.Comment.dto;
 
-import com.example.Main.domain.Comment.entity.Comment;
+import com.example.Main.domain.Post.Comment.entity.Comment;
 import com.example.Main.domain.Member.entity.Member;
 import lombok.Getter;
 

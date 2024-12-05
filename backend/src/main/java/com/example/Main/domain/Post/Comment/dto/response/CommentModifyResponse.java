@@ -1,7 +1,7 @@
-package com.example.Main.domain.Comment.dto.response;
+package com.example.Main.domain.Post.Comment.dto.response;
 
-import com.example.Main.domain.Comment.dto.CommentDTO;
-import com.example.Main.domain.Comment.entity.Comment;
+import com.example.Main.domain.Post.Comment.dto.CommentDTO;
+import com.example.Main.domain.Post.Comment.entity.Comment;
 import lombok.Getter;
 
 @Getter

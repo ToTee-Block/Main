@@ -1,6 +1,6 @@
 package com.example.Main.domain.Post.dto;
 
-import com.example.Main.domain.Comment.dto.CommentDTO;
+import com.example.Main.domain.Post.Comment.dto.CommentDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.entity.Post;
 import jakarta.persistence.GeneratedValue;

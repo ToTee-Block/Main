@@ -1,13 +1,12 @@
 package com.example.Main.domain.Post.entity;
 
-import com.example.Main.domain.Comment.entity.Comment;
+import com.example.Main.domain.Post.Comment.entity.Comment;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.global.Jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

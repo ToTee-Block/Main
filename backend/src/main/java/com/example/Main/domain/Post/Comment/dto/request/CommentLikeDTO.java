@@ -1,4 +1,4 @@
-package com.example.Main.domain.Comment.dto.request;
+package com.example.Main.domain.Post.Comment.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

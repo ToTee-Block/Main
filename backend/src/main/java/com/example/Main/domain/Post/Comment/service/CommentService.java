@@ -1,8 +1,8 @@
-package com.example.Main.domain.Comment.service;
+package com.example.Main.domain.Post.Comment.service;
 
-import com.example.Main.domain.Comment.dto.CommentDTO;
-import com.example.Main.domain.Comment.entity.Comment;
-import com.example.Main.domain.Comment.repository.CommentRepository;
+import com.example.Main.domain.Post.Comment.dto.CommentDTO;
+import com.example.Main.domain.Post.Comment.entity.Comment;
+import com.example.Main.domain.Post.Comment.repository.CommentRepository;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Post.entity.Post;
@@ -43,7 +43,7 @@ public class CommentService {
 
     // 댓글 및 대댓글 조회
     public List<CommentDTO> getRepliesByCommentId(Long commentId) {
-        List<Comment> replies = commentRepository.findByParentCommentId(commentId);
+        List<Comment> replies = commentRepository.findByParentCommentId(commentId, Sort.by(Sort.Order.desc("createdDate")));
         return replies.stream()
                 .map(CommentDTO::new)
                 .collect(Collectors.toList());
@@ -51,7 +51,7 @@ public class CommentService {
 
     // 대댓글 조회
     public List<CommentDTO> getRepliesByParentCommentId(Long parentCommentId) {
-        List<Comment> replies = commentRepository.findByParentCommentId(parentCommentId);
+        List<Comment> replies = commentRepository.findByParentCommentId(parentCommentId, Sort.by(Sort.Order.desc("createdDate")));
         return replies.stream()
                 .map(CommentDTO::new)
                 .collect(Collectors.toList());
@@ -71,7 +71,15 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
+    // 본인이 작성한 댓글 조회
+    public List<CommentDTO> getRepliesByUserAndParentCommentId(String email, Long parentCommentId) {
+        List<Comment> replies = commentRepository.findByParentCommentIdAndAuthorEmail(parentCommentId, email);
+        return replies.stream()
+                .map(CommentDTO::new)
+                .collect(Collectors.toList());
+    }
 
+    // 댓글 작성
     public Comment addComment(Long postId, String userEmail, String content, Long parentCommentId) {
         // 작성자를 이메일로 조회
         Member author = memberService.getMemberByEmail(userEmail);
@@ -117,6 +125,11 @@ public class CommentService {
         }
 
         Comment comment = commentOpt.get();
+
+        if (!comment.getAuthor().getEmail().equals(userEmail)) {
+            return null;
+        }
+
         comment.setContent(content);
         return commentRepository.save(comment);
     }
@@ -165,7 +178,4 @@ public class CommentService {
         commentRepository.save(comment);
         return true;
     }
-
-
-
 }

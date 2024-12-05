@@ -1,4 +1,4 @@
-package com.example.Main.domain.Comment.entity;
+package com.example.Main.domain.Post.Comment.entity;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.entity.Post;
