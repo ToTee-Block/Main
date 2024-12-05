@@ -142,7 +142,9 @@ public class ApiV1CommentPostController {
     // 게시글 댓글 삭제
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{commentId}")
-    public RsData<String> deleteComment(@PathVariable("postId") Long postId, @PathVariable("commentId") Long commentId, Principal principal) {
+    public RsData<String> deleteComment(@PathVariable("postId") Long postId,
+                                        @PathVariable("commentId") Long commentId,
+                                        Principal principal) {
         if (principal == null) {
             return RsData.of("401", "로그인 후 사용 가능합니다.", null);
         }
@@ -154,14 +156,16 @@ public class ApiV1CommentPostController {
             return RsData.of("404", "댓글이 존재하지 않습니다.", null);
         }
 
-
         if (!comment.getPost().getId().equals(postId)) {
             return RsData.of("404", "댓글이 속한 게시글 번호가 일치하지 않습니다.", null);
         }
 
-
         if (!comment.getAuthor().getEmail().equals(loggedInUser)) {
             return RsData.of("403", "본인만 댓글을 삭제할 수 있습니다.", null);
+        }
+
+        if (commentService.hasReplies(comment)) {
+            return RsData.of("400", "대댓글이 달린 댓글은 삭제할 수 없습니다.", null);
         }
 
         commentService.deleteComment(commentId);
@@ -369,34 +373,33 @@ public class ApiV1CommentPostController {
         return RsData.of("200", "대댓글 수정 성공", new PostCommentDTO(reply));
     }
 
+    // 대댓글 삭제
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{commentId}/replies/{replyId}")
-    public RsData<String> deleteReply(@PathVariable("postId") Long postId, @PathVariable("commentId") Long commentId,
-                                      @PathVariable("replyId") Long replyId, Principal principal) {
+    public RsData<String> deleteReply(@PathVariable("postId") Long postId,
+                                      @PathVariable("commentId") Long commentId,
+                                      @PathVariable("replyId") Long replyId,
+                                      Principal principal) {
         if (principal == null) {
             return RsData.of("401", "로그인 후 사용 가능합니다.", null);
         }
 
         String loggedInUser = principal.getName();
 
-
         Post post = postService.getPost(postId);
         if (post == null) {
             return RsData.of("404", "게시글을 찾을 수 없습니다.", null);
         }
-
 
         PostComment parentComment = commentService.getComment(commentId).orElse(null);
         if (parentComment == null) {
             return RsData.of("404", "부모 댓글을 찾을 수 없습니다.", null);
         }
 
-
         PostComment reply = commentService.getComment(replyId).orElse(null);
         if (reply == null || !reply.getParentComment().getId().equals(commentId)) {
             return RsData.of("404", "대댓글이 존재하지 않거나 부모 댓글과 일치하지 않습니다.", null);
         }
-
 
         if (!post.getId().equals(reply.getPost().getId())) {
             return RsData.of("404", "대댓글이 속한 게시글 번호가 일치하지 않습니다.", null);
@@ -406,6 +409,9 @@ public class ApiV1CommentPostController {
             return RsData.of("403", "본인만 대댓글을 삭제할 수 있습니다.", null);
         }
 
+        if (commentService.hasReplies(reply)) {
+            return RsData.of("400", "대댓글에 대댓글이 달린 경우 삭제할 수 없습니다.", null);
+        }
         commentService.deleteComment(replyId);
         return RsData.of("200", "%d 번 대댓글 삭제 성공".formatted(replyId), null);
     }

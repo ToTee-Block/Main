@@ -133,9 +133,32 @@ public class QnACommentService {
         }
 
         QnAComment comment = commentOpt.get();
+
+        if (hasReplies(comment)) {
+            return false;
+        }
+
         commentRepository.delete(comment);
         return true;
     }
+
+    public boolean hasReplies(QnAComment comment) {
+        List<QnAComment> replies = commentRepository.findByParentCommentId(comment.getId(), Sort.by(Sort.Order.desc("createdDate")));
+
+        if (!replies.isEmpty()) {
+            return true;
+        }
+
+        // 자식 대댓글 트리까지 재귀적으로 확인
+        for (QnAComment reply : replies) {
+            if (hasReplies(reply)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     // 댓글 좋아요 추가
     public boolean likeComment(Long commentId, String userEmail) {

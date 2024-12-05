@@ -139,7 +139,10 @@ public class ApiV1CommentQnAController {
     // QnA 댓글 삭제
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{commentId}")
-    public RsData<String> deleteComment(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId, Principal principal) {
+    public RsData<String> deleteComment(@PathVariable("qnAId") Long qnAId,
+                                        @PathVariable("commentId") Long commentId,
+                                        Principal principal) {
+
         if (principal == null) {
             return RsData.of("401", "로그인 후 사용 가능합니다.", null);
         }
@@ -153,6 +156,10 @@ public class ApiV1CommentQnAController {
 
         if (!comment.getQnA().getId().equals(qnAId)) {
             return RsData.of("404", "댓글이 속한 QnA 번호가 일치하지 않습니다.", null);
+        }
+
+        if (commentService.hasReplies(comment)) {
+            return RsData.of("400", "대댓글이 달린 댓글은 삭제할 수 없습니다.", null);
         }
 
         if (!comment.getAuthor().getEmail().equals(loggedInUser)) {
@@ -349,8 +356,10 @@ public class ApiV1CommentQnAController {
     // 대댓글 삭제
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{commentId}/replies/{replyId}")
-    public RsData<String> deleteReply(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId,
-                                      @PathVariable("replyId") Long replyId, Principal principal) {
+    public RsData<String> deleteReply(@PathVariable("qnAId") Long qnAId,
+                                      @PathVariable("commentId") Long commentId,
+                                      @PathVariable("replyId") Long replyId,
+                                      Principal principal) {
         if (principal == null) {
             return RsData.of("401", "로그인 후 사용 가능합니다.", null);
         }
@@ -380,9 +389,11 @@ public class ApiV1CommentQnAController {
             return RsData.of("403", "본인만 대댓글을 삭제할 수 있습니다.", null);
         }
 
+        if (commentService.hasReplies(reply)) {
+            return RsData.of("400", "대댓글에 대댓글이 달려 있는 경우 삭제할 수 없습니다.", null);
+        }
+
         commentService.deleteComment(replyId);
         return RsData.of("200", "%d 번 대댓글 삭제 성공".formatted(replyId), null);
     }
-
-
 }

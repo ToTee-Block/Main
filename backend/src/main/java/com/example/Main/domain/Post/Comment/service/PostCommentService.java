@@ -141,8 +141,29 @@ public class PostCommentService {
         }
 
         PostComment comment = commentOpt.get();
+
+        if (hasReplies(comment)) {
+            return false;
+        }
+
         commentRepository.delete(comment);
         return true;
+    }
+
+    public boolean hasReplies(PostComment comment) {
+        List<PostComment> replies = commentRepository.findByParentCommentId(comment.getId(), Sort.by(Sort.Order.desc("createdDate")));
+
+        if (!replies.isEmpty()) {
+            return true;
+        }
+
+        for (PostComment reply : replies) {
+            if (hasReplies(reply)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // 댓글 좋아요 추가
