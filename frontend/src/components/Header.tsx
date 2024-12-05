@@ -46,7 +46,7 @@ const Header: React.FC = () => {
             </span>
           </Link>
         </nav>
-        <LinkButton to="/members">Login</LinkButton>
+        <LinkButton to="/member">Login</LinkButton>
       </div>
     </header>
   );

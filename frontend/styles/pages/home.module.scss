@@ -1,0 +1,50 @@
+@import "../globals/font-mixin.scss";
+
+.main {
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  width: 100%;
+  height: auto;
+  padding: 40px 100px;
+
+  &>p {
+    @include font-XS-B;
+    margin-bottom: 24px;
+  }
+
+  &>.containerItemBox_mb {
+    margin-bottom: 20px;
+  }
+}
+
+.background_container {
+  background-image: url(../../public/images/Background.png);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .banner_card {
+    width: 500px;
+    height: 500px;
+    background-image: url(../../public/images/card.jpg);
+    margin-right: 14px;
+  }
+
+  .link_cardBox {
+    height: 450px;
+    display: flex;
+    gap: 10px;
+  }
+}
+
+.containerItemBox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
