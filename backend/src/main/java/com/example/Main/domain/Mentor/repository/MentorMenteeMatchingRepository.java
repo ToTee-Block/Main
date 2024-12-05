@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface MentorMenteeMatchingRepository extends JpaRepository<MentorMenteeMatching, Long> {
     List<MentorMenteeMatching> findByMentor(Mentor mentor);
+
+    List<MentorMenteeMatching> findByMentorAndApprovedTrue(Mentor mentor);
 }
