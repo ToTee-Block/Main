@@ -8,15 +8,23 @@ import MentorButton from '@/components/button/MentorButton';
 export default function MentorForm() {
   const [isApplyDisabled, setIsApplyDisabled] = useState(false);
   const [isReapplyDisabled, setIsReapplyDisabled] = useState(false);
+  const [checkedTechs, setCheckedTechs] = useState(Array(16).fill(false));
+  const [introduction, setIntroduction] = useState('');
 
   const handleApplyClick = () => {
-    // 신청 버튼 클릭 시 동작 구현
     setIsApplyDisabled(true);
   };
 
   const handleReapplyClick = () => {
-    // 재신청 버튼 클릭 시 동작 구현
     setIsReapplyDisabled(true);
+  };
+
+  const handleTechToggle = (index: number): void => {
+    setCheckedTechs(prev => {
+      const newState = [...prev];
+      newState[index] = !newState[index];
+      return newState;
+    });
   };
 
   return (
@@ -54,7 +62,13 @@ export default function MentorForm() {
             />
           </button>
         </div>
-        <p className={styles.imageGuide}>한줄 소개를 입력해주세요.</p>
+        <input
+          type="text"
+          value={introduction}
+          onChange={(e) => setIntroduction(e.target.value)}
+          placeholder="한줄 소개를 입력해주세요."
+          className={styles.imageGuide}
+        />
       </div>
 
       <div className={styles.formBox}>
@@ -68,8 +82,16 @@ export default function MentorForm() {
       <div className={styles.formBox}>
         <h3 className={styles.boxTitle}>기술 스택</h3>
         <div className={styles.tagContainer}>
-          {Array(16).fill('Text').map((text, index) => (
-            <span key={index} className={styles.tag}>{text}</span>
+          {Array(16).fill('Text').map((text, index: number) => (
+            <label key={index} className={`${styles.tag} ${checkedTechs[index] ? styles.checkedTag : ''}`}>
+              <input
+                type="checkbox"
+                className={styles.hiddenCheckbox}
+                checked={checkedTechs[index]}
+                onChange={() => handleTechToggle(index)}
+              />
+              {text}
+            </label>
           ))}
         </div>
       </div>
@@ -83,7 +105,7 @@ export default function MentorForm() {
         />
       </div>
 
-        <div className={styles.buttonWrapper}>
+      <div className={styles.buttonWrapper}>
         <div className={styles.submitButton}>
           <MentorButton onClick={handleApplyClick} disabled={isApplyDisabled}>
             신청
