@@ -40,6 +40,17 @@
   }
 }
 
+.readOnlyWrapper {
+  background-color: var(--gray-300);
+  @include font-XXXS-B;
+}
+
+.readOnlyInput {
+  background-color: var(--gray-300); // 수정 불가능한 상태의 배경색
+  @include font-XXXS-B;
+  cursor: not-allowed;
+}
+
 .errorMessage {
   @include font-XXXXS-M;
   color: var(--text-danger-light-color);

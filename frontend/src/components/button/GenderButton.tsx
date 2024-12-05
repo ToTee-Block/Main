@@ -2,9 +2,9 @@ import React from "react";
 import styles from "@/styles/components/button/gender-button.module.scss";
 
 interface GenderButtonProps {
-  label: string; // 버튼 라벨
-  isSelected: boolean; // 버튼이 선택되었는지 여부
-  onClick: () => void; // 클릭 이벤트 핸들러
+  label: string;
+  isSelected: boolean;
+  onClick: () => void;
 }
 
 const GenderButton: React.FC<GenderButtonProps> = ({
@@ -15,7 +15,7 @@ const GenderButton: React.FC<GenderButtonProps> = ({
   return (
     <button
       type="button"
-      className={`${styles.GenderButton} ${isSelected ? styles.Selected : ""}`} // 선택 상태에 따라 스타일 적용
+      className={`${styles.GenderButton} ${isSelected ? styles.Selected : ""}`}
       onClick={onClick}
     >
       {label}
@@ -24,15 +24,16 @@ const GenderButton: React.FC<GenderButtonProps> = ({
 };
 
 interface GenderSelectorProps {
-  selectedGender: string | null; // 선택된 성별 값
-  onGenderChange: (gender: string) => void; // 성별 변경 핸들러
+  selectedGender: string | null;
+  onGenderChange: (gender: string) => void;
+  showError?: boolean;
 }
 
 const GenderSelector: React.FC<GenderSelectorProps> = ({
   selectedGender,
   onGenderChange,
+  showError = false,
 }) => {
-  // 화면 표시용 라벨과 Enum 값 매핑
   const genderOptions = [
     { label: "남자", value: "M" },
     { label: "여자", value: "F" },
@@ -40,13 +41,19 @@ const GenderSelector: React.FC<GenderSelectorProps> = ({
   ];
 
   const handleGenderSelect = (genderValue: string) => {
-    onGenderChange(genderValue === selectedGender ? "" : genderValue); // 이미 선택된 버튼 클릭 시 해제
+    onGenderChange(genderValue === selectedGender ? "" : genderValue);
   };
+
+  const hasError = showError && !selectedGender;
 
   return (
     <div className={styles.GenderBox}>
       <p className={styles.GenderP}>성별</p>
-      <div className={styles.GenderSelector}>
+      <div
+        className={`${styles.GenderSelector} ${
+          hasError ? styles.errorInput : ""
+        }`}
+      >
         {genderOptions.map(({ label, value }) => (
           <GenderButton
             key={value}
@@ -56,6 +63,9 @@ const GenderSelector: React.FC<GenderSelectorProps> = ({
           />
         ))}
       </div>
+      {hasError && (
+        <p className={styles.errorMessage}>성별을 선택해주세요.</p>
+      )}
     </div>
   );
 };
