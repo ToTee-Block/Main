@@ -16,8 +16,7 @@ public class CommentDTO {
     private final String authorEmail;
     private final int likes;
     private final List<String> likedByEmails;
-
-    // 대댓글
+    private final Long postId;
     private final Long parentCommentId;
     private final List<CommentDTO> replies;
 
@@ -38,5 +37,8 @@ public class CommentDTO {
         this.replies = comment.getReplies().stream()
                 .map(CommentDTO::new)
                 .collect(Collectors.toList());
+
+        // 게시글 ID 설정
+        this.postId = comment.getPost() != null ? comment.getPost().getId() : null;
     }
 }

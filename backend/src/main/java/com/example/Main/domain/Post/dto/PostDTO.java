@@ -63,6 +63,7 @@ public class PostDTO {
         // 댓글 목록
         this.comments = post.getComments() != null ?
                 post.getComments().stream()
+                        .filter(comment -> comment.getParentComment() == null) // 부모 댓글만 필터링
                         .map(CommentDTO::new)
                         .collect(Collectors.toList()) : List.of();
     }
