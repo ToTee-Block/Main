@@ -1,0 +1,36 @@
+@import "../../globals/font-mixin.scss";
+
+.MentorCard {
+  width: 250px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.imageWrapper {
+  width: 50%;
+  height: 60%;
+  border-radius: 50%;
+  background-color: rgb(204, 204, 204);
+  margin-bottom: 12px;
+}
+
+.content {
+  width: 100%;
+  text-align: center;
+  
+  &>.name {
+    margin-bottom: 12px;
+  }
+
+  &>.name,
+  &>.description {
+    @include font-XXXXS-M;
+  }
+
+  &>.type {
+    @include font-XXS-M;
+    margin-bottom: 12px;
+  }
+}

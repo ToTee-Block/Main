@@ -28,7 +28,7 @@ public class MentorService {
     private final MemberRepository memberRepository;
 
     public MentorDTO mentorRegistration(Member member, /*List<MentorTechStack> techStacks,*/
-                                     String oneLineBio, String bio, String portfolio) {
+                                        String oneLineBio, String bio, String portfolio) {
 
         Mentor mentor = Mentor.builder()
                 .member(member)
@@ -79,7 +79,7 @@ public class MentorService {
     public Mentor getMentorById(Long id) {
         return this.mentorRepository.findById(id).orElse(null);
     }
-  
+
     public MentorDTO getMentorInfoByMember(Member member) {
         Mentor mentor = mentorRepository.findByMember(member);
         if (mentor == null) {
