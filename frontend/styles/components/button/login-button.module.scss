@@ -8,29 +8,5 @@
   @include font-XXS-B;
   color: var(--text-white);
   border-radius: 10px;
-}
-
-// styles/components/button/gender-button.module.scss
-.GenderButton {
-  padding: 10px 20px;
-  @include font-XXS-B;
-  border: 1px solid var(--gray-color);
-  background-color: var(--background);
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-
-  &:hover {
-    background-color: var(--text-white);
-  }
-}
-
-.Selected {
-  background-color: var(--text-primary-color);
-  color: var(--text-white);
-  border-color: var(--text-warning-color);
-}
-
-.GenderSelector {
-  display: flex;
-  gap: 10px; // 버튼 간 간격
+  margin-bottom: 20px;
 }

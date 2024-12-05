@@ -24,7 +24,7 @@ public class MentorReview extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member member;
+    private Member reviewer;
 
     @ManyToOne
     @JoinColumn(name = "mentor_id")

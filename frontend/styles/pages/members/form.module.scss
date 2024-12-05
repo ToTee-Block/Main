@@ -1,0 +1,25 @@
+@import "../../globals/font-mixin.scss";
+
+.container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.formTitle {
+  @include font-XL-B;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.formbox {
+  display: flex;
+  flex-direction: column;
+}
+
+.image {
+  display: flex;
+  justify-content: center;
+}

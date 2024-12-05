@@ -8,10 +8,10 @@ interface LinkButtonProps {
   children: React.ReactNode; // 버튼 내용 (필수)
 }
 
-const LinkButton: React.FC<LinkButtonProps> = ({ to, children}) => {
+const LinkButton: React.FC<LinkButtonProps> = ({ to, children }) => {
   return (
     <Link href={to} className={styles.linkButton}>
-        {children}
+      {children}
     </Link>
   );
 };
