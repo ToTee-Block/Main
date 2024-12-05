@@ -28,7 +28,7 @@ public class MentorService {
     private final MemberRepository memberRepository;
 
     public MentorDTO mentorRegistration(Member member, /*List<MentorTechStack> techStacks,*/
-                                     String oneLineBio, String bio, String portfolio) {
+                                        String oneLineBio, String bio, String portfolio) {
 
         Mentor mentor = Mentor.builder()
                 .member(member)
@@ -39,6 +39,9 @@ public class MentorService {
                 .matchingStatus(true)
                 .build();
         this.mentorRepository.save(mentor);
+
+        member.setMentorQualify(mentor);    // 멘토 정보, 개인 유저 테이블에 등록
+        this.memberRepository.save(member);
 
         return new MentorDTO(mentor);
     }
@@ -63,6 +66,7 @@ public class MentorService {
         this.memberRepository.save(member);
 
         mentor.setApproved(true);    // 멘토 승인상태로 변경
+        mentor.setMember(member);
         this.mentorRepository.save(mentor);
 
         return mentor;
@@ -72,15 +76,15 @@ public class MentorService {
         this.mentorRepository.delete(mentor);
     }
 
-    public MentorMenteeMatching requestMentoring(Member mentee, Mentor mentor) {
-        MentorMenteeMatching matching = new MentorMenteeMatching(mentee, mentor, false);
-
-        this.mentorMenteeMatchingRepository.save(matching);
-
-        return matching;
-    }
-
     public Mentor getMentorById(Long id) {
         return this.mentorRepository.findById(id).orElse(null);
+    }
+
+    public MentorDTO getMentorInfoByMember(Member member) {
+        Mentor mentor = mentorRepository.findByMember(member);
+        if (mentor == null) {
+            return null; // 멘토 정보가 없으면 null 반환
+        }
+        return new MentorDTO(mentor);
     }
 }

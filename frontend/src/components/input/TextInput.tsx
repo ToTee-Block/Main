@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "@/styles/components/input/text-input.module.scss"; // SCSS 모듈 임포트
 import Image from "next/image"; // Next.js Image 컴포넌트
 
@@ -18,12 +18,20 @@ const TextInput: React.FC<TextInputProps> = ({
   isNotModify = false,
 }) => {
   const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 상태
+  const [hasError, setHasError] = useState(true); // 초기 에러 상태를 true로 설정
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev); // 비밀번호 표시 상태 토글
   };
 
-  const hasError = !value; // 값이 비어 있으면 에러 상태
+  useEffect(() => {
+    setHasError((value?.trim() ?? "") === "");
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e);
+    setHasError(e.target.value.trim() === ""); // 입력 값이 변경될 때마다 에러 상태 업데이트
+  };
 
   return (
     <div className={styles.inputBox}>
@@ -37,7 +45,7 @@ const TextInput: React.FC<TextInputProps> = ({
           type={isPassword && !showPassword ? "password" : "text"} // 비밀번호 상태에 따라 type 변경
           placeholder={isNotModify ? "" : `${children}를 입력해주세요`} // placeholder는 수정 가능한 경우만 표시
           value={value} // 외부에서 전달된 값 사용
-          onChange={isNotModify ? undefined : onChange} // 수정 불가능 상태일 경우 onChange 제거
+          onChange={isNotModify ? undefined : handleChange} // 수정 불가능 상태일 경우 onChange 제거
           readOnly={isNotModify} // 수정 불가능 상태 설정
           className={`${styles.inputField} ${
             isNotModify ? styles.readOnlyInput : ""

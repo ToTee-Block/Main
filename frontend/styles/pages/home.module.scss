@@ -10,18 +10,18 @@
   height: auto;
   padding: 40px 100px;
 
-  &>p {
+  & > p {
     @include font-XS-B;
     margin-bottom: 24px;
   }
 
-  &>.containerItemBox_mb {
+  & > .containerItemBox_mb {
     margin-bottom: 20px;
   }
 }
 
 .background_container {
-  background-image: url(../../public/images/Background.png);
+  background-image: url(../../public/images/background-img.png);
   background-size: 100%;
   background-repeat: no-repeat;
   display: flex;

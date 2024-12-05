@@ -4,13 +4,26 @@ import styles from "@/styles/components/button/login-button.module.scss"; // SCS
 
 interface LoginButtonProps {
   children: React.ReactNode; // 버튼 내용 (필수)
+  onClick?: () => void; // 클릭 이벤트 핸들러 (선택적)
+  disabled?: boolean; // 버튼 비활성화 여부 (선택적)
 }
 
-const LoginButton: React.FC<LoginButtonProps> = ({ children }) => {
+const LoginButton: React.FC<LoginButtonProps> = ({
+  children,
+  onClick,
+  disabled = false,
+}) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (onClick) onClick();
+  };
+
   return (
     <button
-      type="submit"
-      className={`${styles.loginButton}`} // 클래스 이름을 모듈화된 스타일로 변경
+      type="button"
+      onClick={handleClick}
+      disabled={disabled}
+      className={`${styles.loginButton} ${disabled ? styles.disabled : ""}`}
     >
       {children}
     </button>

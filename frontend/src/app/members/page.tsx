@@ -29,7 +29,9 @@ export default function Login() {
     email: string,
     password: string
   ): Promise<LoginResponse> => {
+    console.log("login 함수 실행, 입력값 : ", { email, password });
     try {
+      console.log("API 호출 시작");
       const response = await apiClient.post<LoginResponse>(
         "/api/v1/members/login",
         { email, password }
@@ -51,6 +53,7 @@ export default function Login() {
 
   // 로그인 처리 함수
   const handleLogin = async () => {
+    console.log("handleLogin 함수 실행 시작");
     setError(null); // 이전 에러 초기화
     setLoading(true); // 로딩 시작
 
@@ -115,7 +118,7 @@ export default function Login() {
         </div>
         {/* 로그인 버튼 */}
         <LoginButton
-          onClick={handleLogin}
+          onClick={handleLogin} // 직접 전달
           disabled={loading || !email || !password}
         >
           {loading ? "로그인 중..." : "로그인"}
