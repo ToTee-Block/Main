@@ -9,6 +9,7 @@ import com.example.Main.domain.Post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,16 @@ public class PostService {
     // 게시글 전체 조회
     public List<PostDTO> getList() {
         List<Post> postList = this.postRepository.findAllByIsDraftFalse(Sort.by(Sort.Order.desc("createdDate")));
+
+        List<PostDTO> postDTOList = postList.stream()
+                .map(post -> new PostDTO(post))
+                .collect(Collectors.toList());
+        return postDTOList;
+    }
+
+    // 게시글 전체 조회 - 개수 제한
+    public List<PostDTO> getList(@PathVariable(value = "limit")Long limit) {
+        List<Post> postList = this.postRepository.findTopByIsDraftFalseOrderByIdAsc(limit);
 
         List<PostDTO> postDTOList = postList.stream()
                 .map(post -> new PostDTO(post))
