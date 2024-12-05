@@ -17,16 +17,26 @@ public class CommentDTO {
     private final int likes;
     private final List<String> likedByEmails;
 
+    // 대댓글
+    private final Long parentCommentId;
+    private final List<CommentDTO> replies;
+
     public CommentDTO(Comment comment) {
         this.id = comment.getId();
         this.content = comment.getContent();
         this.authorEmail = comment.getAuthor().getEmail();
+
+        // 좋아요
         this.likes = comment.getLikes();
         Set<Member> likedByMembersSet = comment.getLikedByMembers() != null ? comment.getLikedByMembers() : Set.of();
-
         this.likedByEmails = likedByMembersSet.stream()
-                .map(member -> member.getEmail())  // 이메일만 추출
+                .map(member -> member.getEmail())
                 .collect(Collectors.toList());
 
+        // 대댓글
+        this.parentCommentId = comment.getParentComment() != null ? comment.getParentComment().getId() : null;
+        this.replies = comment.getReplies().stream()
+                .map(CommentDTO::new)
+                .collect(Collectors.toList());
     }
 }

@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,4 +49,11 @@ public class Comment extends BaseEntity {
         likedByMembers.remove(member);
         likes = likedByMembers.size();
     }
+
+    @ManyToOne
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment; // 대댓글을 참조하는 필드
+
+    @OneToMany(mappedBy = "parentComment")
+    private List<Comment> replies = new ArrayList<>(); // 대댓글 리스트
 }

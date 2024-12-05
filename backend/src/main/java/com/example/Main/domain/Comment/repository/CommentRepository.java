@@ -16,4 +16,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 게시글에 본인이 작성한 댓글 조회
     List<Comment> findByPostIdAndAuthorEmail(Long postId, String email);
+
+    // 대댓글 조회
+    List<Comment> findByParentCommentId(Long commentId);
 }

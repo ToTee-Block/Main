@@ -96,7 +96,9 @@ public class ApiV1CommentPostController {
         }
 
         String userEmail = principal.getName();
-        Comment comment = commentService.addComment(postId, userEmail, commentCreateRequest.getContent());
+        Long parentCommentId = commentCreateRequest.getParentCommentId();
+
+        Comment comment = commentService.addComment(postId, userEmail, commentCreateRequest.getContent(), parentCommentId);
 
         if (comment == null) {
             return RsData.of("404", "게시글이 존재하지 않습니다.", null);
@@ -177,6 +179,64 @@ public class ApiV1CommentPostController {
         } else {
             commentService.likeComment(commentId, loggedInUser);
             return RsData.of("200", "댓글 좋아요 성공", new CommentResponse(new CommentDTO(comment)));
+        }
+    }
+
+    // 대댓글 조회
+    @GetMapping("/comments/{commentId}/replies")
+    public RsData<List<CommentDTO>> getReplies(@PathVariable("commentId") Long commentId) {
+        List<CommentDTO> replies = commentService.getRepliesByParentCommentId(commentId);
+        return RsData.of("200", "대댓글 조회 성공", replies);
+    }
+
+    // 게시글 댓글 대댓글 작성
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/comments/{commentId}/replies")
+    public RsData<CommentDTO> postReplyCreate(@PathVariable("commentId") Long commentId,
+                                              @Valid @RequestBody CommentCreateRequest commentCreateRequest,
+                                              Principal principal) {
+        if (principal == null) {
+            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+        }
+
+        String userEmail = principal.getName();
+        Long parentCommentId = commentId;  // 부모 댓글 ID
+        String content = commentCreateRequest.getContent();
+
+        // 대댓글 작성
+        Comment replyComment = commentService.addComment(null, userEmail, content, parentCommentId);
+
+        if (replyComment == null) {
+            return RsData.of("404", "부모 댓글을 찾을 수 없습니다.", null);
+        }
+
+        return RsData.of("201", "대댓글 작성 성공", new CommentDTO(replyComment));
+    }
+
+
+    // 대댓글 좋아요
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/comments/{commentId}/replies/{replyId}/like")
+    public RsData<CommentResponse> likeReply(@PathVariable("commentId") Long commentId,
+                                             @PathVariable("replyId") Long replyId, Principal principal) {
+        if (principal == null) {
+            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+        }
+
+        String loggedInUser = principal.getName();
+        Comment reply = commentService.getComment(replyId).orElse(null);
+
+        if (reply == null || !reply.getParentComment().getId().equals(commentId)) {
+            return RsData.of("404", "대댓글이 존재하지 않거나 부모 댓글과 일치하지 않습니다.", null);
+        }
+
+        boolean isLiked = reply.getLikedByMembers().contains(loggedInUser);
+        if (isLiked) {
+            commentService.unlikeComment(replyId, loggedInUser);
+            return RsData.of("200", "대댓글 좋아요 취소", new CommentResponse(new CommentDTO(reply)));
+        } else {
+            commentService.likeComment(replyId, loggedInUser);
+            return RsData.of("200", "대댓글 좋아요 성공", new CommentResponse(new CommentDTO(reply)));
         }
     }
 }
