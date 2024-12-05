@@ -32,8 +32,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -237,21 +239,55 @@ public class ApiV1MemberController {
     public RsData requestMentoring(@PathVariable("mentorId")Long mentorId, Principal principal) {
         Member mentee = this.memberService.getMemberByEmail(principal.getName());
         Mentor mentor = this.mentorService.getMentorById(mentorId);
+        boolean checkMatchingExist = this.matchingService.checkMatchingExist(mentee, mentor);    // 이미 신청했으면 true
 
         // 사용자 검증
         RsData checkAuthUserRD = this.checkAuthUser(
                 this.memberService.getMemberById(mentee.getId()),
                 principal
         );
-        if (checkAuthUserRD != null) return checkAuthUserRD;
-
-        if (mentor == null){
+        if (checkAuthUserRD != null) {
+            return checkAuthUserRD;
+        } else if (mentor == null) {
             return RsData.of("400", "존재하는 멘토가 아닙니다.");
+        } else if (checkMatchingExist) {
+            return RsData.of("400", "이미 신청 및 진행중인 멘토링입니다.");
         }
 
         MentorMenteeMatching matching = this.matchingService.requestMentoring(mentee, mentor);
 
         return RsData.of("200", "멘토링 신청 성공", new MentorDTO(mentor));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/myMentorings/request")    // 진행중인 멘토링 목록 + 내가 신청한 멘토링 목록
+    public RsData getMyMentorings(Principal principal) {
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+
+        List<MentorMenteeMatching> matchings = this.matchingService.getMyMatchings(member);
+        List<MentorDTO> mentors = matchings.stream()    // 멘토의 정보만 DTO의 형식으로 재구성하여 리스트 만들기
+                .map(matching -> new MentorDTO(matching))    // 진행중인 멘토링은 matchingStatus = true
+                .collect(Collectors.toList());
+
+        return RsData.of("200", "내 멘토링 목록", mentors);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/myMentorings/deny/{matchingId}")    // 매칭 끊기
+    public RsData denyMentoring(@PathVariable(value = "matchingId")Long matchingId, Principal principal) {
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+
+        MentorMenteeMatching matching = this.matchingService.getMatchingById(matchingId);
+
+        if (matching == null) {
+            return RsData.of("400", "존재하는 멘토링이 아닙니다.");
+        } else if (member != matching.getMentee()) {
+            return RsData.of("400", "권한이 없습니다.");
+        }
+
+        this.matchingService.denyMatching(matching);
+
+        return RsData.of("200", "멘토링 삭제 완료");
     }
 
     protected RsData delete(Long id) {
