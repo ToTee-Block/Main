@@ -23,8 +23,8 @@ public class MentorMenteeMatchingService {
         return matching;
     }
 
-    public List<MentorMenteeMatching> myMentoringRequestList() {
-        return this.matchingRepository.findAll();
+    public List<MentorMenteeMatching> myApprovedMentoringList(Mentor mentor) {
+        return this.matchingRepository.findByMentorAndApprovedTrue(mentor);
     }
 
     public List<MentorMenteeMatching> myMentoringList(Mentor mentor) {

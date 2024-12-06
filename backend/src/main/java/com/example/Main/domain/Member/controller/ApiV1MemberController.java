@@ -9,6 +9,7 @@ import com.example.Main.domain.Member.request.AuthcodeRequest;
 import com.example.Main.domain.Member.request.MemberCreate;
 import com.example.Main.domain.Member.request.MemberRequest;
 import com.example.Main.domain.Member.request.PasswordChangeRequest;
+import com.example.Main.domain.Member.request.PasswordChangeRequest;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
