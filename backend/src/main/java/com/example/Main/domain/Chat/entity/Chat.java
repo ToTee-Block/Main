@@ -1,13 +1,13 @@
 package com.example.Main.domain.Chat.entity;
 
 import com.example.Main.global.Jpa.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 

@@ -1,16 +1,13 @@
 package com.example.Main.domain.Chat.entity;
 
 import com.example.Main.global.Jpa.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,6 +16,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 public class ChatRoom extends BaseEntity {
-    @Column(nullable = false,unique = true)
-    private  String name;  //채팅방 이름
+    @Column(nullable = false, unique = true)
+    private String name;  //채팅방 이름
 }

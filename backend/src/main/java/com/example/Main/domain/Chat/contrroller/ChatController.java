@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -113,7 +112,6 @@ public class ChatController {
             System.out.println("Message broadcasted to: " + destination);
         }
     }
-
 
 
     @GetMapping("/chat/{roomId}/messages")
