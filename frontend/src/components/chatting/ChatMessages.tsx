@@ -35,42 +35,38 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
 
   return (
     <div className={styles.chatMessages}>
-      {isLoading ? (
-        <p>Loading messages...</p> // 로딩 중일 때 메시지 표시
-      ) : (
-        Object.keys(groupedMessages).map((date) => (
-          <div key={date}>
-            {/* 날짜 헤더 */}
-            <div className={styles.dateHeader}>{date}</div>
-            {/* 해당 날짜의 메시지 리스트 */}
-            {groupedMessages[date].map((message, index) => (
-              <div
-                key={index}
-                className={`${styles.chatMessage} ${styles[message.type]}`}
-              >
-                {/* 수신 메시지의 프로필과 이름 */}
-                {message.type === "received" && (
-                  <div className={styles.senderInfo}>
-                    <img
-                      src={message.senderProfile || "/icon/circle_user.svg"}
-                      alt={`${message.senderName}의 프로필`}
-                      className={styles.profileImage}
-                    />
-                    <span className={styles.senderName}>
-                      {message.senderName}
-                    </span>
-                  </div>
-                )}
-                {/* 메시지 내용 */}
-                <div className={styles.message}>
-                  {message.text}
-                  <span className={styles.time}>{message.time}</span>
+      {Object.keys(groupedMessages).map((date) => (
+        <div key={date}>
+          {/* 날짜 헤더 */}
+          <div className={styles.dateHeader}>{date}</div>
+          {/* 해당 날짜의 메시지 리스트 */}
+          {groupedMessages[date].map((message, index) => (
+            <div
+              key={index}
+              className={`${styles.chatMessage} ${styles[message.type]}`}
+            >
+              {/* 수신 메시지의 프로필과 이름 */}
+              {message.type === "received" && (
+                <div className={styles.senderInfo}>
+                  <img
+                    src={message.senderProfile || "/icon/circle_user.svg"}
+                    alt={`${message.senderName}의 프로필`}
+                    className={styles.profileImage}
+                  />
+                  <span className={styles.senderName}>
+                    {message.senderName}
+                  </span>
                 </div>
+              )}
+              {/* 메시지 내용 */}
+              <div className={styles.message}>
+                {message.text}
+                <span className={styles.time}>{message.time}</span>
               </div>
-            ))}
-          </div>
-        ))
-      )}
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 };

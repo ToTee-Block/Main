@@ -2,6 +2,7 @@ package com.example.Main.domain.Chat.contrroller;
 
 import com.example.Main.domain.Chat.dto.ChatDTO;
 import com.example.Main.domain.Chat.entity.Chat;
+import com.example.Main.domain.Chat.entity.ChatRoom;
 import com.example.Main.domain.Chat.serivce.ChatService;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
@@ -72,11 +73,11 @@ public class ChatController {
     @GetMapping("/chat/{roomId}")
     public ResponseEntity<Map<String, Object>> getChatRoomDetails(@PathVariable("roomId") Long roomId) {
         try {
-            var roomDetails = chatService.getRoomDetails(roomId);
+            ChatRoom roomDetails = chatService.getRoomDetails(roomId);
             return ResponseEntity.ok(Map.of(
                     "id", roomDetails.getId(),
                     "name", roomDetails.getName(),
-                    "createdAt", roomDetails.getCreatedAt()
+                    "createdAt", roomDetails.getCreatedDate()
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Room not found"));
@@ -86,8 +87,8 @@ public class ChatController {
     @MessageMapping("/message")
     @PreAuthorize("isAuthenticated()")
     public void receiveMessage(ChatDTO chatDTO, Principal principal) {
-        Member member = this
-                .memberService.getMemberByEmail(principal.getName());
+        // 현재 로그인한 사용자 정보 가져오기
+        Member member = this.memberService.getMemberByEmail(principal.getName());
         if (member == null) {
             System.out.println("Unauthorized message received");
             return;
@@ -98,16 +99,21 @@ public class ChatController {
         // 메시지 저장
         chatService.saveMessage(chatDTO, member);
 
-        // 메시지 브로드캐스트
-        ChatDTO enrichedChatDTO = new ChatDTO(
-                chatDTO.getId(),
-                member.getName(),
-                chatDTO.getMessage(),
-                LocalDateTime.now()
-        );
-        templates.convertAndSend("/sub/chatroom/" + chatDTO.getId(), enrichedChatDTO);
-        System.out.println("Message broadcasted to: /sub/chatroom/" + chatDTO.getId());
+        // 메시지를 전송하는 방의 ID와 일치하는 채팅방에 메시지를 전송
+        String destination = "/sub/chatroom/" + chatDTO.getId();
+        if (!principal.getName().equals(member.getName())) {
+            // 본인에게 메시지 전송하지 않도록 예외 처리
+            ChatDTO enrichedChatDTO = new ChatDTO(
+                    chatDTO.getId(),
+                    member.getName(),
+                    chatDTO.getMessage(),
+                    LocalDateTime.now()
+            );
+            templates.convertAndSend(destination, enrichedChatDTO);
+            System.out.println("Message broadcasted to: " + destination);
+        }
     }
+
 
 
     @GetMapping("/chat/{roomId}/messages")

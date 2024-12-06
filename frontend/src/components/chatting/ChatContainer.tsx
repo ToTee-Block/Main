@@ -79,7 +79,6 @@ const ChatContainer = () => {
     initializeClient();
   }, []);
 
-  // 채팅방 선택 및 구독
   const handleRoomSelect = (roomId: string) => {
     if (!stompClient) return;
 
@@ -96,22 +95,26 @@ const ChatContainer = () => {
       (messageOutput) => {
         const data = JSON.parse(messageOutput.body);
         console.log("Received message:", data);
-        setChatHistory((prev) => ({
-          ...prev,
-          [roomId]: [
-            ...(prev[roomId] || []),
-            {
-              text: data.message,
-              senderName: data.name,
-              type: data.name === "Me" ? "sent" : "received",
-              time: new Date(data.sendTime).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              }),
-              date: new Date(data.sendTime).toISOString().split("T")[0],
-            },
-          ],
-        }));
+
+        // 내 메시지는 제외하고, 상대 메시지만 추가
+        if (data.name !== "Me") {
+          setChatHistory((prev) => ({
+            ...prev,
+            [roomId]: [
+              ...(prev[roomId] || []),
+              {
+                text: data.message,
+                senderName: data.name,
+                type: "received",
+                time: new Date(data.sendTime).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                date: new Date(data.sendTime).toISOString().split("T")[0],
+              },
+            ],
+          }));
+        }
       }
     );
 
@@ -133,7 +136,6 @@ const ChatContainer = () => {
     fetchRoomDetails();
   };
 
-  // 메시지 전송
   const handleSendMessage = (message: string) => {
     if (!stompClient || !activeRoom) return;
 
@@ -141,7 +143,7 @@ const ChatContainer = () => {
       type: "message",
       roomId: activeRoom,
       message,
-      sender: "Me",
+      sender: "Me", // 내 메시지 구분
       sendTime: new Date().toISOString(),
     };
 
@@ -150,6 +152,7 @@ const ChatContainer = () => {
       body: JSON.stringify(payload),
     });
 
+    // 내 메시지는 즉시 화면에 추가
     setChatHistory((prev) => ({
       ...prev,
       [activeRoom]: [

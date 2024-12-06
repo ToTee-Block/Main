@@ -1,20 +1,23 @@
 package com.example.Main.domain.Chat.entity;
 
+import com.example.Main.global.Jpa.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-@Entity
 @Getter
+@Setter
+@SuperBuilder
+@AllArgsConstructor
 @NoArgsConstructor
-public class Chat {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+@Entity
+public class Chat extends BaseEntity {
     @Column(nullable = false)
     private Long chatRoomId;  // 채팅방 ID
 
@@ -26,11 +29,4 @@ public class Chat {
 
     @Column(nullable = false)
     private LocalDateTime sendTime;  // 전송 시간
-
-    public Chat(Long chatRoomId, String senderName, String message, LocalDateTime sendTime) {
-        this.chatRoomId = chatRoomId;
-        this.senderName = senderName;
-        this.message = message;
-        this.sendTime = sendTime;
-    }
 }

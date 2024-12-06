@@ -10,6 +10,7 @@ interface ChatFooterProps {
 
 const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
   const [message, setMessage] = useState<string>("");
+  const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,11 +27,20 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
     setMessage(e.target.value);
   };
 
+  const handleEmojiClick = (emoji: string) => {
+    setMessage((prevMessage) => prevMessage + emoji);
+    setIsEmojiPickerVisible(false);
+  };
+
   return (
     <div className={styles.chatFooter}>
       <form onSubmit={handleSubmit}>
         {/* 이모티콘 버튼 */}
-        <button type="button" className={styles.iconButton}>
+        <button
+          type="button"
+          className={styles.iconButton}
+          onClick={() => setIsEmojiPickerVisible((prev) => !prev)}
+        >
           <img
             src={"/icon/face_smile.svg"} // 이모티콘 아이콘
             alt={"이모티콘 버튼"}
@@ -63,6 +73,16 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
           />
         </button>
       </form>
+
+      {/* 이모티콘 선택기 */}
+      {isEmojiPickerVisible && (
+        <div className={styles.emojiPicker}>
+          {/* 간단한 이모티콘 리스트 예시 */}
+          <button onClick={() => handleEmojiClick("😊")}>😊</button>
+          <button onClick={() => handleEmojiClick("😂")}>😂</button>
+          <button onClick={() => handleEmojiClick("❤️")}>❤️</button>
+        </div>
+      )}
     </div>
   );
 };
