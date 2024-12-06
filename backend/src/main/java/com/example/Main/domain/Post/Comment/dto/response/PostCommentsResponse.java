@@ -4,9 +4,10 @@ import com.example.Main.domain.Post.Comment.dto.PostCommentDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @AllArgsConstructor
-public class CommentResponse {
-    private final PostCommentDTO comment;
+public class PostCommentsResponse {
+    private final List<PostCommentDTO> commentDTOS;
 }
-

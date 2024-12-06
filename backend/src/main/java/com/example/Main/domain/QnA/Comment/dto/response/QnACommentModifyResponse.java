@@ -5,10 +5,10 @@ import com.example.Main.domain.QnA.Comment.entity.QnAComment;
 import lombok.Getter;
 
 @Getter
-public class CommentModifyResponse {
+public class QnACommentModifyResponse {
     private final QnACommentDTO commentDTO;
 
-    public CommentModifyResponse(QnAComment comment){
+    public QnACommentModifyResponse(QnAComment comment){
         this.commentDTO = new QnACommentDTO(comment);
     }
 }

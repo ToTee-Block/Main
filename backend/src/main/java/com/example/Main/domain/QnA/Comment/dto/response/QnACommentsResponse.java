@@ -8,6 +8,6 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class CommentsResponse {
+public class QnACommentsResponse {
     private final List<QnACommentDTO> commentDTOS;
 }

@@ -5,10 +5,10 @@ import com.example.Main.domain.Post.Comment.entity.PostComment;
 import lombok.Getter;
 
 @Getter
-public class CommentCreateResponse {
+public class PostCommentCreateResponse {
     private final PostCommentDTO comment;
 
-    public CommentCreateResponse(PostComment comment){
+    public PostCommentCreateResponse(PostComment comment){
         this.comment = new PostCommentDTO(comment);
     }
 }

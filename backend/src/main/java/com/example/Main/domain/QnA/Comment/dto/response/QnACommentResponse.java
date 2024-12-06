@@ -6,6 +6,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class CommentResponse {
+public class QnACommentResponse {
     private final QnACommentDTO comment;
 }
