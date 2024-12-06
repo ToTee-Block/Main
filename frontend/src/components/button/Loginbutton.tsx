@@ -1,17 +1,19 @@
 // components/SubmitButton.tsx
 import React from "react";
-import styles from "@/styles/components/button/login-button.module.scss"; // SCSS 모듈 임포트
+import styles from "@/styles/components/button/login-button.module.scss";
 
 interface LoginButtonProps {
-  children: React.ReactNode; // 버튼 내용 (필수)
-  onClick?: () => void; // 클릭 이벤트 핸들러 (선택적)
-  disabled?: boolean; // 버튼 비활성화 여부 (선택적)
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
 }
 
 const LoginButton: React.FC<LoginButtonProps> = ({
   children,
   onClick,
   disabled = false,
+  className = "",
 }) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -23,7 +25,9 @@ const LoginButton: React.FC<LoginButtonProps> = ({
       type="button"
       onClick={handleClick}
       disabled={disabled}
-      className={`${styles.loginButton} ${disabled ? styles.disabled : ""}`}
+      className={`${styles.loginButton} ${
+        disabled ? styles.disabled : ""
+      } ${className}`}
     >
       {children}
     </button>

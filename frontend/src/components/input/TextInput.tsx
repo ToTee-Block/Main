@@ -8,6 +8,8 @@ interface TextInputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void; // 값 변경 핸들러
   isPassword?: boolean; // 비밀번호 입력 필드 여부
   isNotModify?: boolean; // 수정 불가능 여부
+  disabled?: boolean; // 패스워드 확인 로직
+  className?: string; // 외부에서 스타일을 적용할 수 있는 prop
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -16,6 +18,8 @@ const TextInput: React.FC<TextInputProps> = ({
   onChange = () => {}, // 기본값 추가 (isNotModify일 경우 필요 없음)
   isPassword = false,
   isNotModify = false,
+  disabled = false,
+  className = "",
 }) => {
   const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 상태
   const [hasError, setHasError] = useState(true); // 초기 에러 상태를 true로 설정
@@ -34,7 +38,7 @@ const TextInput: React.FC<TextInputProps> = ({
   };
 
   return (
-    <div className={styles.inputBox}>
+    <div className={`${styles.inputBox} ${className}`}>
       <p className={styles.inputP}>{children}</p>
       <div
         className={`${styles.inputWrapper} ${
