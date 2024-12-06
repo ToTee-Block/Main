@@ -9,17 +9,49 @@
 }
 
 .formTitle {
-  @include font-XL-B;
-  padding: 15px;
-  margin-bottom: 10px;
+  @include font-XXL-B;
+  padding: 30px;
 }
 
 .formbox {
   display: flex;
   flex-direction: column;
+  width: 450px;
+
+  .widthInput {
+    width: 100%;
+  }
 }
 
 .image {
   display: flex;
   justify-content: center;
+}
+
+.buttonBox {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 10px;
+  gap: 20px;
+
+  .loginButton {
+    width: 215px;
+    height: 48px;
+  }
+
+  .cancelButton {
+    text-align: center;
+    background-color: var(--background-red-color);
+    width: 215px;
+    height: 48px;
+    @include font-XXS-B;
+    align-content: center;
+    color: var(--text-white);
+    border-radius: 10px;
+    margin-bottom: 20px;
+
+    &:hover {
+      background-color: var(--text-danger-light-color);
+    }
+  }
 }

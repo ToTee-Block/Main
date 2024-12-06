@@ -190,7 +190,8 @@ public class ApiV1MemberController {
     @PreAuthorize("isAuthenticated")
     @PostMapping("/profileImg/{email}")
     public RsData modifyProfileImg(@PathVariable(value = "email")String email,
-                                   @RequestParam(value = "profileImg")MultipartFile image, Principal principal) {
+                                   @RequestParam(value = "profileImg")MultipartFile image,
+                                   Principal principal) {
         Member member = this.memberService.getMemberByEmail(email);
 
         RsData checkAuthUserRD = this.checkAuthUser(
@@ -203,12 +204,16 @@ public class ApiV1MemberController {
         String savedProfileImg = null;
         if (!image.isEmpty()) {
             savedProfileImg = this.imageService.saveImage("user", image);
+            // 멤버 엔티티 업데이트
+            member.setProfileImg(savedProfileImg);
+            memberService.save(member);  // 변경사항을 데이터베이스에 저장
         } else {
             savedProfileImg = member.getProfileImg();
         }
 
         return RsData.of("200", "프로필 이미지 변경 성공", savedProfileImg);
     }
+
 
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/password")

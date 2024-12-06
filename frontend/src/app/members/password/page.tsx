@@ -135,7 +135,7 @@ export default function Password() {
     <div className={styles.container}>
       <p className={styles.passwordTitle}>비밀번호 수정</p>
       <div className={styles.passwordBox}>
-        <TextInput value={email} isNotModify>
+        <TextInput value={email} isNotModify className={styles.wideInput}>
           아이디(E-mail)
         </TextInput>
         <div className={styles.passwordInputGroup}>
@@ -147,6 +147,7 @@ export default function Password() {
               setIsCurrentPasswordValid(false);
               setIsPasswordChecked(false);
             }}
+            className={styles.passwordCheckde}
           >
             기존 비밀번호
           </TextInput>
@@ -162,6 +163,7 @@ export default function Password() {
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           disabled={!isCurrentPasswordValid}
+          className={styles.wideInput}
         >
           새 비밀번호
         </TextInput>
@@ -170,6 +172,7 @@ export default function Password() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           disabled={!isCurrentPasswordValid}
+          className={styles.wideInput}
         >
           비밀번호 확인
         </TextInput>
