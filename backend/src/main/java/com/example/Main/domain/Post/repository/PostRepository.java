@@ -12,6 +12,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // 게시글 전체 조회 (임시저장제외)
     List<Post> findAllByIsDraftFalse(Sort sort);
 
+    // 게시글 전체 조회 (임시저장제외) - 개수 제한
+    List<Post> findTopByIsDraftFalseOrderByIdAsc(Long limit);
+
     // 본인이 작성한 게시글 조회
     List<Post> findByAuthor_EmailAndIsDraftFalse(String authorEmail, Sort createdDate);
 
