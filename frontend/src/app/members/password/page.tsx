@@ -57,8 +57,8 @@ export default function Password() {
 
     try {
       const response = await apiClient.patch("/api/v1/members/password", {
-        email,
-        password: currentPassword,
+        currentPassword: currentPassword,
+        newPassword: currentPassword, // 비밀번호 확인 시에는 같은 값 전송
       });
 
       if (response.data.resultCode === "200") {
@@ -69,15 +69,18 @@ export default function Password() {
       } else {
         setIsCurrentPasswordValid(false);
         setIsPasswordChecked(true);
-        setError("비밀번호가 일치하지 않습니다.");
+        setError(response.data.msg || "비밀번호가 일치하지 않습니다.");
+        alert("비밀번호가 일치하지 않습니다.");
       }
-    } catch (error) {
-      setError("비밀번호 확인에 실패했습니다.");
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.msg || "비밀번호 확인에 실패했습니다.";
+      setError(errorMessage);
       setIsCurrentPasswordValid(false);
       setIsPasswordChecked(true);
+      alert(errorMessage);
     }
   };
-
   const handlePasswordChange = async () => {
     setError("");
 
@@ -103,15 +106,14 @@ export default function Password() {
       const response = await apiClient.patch<PasswordResponse>(
         "/api/v1/members/password",
         {
-          email: email,
-          password: newPassword,
           currentPassword: currentPassword,
+          newPassword: newPassword,
         }
       );
 
       if (response.data.resultCode === "200") {
-        alert(response.data.msg);
-        router.push("/members/me");
+        alert("비밀번호가 성공적으로 변경되었습니다.");
+        router.push("/");
       } else {
         setError(response.data.msg || "비밀번호 변경에 실패했습니다.");
       }
@@ -174,12 +176,18 @@ export default function Password() {
         {error && (
           <p className={`${styles.errorMessage} ${styles.shake}`}>{error}</p>
         )}
-        <LoginButton onClick={handlePasswordChange} disabled={!isFormValid()}>
-          {isLoading ? "처리 중..." : "수정"}
-        </LoginButton>
-        <Link href="/members/me" className={styles.cancelButton}>
-          나가기
-        </Link>
+        <div className={styles.buttonBox}>
+          <Link href="/" className={styles.cancelButton}>
+            나가기
+          </Link>
+          <LoginButton
+            onClick={handlePasswordChange}
+            disabled={!isFormValid()}
+            className={styles.loginButton}
+          >
+            {isLoading ? "처리 중..." : "수정"}
+          </LoginButton>
+        </div>
       </div>
     </div>
   );
