@@ -28,29 +28,41 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         // 회원가입, 로그인, 로그아웃 요청에 접근할 때는 토큰인증처리 불필요
         if (request.getRequestURI().equals("/api/v1/members/join")
                 || request.getRequestURI().equals("/api/v1/members/login")
-                || request.getRequestURI().equals("/api/v1/members/logout"))
+                || request.getRequestURI().equals("/api/v1/members/logout")
+                || request.getRequestURI().equals("/api/v1/mentors/profile/**"))
         {
             filterChain.doFilter(request, response);
             return;
         }
 
         String accessToken = _getCookie("accessToken");
-        // accessToken 검증 or refreshToken 발급
-        if (!accessToken.isBlank()) {
-            // 토큰 유효기간 검증
-            if (!memberService.validateToken(accessToken)) {
-                String refreshToken = _getCookie("refreshToken");
+        if (accessToken.isBlank()) {
+            filterChain.doFilter(request, response);  // 토큰이 없는 경우 그대로 요청을 진행
+            return;
+        }
 
-                RsData<String> rs = memberService.refreshAccessToken(refreshToken);
-                _addHeaderCookie("accessToken", rs.getData());
+        // 토큰 검증
+        if (!memberService.validateToken(accessToken)) {
+            String refreshToken = _getCookie("refreshToken");
+            if (refreshToken.isBlank() || !memberService.validateToken(refreshToken)) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+                return;
             }
+
+            // RefreshToken으로 새 AccessToken 발급
+            RsData<String> rs = memberService.refreshAccessToken(refreshToken);
+            _addHeaderCookie("accessToken", rs.getData());
+            accessToken = rs.getData();
+        }
 
             // 토큰으로부터 사용자 인증 정보 추출
             Authentication authentication = memberService.getUserFromAccessToken(accessToken)
                                                          .genAuthentication();
-            // 시큐리티에 인증 정보 등록
+        // AccessToken으로 사용자 정보 가져오기
+        SecurityMember securityMember = memberService.getUserFromAccessToken(accessToken);
+        // 시큐리티에 인증 정보 등록
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
+
 
         filterChain.doFilter(request, response);
     }

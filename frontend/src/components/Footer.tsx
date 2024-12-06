@@ -1,4 +1,4 @@
-'use client'; 
+'use client';
 
 import React from 'react';
 import styles from '@/styles/components/footer.module.scss';
@@ -11,16 +11,16 @@ const Footer: React.FC = () => {
       <div className={styles.footerContent}>
         <span className={styles.logo}>ToTee Block</span>
         <nav className={styles.nav}>
-          <Link href="#">
+          <Link href="/privacy">
           <span>Privacy Policy</span>
           </Link>
-          <Link href="#">
+          <Link href="/terms">
           <span>Terms & Conditions</span>
           </Link>
-          <Link href="#">
+          <Link href="/cookie">
           <span>Cookie Policy</span>
           </Link>
-          <Link href="#">
+          <Link href="/contact">
           <span>Contact</span>
           </Link>
         </nav>

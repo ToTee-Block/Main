@@ -13,12 +13,17 @@ const LoginButton: React.FC<LoginButtonProps> = ({
   onClick,
   disabled = false,
 }) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (onClick) onClick();
+  };
+
   return (
     <button
-      type="submit"
-      onClick={onClick} // 클릭 핸들러 추가
-      disabled={disabled} // 비활성화 여부 처리
-      className={`${styles.loginButton} ${disabled ? styles.disabled : ""}`} // 비활성화 시 스타일 추가
+      type="button"
+      onClick={handleClick}
+      disabled={disabled}
+      className={`${styles.loginButton} ${disabled ? styles.disabled : ""}`}
     >
       {children}
     </button>
