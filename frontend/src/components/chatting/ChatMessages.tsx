@@ -52,7 +52,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
                 {message.type === "received" && (
                   <div className={styles.senderInfo}>
                     <img
-                      src={message.senderProfile}
+                      src={message.senderProfile || "/icon/circle_user.svg"}
                       alt={`${message.senderName}의 프로필`}
                       className={styles.profileImage}
                     />

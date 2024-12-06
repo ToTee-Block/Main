@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/components/chatting/ChatContainer.module.scss";
 import ChatList from "./ChatList";
 import ChatMessages from "./ChatMessages";
@@ -9,6 +9,7 @@ import { Client } from "@stomp/stompjs";
 interface ChatMessage {
   text: string;
   type: "sent" | "received";
+  senderName?: string;
   time: string;
   date: string;
 }
@@ -26,53 +27,56 @@ interface RoomDetails {
 const ChatContainer = () => {
   const [activeRoom, setActiveRoom] = useState<string | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatHistory>({});
-  const [rooms, setRooms] = useState<{ id: number; name: string }[]>([]);
+  const [rooms, setRooms] = useState<RoomDetails[]>([]);
   const [roomDetails, setRoomDetails] = useState<RoomDetails | null>(null);
   const [stompClient, setStompClient] = useState<Client | null>(null);
+  const subscriptionRef = useRef<string | null>(null);
 
-  const getCurrentTime = (): string => {
-    const now = new Date();
-    return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
-
-  const getCurrentDate = (): string => {
-    const now = new Date();
-    return now.toISOString().split("T")[0];
-  };
+  // 현재 시간/날짜 가져오기
+  const getCurrentTime = (): string =>
+    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const getCurrentDate = (): string => new Date().toISOString().split("T")[0];
 
   // 채팅방 목록 가져오기
   useEffect(() => {
-    fetch("http://localhost:8081/chat/rooms")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch chat rooms.");
-        return res.json();
-      })
-      .then((data) => setRooms(data))
-      .catch((err) => console.error("Error fetching chat rooms:", err));
+    const fetchRooms = async () => {
+      try {
+        const res = await fetch("http://localhost:8081/chat/rooms");
+        if (!res.ok) throw new Error("Failed to fetch chat rooms");
+        const data = await res.json();
+        setRooms(data);
+      } catch (err) {
+        console.error("Error fetching chat rooms:", err);
+      }
+    };
+
+    fetchRooms();
   }, []);
 
   // STOMP 클라이언트 초기화
   useEffect(() => {
-    const client = new Client({
-      brokerURL: "ws://localhost:8081/ws", // WebSocket URL (SockJS 제거)
-      reconnectDelay: 5000, // 연결 재시도 간격
-      debug: (str) => console.log(str),
-    });
+    const initializeClient = () => {
+      const client = new Client({
+        brokerURL: "ws://localhost:8081/ws",
+        reconnectDelay: 5000,
+        debug: (str) => console.log(str),
+      });
 
-    client.onConnect = (frame) => {
-      console.log(`Connected: ${frame}`);
-      setStompClient(client);
+      client.onConnect = () => {
+        console.log("Connected to WebSocket");
+        setStompClient(client);
+      };
+
+      client.onStompError = (frame) => {
+        console.error("STOMP error:", frame.headers["message"]);
+      };
+
+      client.activate();
+
+      return () => client.deactivate();
     };
 
-    client.onStompError = (frame) => {
-      console.error("STOMP error:", frame.headers["message"]);
-    };
-
-    client.activate();
-
-    return () => {
-      client.deactivate();
-    };
+    initializeClient();
   }, []);
 
   // 채팅방 선택 및 구독
@@ -81,42 +85,52 @@ const ChatContainer = () => {
 
     setActiveRoom(roomId);
 
-    stompClient.subscribe(`/sub/chatroom/${roomId}`, (messageOutput) => {
-      const data = JSON.parse(messageOutput.body);
-      console.log("Received message:", data); // 메시지 수신 디버깅 로그
-      if (data.type === "message") {
-        setChatHistory((prev): ChatHistory => {
-          const updatedHistory: ChatMessage[] = [
+    // 기존 구독 해제
+    if (subscriptionRef.current) {
+      stompClient.unsubscribe(subscriptionRef.current); // 이전 구독 ID 사용
+    }
+
+    // 새로운 방 구독
+    const subscription = stompClient.subscribe(
+      `/sub/chatroom/${roomId}`,
+      (messageOutput) => {
+        const data = JSON.parse(messageOutput.body);
+        console.log("Received message:", data);
+        setChatHistory((prev) => ({
+          ...prev,
+          [roomId]: [
             ...(prev[roomId] || []),
             {
               text: data.message,
-              type: data.sender === "Me" ? "sent" : "received", // 정확히 "sent" 또는 "received"로 지정
-              time: new Date(data.timestamp).toLocaleTimeString([], {
+              senderName: data.name,
+              type: data.name === "Me" ? "sent" : "received",
+              time: new Date(data.sendTime).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
               }),
-              date: new Date(data.timestamp).toISOString().split("T")[0],
+              date: new Date(data.sendTime).toISOString().split("T")[0],
             },
-          ];
-          return { ...prev, [roomId]: updatedHistory };
-        });
+          ],
+        }));
       }
-    });
+    );
+
+    // 새로운 구독 ID 저장
+    subscriptionRef.current = subscription.id;
 
     // 채팅방 세부 정보 가져오기
-    fetch(`http://localhost:8081/chat/${roomId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch room details.");
-        return res.json();
-      })
-      .then((data) => {
-        setRoomDetails({
-          id: data.id,
-          name: data.name,
-          createdAt: data.createdAt,
-        });
-      })
-      .catch((err) => console.error("Error fetching room details:", err));
+    const fetchRoomDetails = async () => {
+      try {
+        const res = await fetch(`http://localhost:8081/chat/${roomId}`);
+        if (!res.ok) throw new Error("Failed to fetch room details");
+        const data = await res.json();
+        setRoomDetails(data);
+      } catch (err) {
+        console.error("Error fetching room details:", err);
+      }
+    };
+
+    fetchRoomDetails();
   };
 
   // 메시지 전송
@@ -128,18 +142,17 @@ const ChatContainer = () => {
       roomId: activeRoom,
       message,
       sender: "Me",
-      timestamp: new Date().toISOString(),
+      sendTime: new Date().toISOString(),
     };
 
-    console.log("Sending message:", payload); // 메시지 송신 디버깅 로그
-
     stompClient.publish({
-      destination: `/pub/message`, // 경로 수정
+      destination: `/pub/message`,
       body: JSON.stringify(payload),
     });
 
-    setChatHistory((prev) => {
-      const updatedHistory: ChatMessage[] = [
+    setChatHistory((prev) => ({
+      ...prev,
+      [activeRoom]: [
         ...(prev[activeRoom] || []),
         {
           text: message,
@@ -147,9 +160,8 @@ const ChatContainer = () => {
           time: getCurrentTime(),
           date: getCurrentDate(),
         },
-      ];
-      return { ...prev, [activeRoom]: updatedHistory };
-    });
+      ],
+    }));
   };
 
   return (
@@ -164,7 +176,7 @@ const ChatContainer = () => {
           <>
             <ChatHeader roomDetails={roomDetails} />
             <ChatMessages
-              roomName={activeRoom}
+              roomName={roomDetails?.name || ""}
               messages={chatHistory[activeRoom] || []}
             />
             <ChatFooter onSend={handleSendMessage} activeRoom={activeRoom} />
