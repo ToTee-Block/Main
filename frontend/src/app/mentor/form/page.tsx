@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 'use client';
 
 import React, { useState } from 'react';
@@ -121,12 +120,3 @@ export default function MentorForm() {
     </div>
   );
 }
-=======
-export default function MentorForm() {
-  return (
-    <>
-    <h1>멘토신청 페이지</h1>
-    </>
-  );
-}
->>>>>>> dev
