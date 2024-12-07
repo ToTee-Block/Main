@@ -1,0 +1,57 @@
+@import "../../globals/font-mixin.scss";
+
+// styles/components/button/gender-button.module.scss
+.GenderBox {
+  .GenderP {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    color: var(--text-black-color);
+    @include font-XXXS-M;
+  }
+
+  .GenderButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    @include font-XXXS-B;
+    border: 1px solid var(--border-color);
+    background-color: var(--background);
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    color: var(--border-color);
+    border-radius: 5px;
+
+    &:hover {
+      display: flex;
+      align-items: center;
+      background-color: var(--text-primary-color);
+      color: var(--text-black);
+    }
+  }
+
+  .Selected {
+    display: flex;
+    align-items: center;
+    background-color: var(--text-primary-color);
+    color: var(--text-black);
+    border-color: var(--background);
+  }
+
+  .GenderSelector {
+    display: flex;
+    gap: 10px; // 버튼 간 간격
+  }
+
+  .errorMessage {
+    @include font-XXXXS-M;
+    color: var(--text-danger-light-color);
+
+    &.hidden {
+      opacity: 0; // 숨김 상태
+    }
+  }
+}

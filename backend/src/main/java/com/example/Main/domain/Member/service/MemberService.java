@@ -8,18 +8,19 @@ import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
-import com.example.Main.global.Util.Service.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,12 +52,10 @@ public class MemberService {
         return new MemberDTO(member);
     }
 
-    public Member modifyProfile(Member member, String newPassword, String newName, LocalDate newBirthDate, MemberGender newGender, String profileImg) {
-        member.setPassword(newPassword);
+    public Member modifyProfile(Member member, String newName, LocalDate newBirthDate, MemberGender newGender) {
         member.setName(newName);
         member.setBirthDate(newBirthDate);
         member.setGender(newGender);
-        member.setProfileImg(profileImg);
 
         this.memberRepository.save(member);
 
@@ -72,11 +71,33 @@ public class MemberService {
         return member;
     }
 
-    public Member getMemberByEmail(String email) {
-        Optional<Member> member = this.memberRepository.findByEmail(email);
-        return member.orElse(null);
+    public void deleteMember(Member member) {
+        this.memberRepository.delete(member);
     }
 
+    public Page<Member> getList(int page) {
+        if (page < 0) {
+            throw new IllegalArgumentException("페이지 수는 0 이상의 값이 필요합니다.");
+        }
+
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(Sort.Order.desc("createdDate"));  // 작성일 기준 내림차순
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+
+        return this.memberRepository.findAll(pageable);
+    }
+
+    public Member getMemberById(Long id) {
+        return this.memberRepository.findById(id).orElse(null);
+    }
+
+    public Member getMemberByEmail(String email) {
+        return this.memberRepository.findByEmail(email).orElse(null);
+    }
+
+
+//    ------- TOKEN -------
     public boolean validateToken(String accessToken) {
         return jwtProvider.verify(accessToken);
     }
@@ -94,7 +115,10 @@ public class MemberService {
 
         long id = (int) payloadBody.get("id");
         String email = (String) payloadBody.get("email");
-        List<GrantedAuthority> authorities = new ArrayList<>();
+        String rules = (String) payloadBody.get("rules");  // "ROLE_USER,ROLE_ADMIN" 형태일 수 있음
+        List<GrantedAuthority> authorities = Arrays.stream(rules.split(","))
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
 
         return new SecurityMember(id, email, "", authorities);
     }
