@@ -2,7 +2,8 @@
 
 import styles from '@/styles/pages/mentor-detail.module.scss';
 import Image from 'next/image';
-import MentorApplyButton from '@/components/button/MentorApplyButton';
+import MentorButton from '@/components/button/MentorButton';
+
 import EditButton from '@/components/button/EditButton';
 
 export default function MentorDetail() {
@@ -45,7 +46,7 @@ export default function MentorDetail() {
           </div>
         </div>
         <div className={styles.status}>
-        <MentorApplyButton>Mentor 신청</MentorApplyButton>
+        <MentorButton>Mentor 신청</MentorButton>
         </div>
       </div>
 

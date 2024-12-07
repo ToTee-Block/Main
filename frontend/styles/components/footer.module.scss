@@ -7,6 +7,8 @@
   padding: 120px ;
   background-color: var(--secondary-color);
   flex-shrink: 0;  /* header가 줄어들지 않도록 설정 */
+  min-width: 320px;
+  position: relative; 
 }
 
 .footerContent {
@@ -16,12 +18,14 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  white-space: nowrap; 
 }
 
 .logo {
     @include font-XXL-B;
     color: var(--primary-color);
     align-self: flex-start;
+    flex-wrap: nowrap;
   }
 
 
@@ -29,6 +33,7 @@
   display: flex;
   gap: 24px;
   align-self: flex-end;
+  flex-wrap: nowrap;
 
   a{
     text-decoration: none;
@@ -37,6 +42,7 @@
       @include font-XXS-B;
       color: var(--primary-color);
       transition: color 0.1s ease;
+      white-space: nowrap;
 
       &:hover {
         opacity: 0.8;
