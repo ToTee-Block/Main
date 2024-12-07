@@ -173,6 +173,7 @@
     height: 32px;
     border: 1px solid var(--gray-300);
     background-color: var(--gray-100);
+    @include font-XXS-B;
     border-radius: 8px;
     padding: 12px;
     
