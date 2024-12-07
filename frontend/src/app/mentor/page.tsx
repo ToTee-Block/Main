@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styles from '@/styles/pages/mentor.module.scss';
 import Image from 'next/image';
 import MentorButton from '@/components/button/MentorButton';
+import Pagination from '@/components/pagination/custompagination';
 
 export default function MentorSearch() {
   const [selectedTags, setSelectedTags] = useState<Array<boolean>>(Array(7).fill(false));
@@ -52,11 +53,11 @@ export default function MentorSearch() {
               className={styles.searchInput}
             />
             <button className={styles.searchButton}>
-              <Image 
+              <Image
                 src="/icon/search.svg"
                 alt="Search"
-                width={20}
-                height={20}
+                width={40}
+                height={40}
               />
             </button>
           </div>
@@ -80,17 +81,12 @@ export default function MentorSearch() {
         ))}
       </div>
 
-      <div className={styles.pagination}>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((page) => (
-          <button
-            key={page}
-            className={`${styles.pageButton} ${page === currentPage ? styles.activePage : ''}`}
-            onClick={() => setCurrentPage(page)}
-          >
-            {page}
-          </button>
-        ))}
-      </div>
+      {/* 여기! 이 부분이 변경되었습니다 */}
+      <Pagination 
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        totalPages={100}
+      />
     </div>
   );
 }
