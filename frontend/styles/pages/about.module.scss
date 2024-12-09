@@ -107,9 +107,10 @@
       height: 400px;
       background-color: rgba(0, 0, 0, 0.8);
       background-blend-mode: overlay;
+      
 
       .overlay_content {
-        width: 1000px;
+        width: 100%;
         display: flex;
         flex-direction: column;
       }
@@ -123,10 +124,12 @@
         h1 {
           @include font-L-B;
           margin-bottom: 16px;
+          color: var(--text-white);
         }
 
         .subtitle {
           @include font-M-B;
+          color: var(--text-white);
         }
       }
 

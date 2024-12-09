@@ -14,8 +14,17 @@ export default function MentorSearch() {
   const handleTagToggle = (index: number): void => {
     setSelectedTags(prev => {
       const newState = [...prev];
-      newState[index] = !newState[index];
-      return newState;
+      if (index === 0) {
+        if (prev[0]) {
+          return prev.map(() => false);
+        }
+        return prev.map((_, i) => i === 0);
+      } 
+      else {
+        newState[0] = false;
+        newState[index] = !newState[index];
+        return newState;
+      }
     });
   };
 
@@ -44,27 +53,27 @@ export default function MentorSearch() {
         </div>
 
         <div className={styles.searchWrapper}>
-          <div className={styles.searchBar}>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search"
-              className={styles.searchInput}
-            />
-            <button className={styles.searchButton}>
-              <Image
-                src="/icon/search.svg"
-                alt="Search"
-                width={40}
-                height={40}
-              />
-            </button>
-          </div>
           <MentorButton>
             My Mentor
           </MentorButton>
-        </div>
+          <div className={styles.searchBar}>
+            <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="search"
+            className={styles.searchInput}
+            />
+            <button className={styles.searchButton}>
+              <Image
+              src="/icon/search.svg"
+              alt="search"
+              width={40}
+              height={40}
+              />
+              </button>
+          </div>
+      </div>
       </div>
 
       <div className={styles.mentorGrid}>

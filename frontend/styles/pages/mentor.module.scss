@@ -3,10 +3,10 @@
 .container {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
+    margin:  auto;
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 40px;
   }
   
   .header {
@@ -16,9 +16,8 @@
   }
   
   .title {
-    font-size: 48px;
-    font-weight: bold;
-    color: var(--text-black);
+    @include font-XXXL-B;
+    color: var(--text-blue);
   }
   
   .tagSection {
@@ -30,7 +29,7 @@
   
   .tagList {
     display: flex;
-    gap: 8px;
+    gap: 16px;
     flex-wrap: wrap;
   }
   
@@ -38,17 +37,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 32px;
-    padding: 0 16px;
-    border-radius: 16px;
-    border: 1px solid var(--text-black);
+    min-width: 66px;
+    height: 40px;
+    padding: 16px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--text-blue);
     cursor: pointer;
     transition: all 0.2s ease-in-out;
+    white-space: nowrap;
   }
   
   .checkedTag {
-    background-color: var(--text-black);
-    color: white;
+    background-color: var(--dark-blue-color);
+    color: var(--text-white);
   }
   
   .hiddenCheckbox {
