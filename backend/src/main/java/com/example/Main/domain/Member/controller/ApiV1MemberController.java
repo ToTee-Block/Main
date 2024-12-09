@@ -8,6 +8,8 @@ import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.domain.Member.request.AuthcodeRequest;
 import com.example.Main.domain.Member.request.MemberCreate;
 import com.example.Main.domain.Member.request.MemberRequest;
+import com.example.Main.domain.Member.request.PasswordChangeRequest;
+import com.example.Main.domain.Member.request.PasswordChangeRequest;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
@@ -23,7 +25,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -188,7 +192,8 @@ public class ApiV1MemberController {
     @PreAuthorize("isAuthenticated")
     @PostMapping("/profileImg/{email}")
     public RsData modifyProfileImg(@PathVariable(value = "email")String email,
-                                   @RequestParam(value = "profileImg")MultipartFile image, Principal principal) {
+                                   @RequestParam(value = "profileImg")MultipartFile image,
+                                   Principal principal) {
         Member member = this.memberService.getMemberByEmail(email);
 
         RsData checkAuthUserRD = this.checkAuthUser(
@@ -201,6 +206,9 @@ public class ApiV1MemberController {
         String savedProfileImg = null;
         if (!image.isEmpty()) {
             savedProfileImg = this.imageService.saveImage("user", image);
+            // 멤버 엔티티 업데이트
+            member.setProfileImg(savedProfileImg);
+            memberService.save(member);  // 변경사항을 데이터베이스에 저장
         } else {
             savedProfileImg = member.getProfileImg();
         }
@@ -208,18 +216,21 @@ public class ApiV1MemberController {
         return RsData.of("200", "프로필 이미지 변경 성공", savedProfileImg);
     }
 
-    @PreAuthorize("isAuthenticated")
+
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/password")
-    private RsData modifyPassword(@Valid @RequestBody MemberRequest memberRequest, Principal principal) {
-        RsData checkAuthUserRD = this.checkAuthUser(
-                this.memberService.getMemberByEmail(memberRequest.getEmail()),
-                principal
-        );
-        if (checkAuthUserRD != null) return checkAuthUserRD;
+    public RsData<MemberDTO> modifyPassword(@Valid @RequestBody PasswordChangeRequest request, Principal principal) {
+        Member member = memberService.getMemberByEmail(principal.getName());
 
-        Member member = this.memberService.modifyPassword(memberRequest.getEmail(), memberRequest.getPassword());
+        // 현재 비밀번호 확인
+        if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
+            return RsData.of("400", "현재 비밀번호가 일치하지 않습니다.", null);
+        }
 
-        return RsData.of("200", "비밀번호 변경 성공", new MemberDTO(member));
+        // 비밀번호 변경 로직
+        Member updatedMember = memberService.modifyPassword(principal.getName(), request.getNewPassword());
+
+        return RsData.of("200", "비밀번호가 성공적으로 변경되었습니다.", new MemberDTO(updatedMember));
     }
 
     @PreAuthorize("isAuthenticated")
