@@ -10,14 +10,12 @@ public class ErrorMessages {
     // 댓글 관련 오류 메시지
     public static final String COMMENT_NOT_FOUND = "댓글을 찾을 수 없습니다.";
     public static final String COMMENT_ID_MISMATCH = "댓글이 존재하지 않거나, 게시글과 일치하지 않습니다.";
-    public static final String COMMENT_ALREADY_LIKED = "이미 좋아요를 누른 댓글입니다.";
-    public static final String COMMENT_NO_LIKE = "댓글 좋아요가 취소되었습니다.";
     public static final String COMMENT_HAS_REPLIES = "대댓글이 달린 댓글은 삭제할 수 없습니다.";
-    public static final String COMMENT_CANNOT_BE_DELETED = "대댓글에 대댓글이 달린 경우 삭제할 수 없습니다.";
 
     // 대댓글 관련 오류 메시지
     public static final String REPLY_NOT_FOUND = "대댓글을 찾을 수 없습니다.";
     public static final String REPLY_PARENT_COMMENT_NOT_FOUND = "부모 댓글을 찾을 수 없습니다.";
+    public static final String REPLY_NO_USERS = "본인이 작성한 대댓글이 없습니다.";
     public static final String REPLY_ID_MISMATCH = "대댓글이 존재하지 않거나 부모 댓글과 일치하지 않습니다.";
     public static final String REPLY_CANNOT_BE_MODIFIED = "본인만 대댓글을 수정할 수 있습니다.";
     public static final String REPLY_CANNOT_BE_DELETED = "본인만 대댓글을 삭제할 수 있습니다.";

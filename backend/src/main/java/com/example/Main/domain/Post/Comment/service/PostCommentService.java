@@ -8,6 +8,7 @@ import com.example.Main.domain.Post.Comment.repository.PostCommentRepository;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
 import com.example.Main.domain.Post.service.PostService;
+import com.example.Main.global.ErrorMessages.ErrorMessages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -28,11 +29,7 @@ public class PostCommentService {
     // 댓글 목록 조회
     public List<PostCommentDTO> getCommentsByPostId(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElse(null);
-
-        if (post == null) {
-            return null;
-        }
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.POST_NOT_FOUND));
 
         List<PostComment> comments = commentRepository.findByPost(post, Sort.by(Sort.Order.desc("createdDate")));
         return comments.stream()
@@ -82,23 +79,16 @@ public class PostCommentService {
     // 댓글 작성
     public PostComment addComment(Long postId, String userEmail, String content, Long parentCommentId) {
 
-        Member author = memberService.getMemberByEmail(userEmail);
-        if (author == null) {
-            return null;
-        }
+        Member author = Optional.ofNullable(memberService.getMemberByEmail(userEmail))
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.UNAUTHORIZED));
 
-        Post post = postService.getPost(postId);
-        if (post == null) {
-            return null;
-        }
-
+        Post post = Optional.ofNullable(postService.getPost(postId))
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.POST_NOT_FOUND));
 
         PostComment parentComment = null;
         if (parentCommentId != null) {
-            parentComment = commentRepository.findById(parentCommentId).orElse(null);
-            if (parentComment == null) {
-                return null;
-            }
+            parentComment = commentRepository.findById(parentCommentId)
+                    .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.REPLY_PARENT_COMMENT_NOT_FOUND));
         }
 
 
@@ -116,16 +106,11 @@ public class PostCommentService {
 
     // 댓글 수정
     public PostComment updateComment(Long commentId, String content, String userEmail) {
-        Optional<PostComment> commentOpt = commentRepository.findById(commentId);
-
-        if (commentOpt.isEmpty()) {
-            return null;
-        }
-
-        PostComment comment = commentOpt.get();
+        PostComment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
 
         if (!comment.getAuthor().getEmail().equals(userEmail)) {
-            return null;
+            throw new IllegalArgumentException(ErrorMessages.FORBIDDEN);
         }
 
         comment.setContent(content);
@@ -134,16 +119,11 @@ public class PostCommentService {
 
     // 댓글 삭제
     public boolean deleteComment(Long commentId) {
-        Optional<PostComment> commentOpt = commentRepository.findById(commentId);
-
-        if (commentOpt.isEmpty()) {
-            return false;
-        }
-
-        PostComment comment = commentOpt.get();
+        PostComment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
 
         if (hasReplies(comment)) {
-            return false;
+            throw new IllegalArgumentException(ErrorMessages.COMMENT_HAS_REPLIES);
         }
 
         commentRepository.delete(comment);
@@ -168,14 +148,10 @@ public class PostCommentService {
 
     // 댓글 좋아요 추가
     public boolean likeComment(Long commentId, String userEmail) {
-        Optional<PostComment> commentOpt = commentRepository.findById(commentId);
-
-        if (commentOpt.isEmpty()) {
-            return false;
-        }
-
-        PostComment comment = commentOpt.get();
-        Member member = memberService.getMemberByEmail(userEmail);
+        PostComment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
+        Member member = Optional.ofNullable(memberService.getMemberByEmail(userEmail))
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.UNAUTHORIZED));
 
         comment.addLike(member);
         commentRepository.save(comment);
@@ -184,14 +160,10 @@ public class PostCommentService {
 
     // 댓글 좋아요 취소
     public boolean unlikeComment(Long commentId, String userEmail) {
-        Optional<PostComment> commentOpt = commentRepository.findById(commentId);
-
-        if (commentOpt.isEmpty()) {
-            return false;
-        }
-
-        PostComment comment = commentOpt.get();
-        Member member = memberService.getMemberByEmail(userEmail);
+        PostComment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
+        Member member = Optional.ofNullable(memberService.getMemberByEmail(userEmail))
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.UNAUTHORIZED));
 
         comment.removeLike(member);
         commentRepository.save(comment);

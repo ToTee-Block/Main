@@ -7,6 +7,7 @@ import com.example.Main.domain.QnA.Comment.entity.QnAComment;
 import com.example.Main.domain.QnA.Comment.repository.QnACommentRepository;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
+import com.example.Main.global.ErrorMessages.ErrorMessages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class QnACommentService {
     public List<QnACommentDTO> getCommentsByQnAId(Long qnAId) {
         QnA qnA = qnAService.getQnA(qnAId);
         if (qnA == null) {
-            return null;
+            throw new IllegalArgumentException(ErrorMessages.QNA_NOT_FOUND);
         }
 
         List<QnAComment> comments = commentRepository.findByQnA(qnA, Sort.by(Sort.Order.desc("createdDate")));
@@ -79,19 +80,19 @@ public class QnACommentService {
 
         Member author = memberService.getMemberByEmail(userEmail);
         if (author == null) {
-            return null;
+            throw new IllegalArgumentException(ErrorMessages.UNAUTHORIZED);
         }
 
         QnA qnA = qnAService.getQnA(qnAId);
         if (qnA == null) {
-            return null;
+            throw new IllegalArgumentException(ErrorMessages.QNA_NOT_FOUND);
         }
 
         QnAComment parentComment = null;
         if (parentCommentId != null) {
             parentComment = commentRepository.findById(parentCommentId).orElse(null);
             if (parentComment == null) {
-                return null;
+                throw new IllegalArgumentException(ErrorMessages.REPLY_PARENT_COMMENT_NOT_FOUND);
             }
         }
 
@@ -111,13 +112,13 @@ public class QnACommentService {
         Optional<QnAComment> commentOpt = commentRepository.findById(commentId);
 
         if (commentOpt.isEmpty()) {
-            return null;
+            throw new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND);
         }
 
         QnAComment comment = commentOpt.get();
 
         if (!comment.getAuthor().getEmail().equals(userEmail)) {
-            return null;
+            throw new IllegalArgumentException(ErrorMessages.FORBIDDEN);
         }
 
         comment.setContent(content);
@@ -129,13 +130,13 @@ public class QnACommentService {
         Optional<QnAComment> commentOpt = commentRepository.findById(commentId);
 
         if (commentOpt.isEmpty()) {
-            return false;
+            throw new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND);
         }
 
         QnAComment comment = commentOpt.get();
 
         if (hasReplies(comment)) {
-            return false;
+            throw new IllegalArgumentException(ErrorMessages.COMMENT_HAS_REPLIES);
         }
 
         commentRepository.delete(comment);
@@ -165,7 +166,7 @@ public class QnACommentService {
         Optional<QnAComment> commentOpt = commentRepository.findById(commentId);
 
         if (commentOpt.isEmpty()) {
-            return false;
+            throw new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND);
         }
 
         QnAComment comment = commentOpt.get();
@@ -181,7 +182,7 @@ public class QnACommentService {
         Optional<QnAComment> commentOpt = commentRepository.findById(commentId);
 
         if (commentOpt.isEmpty()) {
-            return false;
+            throw new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND);
         }
 
         QnAComment comment = commentOpt.get();
