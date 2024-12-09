@@ -1,10 +1,7 @@
 package com.example.Main.domain.Chat.entity;
 
 import com.example.Main.global.Jpa.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +23,7 @@ public class ChatMessage extends BaseEntity {
     @Column(nullable = false)
     private String message;  // 메시지 내용
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_join_id")
     private ChatJoin chatSender;
 }
