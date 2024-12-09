@@ -1,5 +1,6 @@
 package com.example.Main.domain.Member.entity;
 
+import com.example.Main.domain.Chat.entity.ChatJoin;
 import com.example.Main.domain.Member.enums.MemberGender;
 import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.domain.Mentor.entity.Mentor;
@@ -65,4 +66,7 @@ public class Member extends BaseEntity {
     /*내가 작성한 멘토 리뷰들*/
     @OneToMany(mappedBy = "reviewer")
     private List<MentorReview> reviews;
+
+    @OneToMany(mappedBy = "chatJoiner")
+    private List<ChatJoin> chatRooms;
 }

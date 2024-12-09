@@ -33,13 +33,20 @@ public class ChatController {
     private final JwtProvider jwtProvider;
     private final MemberService memberService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat/rooms")
-    public ResponseEntity<List<Map<String, Object>>> getChatRooms() {
-        List<Map<String, Object>> chatRooms = chatService.getAllRooms().stream()
+    public ResponseEntity<List<Map<String, Object>>> getChatRooms(Principal principal) {
+        Member chatJoiner = this.memberService.getMemberByEmail(principal.getName());
+        if (chatJoiner == null) {
+            System.out.println("Unauthorized message received");
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<Map<String, Object>> chatRooms = chatService.getAllRooms(chatJoiner).stream()
                 .map(room -> {
                     Map<String, Object> roomMap = new HashMap<>();
-                    roomMap.put("id", room.getId());
-                    roomMap.put("name", room.getName());
+                    roomMap.put("id", room.getChatRoom().getId());
+                    roomMap.put("name", room.getChatRoom().getName());
                     return roomMap;
                 })
                 .collect(Collectors.toList());

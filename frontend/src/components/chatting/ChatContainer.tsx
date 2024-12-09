@@ -41,7 +41,14 @@ const ChatContainer = () => {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await fetch("http://localhost:8081/chat/rooms");
+        const res = await fetch("http://localhost:8081/chat/rooms", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰 추가
+          },
+          credentials: "include", // 쿠키를 사용하는 경우
+        });
         if (!res.ok) throw new Error("Failed to fetch chat rooms");
         const data = await res.json();
         setRooms(data);

@@ -2,7 +2,10 @@ package com.example.Main.domain.Chat.serivce;
 
 import com.example.Main.domain.Chat.dto.ChatDTO;
 import com.example.Main.domain.Chat.entity.Chat;
+import com.example.Main.domain.Chat.entity.ChatJoin;
 import com.example.Main.domain.Chat.entity.ChatRoom;
+import com.example.Main.domain.Chat.repository.ChatJoinRepository;
+import com.example.Main.domain.Chat.repository.ChatMessageRepository;
 import com.example.Main.domain.Chat.repository.ChatRepository;
 import com.example.Main.domain.Chat.repository.ChatRoomRepository;
 import com.example.Main.domain.Member.entity.Member;
@@ -11,11 +14,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ChatService {
     private final ChatRepository chatRepository;
-    private  final ChatRoomRepository chatRoomRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatJoinRepository chatJoinRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     // 메시지 저장
     public void saveMessage(ChatDTO chatDTO, Member member) {
@@ -51,12 +57,14 @@ public class ChatService {
         );
     }
 
-    // 모든 채팅방 가져오기
-    public List<ChatRoom> getAllRooms(){
-        return chatRoomRepository.findAll();
+    // 모든 채팅방 가져오기 -> 한 유저가 들어간 채팅방 가져오기
+    public List<ChatJoin> getAllRooms(Member chatJoiner) {
+        return this.chatJoinRepository.findByChatJoiner(chatJoiner);
     }
+
     public ChatRoom createRoom(String name) {
-        ChatRoom newRoom = new ChatRoom(name);
+        ChatRoom newRoom = ChatRoom.builder()
+                .name(name).build();
         return chatRoomRepository.save(newRoom);
     }
 
