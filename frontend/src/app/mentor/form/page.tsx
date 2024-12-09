@@ -4,12 +4,15 @@ import React, { useState } from 'react';
 import styles from '@/styles/pages/mentor-form.module.scss';
 import Image from 'next/image';
 import ApplyButton from '@/components/button/ApplyButton';
+import Tag from '@/src/components/tag/tag';
 
 export default function MentorForm() {
   const [isApplyDisabled, setIsApplyDisabled] = useState(false);
   const [isReapplyDisabled, setIsReapplyDisabled] = useState(false);
-  const [checkedTechs, setCheckedTechs] = useState(Array(16).fill(false));
+  const [selectedTags, setSelectedTags] = useState(Array(16).fill(false));
   const [introduction, setIntroduction] = useState('');
+
+  const techTags = Array(16).fill('Text');
 
   const handleApplyClick = () => {
     setIsApplyDisabled(true);
@@ -19,8 +22,8 @@ export default function MentorForm() {
     setIsReapplyDisabled(true);
   };
 
-  const handleTechToggle = (index: number): void => {
-    setCheckedTechs(prev => {
+  const onTagToggle = (index: number): void => {
+    setSelectedTags(prev => {
       const newState = [...prev];
       newState[index] = !newState[index];
       return newState;
@@ -33,31 +36,31 @@ export default function MentorForm() {
         <h1 className={styles.title}>Mentor profile</h1>
         <div className={styles.divider} />
       </div>
-      
+
       <div className={styles.profileContainer}>
         <div className={styles.imageWrapper}>
           <Image 
-            src="/icon/user.svg" 
-            alt="Profile" 
-            width={80} 
-            height={80} 
+            src="/icon/user.svg"
+            alt="Profile"
+            width={80}
+            height={80}
             className={styles.profileImage}
           />
         </div>
         <div className={styles.iconGroup}>
           <button className={styles.iconButton}>
-            <Image 
-              src="/icon/basicimage.svg" 
-              alt="Upload" 
-              width={32} 
+            <Image
+              src="/icon/basicimage.svg"
+              alt="Upload"
+              width={32}
               height={32}
             />
           </button>
           <button className={styles.iconButton}>
-            <Image 
-              src="/icon/trash.svg" 
-              alt="Delete" 
-              width={32} 
+            <Image
+              src="/icon/trash.svg"
+              alt="Delete"
+              width={32}
               height={32}
             />
           </button>
@@ -79,27 +82,19 @@ export default function MentorForm() {
         />
       </div>
 
-      <div className={styles.formBox}>
+      <div className={`${styles.formBox} ${styles.techStackBox}`}>
         <h3 className={styles.boxTitle}>기술 스택</h3>
-        <div className={styles.tagContainer}>
-          {Array(16).fill('Text').map((text, index: number) => (
-            <label key={index} className={`${styles.tag} ${checkedTechs[index] ? styles.checkedTag : ''}`}>
-              <input
-                type="checkbox"
-                className={styles.hiddenCheckbox}
-                checked={checkedTechs[index]}
-                onChange={() => handleTechToggle(index)}
-              />
-              {text}
-            </label>
-          ))}
-        </div>
+        <Tag
+          tags={techTags}
+          selectedTags={selectedTags}
+          onTagToggle={onTagToggle}
+        />
       </div>
 
       <div className={styles.formBox}>
         <h3 className={styles.boxTitle}>포트폴리오 주소</h3>
         <input 
-          type="text" 
+          type="text"
           className={styles.input}
           placeholder="입력해주세요."
         />

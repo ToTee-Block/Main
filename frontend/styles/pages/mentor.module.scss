@@ -1,136 +1,129 @@
 @import "../globals/font-mixin.scss";
 
 .container {
-    width: 100%;
-    max-width: 1200px;
-    margin:  auto;
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
+  width: 100%;
+  max-width: 2500px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.title {
+  @include font-XXXL-B;
+  color: var(--text-blue);
+}
+
+.tagSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.searchWrapper {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--gray-300);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.searchInput {
+  width: 200px;
+  height: 40px;
+  border: none;
+  padding: 0 16px;
+  background-color: var(--gray-100);
+
+  &:focus {
+    outline: none;
   }
-  
-  .header {
-    display: flex;
-    justify-content: flex-start;
-    width: 100%;
-  }
-  
-  .title {
-    @include font-XXXL-B;
-    color: var(--text-blue);
-  }
-  
-  .tagSection {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .tagList {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  
-  .tag {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 66px;
-    height: 40px;
-    padding: 16px 8px;
-    border-radius: 999px;
-    border: 1px solid var(--text-blue);
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    white-space: nowrap;
-  }
-  
-  .checkedTag {
-    background-color: var(--dark-blue-color);
-    color: var(--text-white);
-  }
-  
-  .hiddenCheckbox {
-    display: none;
-  }
-  
-  .searchWrapper {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-  }
-  
-  .searchBar {
-    display: flex;
-    align-items: center;
-    border: 1px solid var(--gray-300);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  
-  .searchInput {
-    width: 200px;
-    height: 40px;
-    border: none;
-    padding: 0 16px;
-    background-color: var(--gray-100);
-  
-    &:focus {
-      outline: none;
-    }
-  }
-  
-  .searchButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .mentorGrid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 24px;
-  }
-  
-  .mentorCard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-  }
-  
-  .profileImage {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    background-color: var(--gray-200);
-  }
-  
-  .mentorInfo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    text-align: center;
-  }
-  
-  .name, .company {
-    font-weight: bold;
-  }
-  
-  .position {
-    color: var(--gray-600);
-  }
-  
-  .description {
-    font-size: 14px;
-    color: var(--gray-500);
-  }
-  
+}
+
+.searchButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mentorGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  column-gap: 95px;
+  row-gap: 24px;
+}
+
+.mentorCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.profileImage {
+  width: 259.95px;
+  height: 259.95px;
+  border-radius: 50%;
+  background-color: var(--gray-200);
+}
+
+.mentorInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.nameWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nameText {
+  @include font-XXXS-B;
+  font-weight: bold;
+}
+
+.mentorText {
+  @include font-XXXXS-R;
+}
+
+.infoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.company, .name {
+  @include font-XXS-M;
+  font-size: 18px;
+}
+
+.position {
+  color: var(--gray-600);
+}
+
+.description {
+  @include font-XXXS-M;
+  color: var(--text-black);
+}
