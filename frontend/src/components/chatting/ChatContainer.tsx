@@ -60,6 +60,9 @@ const ChatContainer = () => {
         brokerURL: "ws://localhost:8081/ws",
         reconnectDelay: 5000,
         debug: (str) => console.log(str),
+        connectHeaders: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // JWT 토큰 추가
+        },
       });
 
       client.onConnect = () => {
@@ -138,16 +141,18 @@ const ChatContainer = () => {
     if (!stompClient || !activeRoom) return;
 
     const payload = {
-      type: "message",
-      roomId: activeRoom,
+      roomId: activeRoom, // roomId로 맞춤
+      name: "Me", // name으로 맞춤
       message,
-      sender: "Me",
-      sendTime: new Date().toISOString(),
+      sendTime: new Date().toISOString(), // ISO 8601 형식 보장
     };
 
     stompClient.publish({
-      destination: `/pub/message`,
+      destination: "/pub/message",
       body: JSON.stringify(payload),
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // 헤더에 JWT 추가
+      },
     });
 
     setChatHistory((prev) => ({

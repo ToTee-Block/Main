@@ -71,4 +71,31 @@ public class ChatService {
         return chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
     }
+
+    // ChatService 클래스에 추가
+    public boolean deleteMessageById(Long messageId) {
+        try {
+            if (!chatRepository.existsById(messageId)) {
+                System.err.println("Message ID not found: " + messageId);
+                return false;
+            }
+
+            chatRepository.deleteById(messageId);
+            System.out.println("Message deleted from repository: " + messageId);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error deleting message from repository: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public Chat saveMessages(ChatDTO chatDTO, Member member) {
+        Chat chat = toEntity(chatDTO, member);
+        return chatRepository.save(chat);
+    }
+
+
+
+
+
 }

@@ -60,7 +60,8 @@ public class ChatController {
     }
 
     @DeleteMapping("/chat/{roomId}")
-    public ResponseEntity<Map<String, Object>> deleteChatRoom(@PathVariable Long roomId) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, Object>> deleteChatRoom(@PathVariable("roomId") Long roomId) {
         try {
             chatService.deleteRoom(roomId);
             return ResponseEntity.ok(Map.of("message", "Room deleted successfully"));
@@ -85,29 +86,26 @@ public class ChatController {
 
     @MessageMapping("/message")
     @PreAuthorize("isAuthenticated()")
-    public void receiveMessage(ChatDTO chatDTO, Principal principal) {
-        Member member = this
-                .memberService.getMemberByEmail(principal.getName());
+    public ResponseEntity<ChatDTO> receiveMessage(ChatDTO chatDTO, Principal principal) {
+        Member member = memberService.getMemberByEmail(principal.getName());
         if (member == null) {
             System.out.println("Unauthorized message received");
-            return;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         System.out.println("Message received: " + chatDTO);
 
         // 메시지 저장
-        chatService.saveMessage(chatDTO, member);
+        Chat savedChat = chatService.saveMessages(chatDTO, member);
 
-        // 메시지 브로드캐스트
-        ChatDTO enrichedChatDTO = new ChatDTO(
-                chatDTO.getId(),
-                member.getName(),
-                chatDTO.getMessage(),
-                LocalDateTime.now()
-        );
+        // 저장된 메시지 정보 반환
+        ChatDTO enrichedChatDTO = chatService.toDTO(savedChat);
         templates.convertAndSend("/sub/chatroom/" + chatDTO.getId(), enrichedChatDTO);
         System.out.println("Message broadcasted to: /sub/chatroom/" + chatDTO.getId());
+
+        return ResponseEntity.ok(enrichedChatDTO);
     }
+
 
 
     @GetMapping("/chat/{roomId}/messages")
@@ -125,6 +123,31 @@ public class ChatController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    @DeleteMapping("/chat/messages/{messageId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> deleteMessage(@PathVariable("messageId") Long messageId) {
+        try {
+            if (messageId == null || messageId <= 0) {
+                System.err.println("Invalid Message ID: " + messageId);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            boolean deleted = chatService.deleteMessageById(messageId);
+            if (deleted) {
+                System.out.println("Message deleted successfully: " + messageId);
+                return ResponseEntity.ok().build();
+            } else {
+                System.err.println("Message not found: " + messageId);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            System.err.println("Error deleting message: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
 
     private Member getAuthenticatedMember(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
