@@ -131,7 +131,14 @@ const ChatContainer = () => {
     // 채팅방 세부 정보 가져오기
     const fetchRoomDetails = async () => {
       try {
-        const res = await fetch(`http://localhost:8081/chat/${roomId}`);
+        const res = await fetch(`http://localhost:8081/chat/${roomId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰 추가
+          },
+          credentials: "include", // 쿠키를 사용하는 경우
+        });
         if (!res.ok) throw new Error("Failed to fetch room details");
         const data = await res.json();
         setRoomDetails(data);

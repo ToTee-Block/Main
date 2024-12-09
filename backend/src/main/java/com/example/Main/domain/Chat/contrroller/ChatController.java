@@ -10,12 +10,14 @@ import com.example.Main.global.Jwt.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.jsoup.HttpStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -53,6 +55,7 @@ public class ChatController {
         return ResponseEntity.ok(chatRooms);
     }
 
+    /* create 타이밍 : 나중에 멘토등록 승인되면 그 멘토의 방이 만들어지게 하기 */
     @PostMapping("/chat/rooms")
     public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody) {
         String roomName = requestBody.get("name");
@@ -66,6 +69,7 @@ public class ChatController {
         ));
     }
 
+    /* delete 타이밍 : 멘토가 탈퇴하거나 멘토자격 해제될 때(=mentor 테이블이 없어질 때) */
     @DeleteMapping("/chat/{roomId}")
     public ResponseEntity<Map<String, Object>> deleteChatRoom(@PathVariable Long roomId) {
         try {
@@ -76,10 +80,15 @@ public class ChatController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat/{roomId}")
-    public ResponseEntity<Map<String, Object>> getChatRoomDetails(@PathVariable("roomId") Long roomId) {
+    public ResponseEntity<Map<String, Object>> getChatRoomDetails(@PathVariable("roomId") Long roomId, Principal principal) {
         try {
-            ChatRoom roomDetails = chatService.getRoomDetails(roomId);
+            Member chatJoiner = this.memberService.getMemberByEmail(principal.getName());
+            ChatRoom roomDetails = this.chatService.getRoomDetails(roomId);
+            if (!this.chatService.isJoiner(chatJoiner, roomDetails)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User does not have author to join room.");
+            }
             return ResponseEntity.ok(Map.of(
                     "id", roomDetails.getId(),
                     "name", roomDetails.getName(),

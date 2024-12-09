@@ -79,4 +79,8 @@ public class ChatService {
         return chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
     }
+
+    public boolean isJoiner(Member chatJoiner, ChatRoom chatRoom) {
+        return this.chatJoinRepository.findByChatJoinerAndChatRoom(chatJoiner, chatRoom).isPresent();
+    }
 }
