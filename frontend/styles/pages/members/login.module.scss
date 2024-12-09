@@ -3,36 +3,30 @@
 .container {
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: center;
   align-items: center;
 }
 
 .loginTitle {
   @include font-XXL-B;
-  padding: 30px;
+  margin-top: 60px;
+  margin-bottom: 60px;
 }
 
 .loginBox {
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: center;
   align-items: center;
+  gap: 20px;
 }
 
 .links {
   display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
 }
 
 .link {
   @include font-XXXXS-M;
   color: var(--gray-800); // 링크 기본 색상
-  text-decoration: none;
 
   &:hover {
     color: var(--text-black); // 호버 시 색상 변경
