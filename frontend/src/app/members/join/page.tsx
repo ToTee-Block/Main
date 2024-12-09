@@ -114,7 +114,7 @@ export default function Join() {
       </div>
 
       {/* 에러 메시지 표시 */}
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <p>{error}</p>}
 
       {/* 회원가입 버튼 */}
       <LoginButton onClick={register}>회원가입</LoginButton>
