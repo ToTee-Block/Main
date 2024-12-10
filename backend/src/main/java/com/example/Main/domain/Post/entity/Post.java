@@ -2,6 +2,7 @@ package com.example.Main.domain.Post.entity;
 
 import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.Jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,9 +22,13 @@ import java.util.Set;
 @ToString(callSuper = true)
 public class Post extends BaseEntity {
     private String subject;
+
     private String content;
+
     @ManyToOne
     private Member author;
+
+    private Set<String> techStacks;
 
     @Column(name = "is_draft")
     private Boolean isDraft;

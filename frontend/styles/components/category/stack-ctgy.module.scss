@@ -1,0 +1,37 @@
+@import "../../globals/font-mixin.scss";
+
+
+.stackCTGY {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  li {
+    height: 40px;
+    padding: 8px 16px;
+    background-color: var(--background);
+    border: 1px solid var(--text-blue);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-blue);
+  }
+
+  li.active {
+    background-color: var(--dark-blue-color);
+
+    span {
+      @include font-XXS-B;
+      color: var(--text-white);
+    }
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+

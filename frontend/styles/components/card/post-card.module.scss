@@ -2,11 +2,11 @@
 
 .PostCard {
   flex: 1;
-  min-width: 317px;
-  height: 300px;
+  min-width: 390px;
+  height: 352px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 24px;
   padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
@@ -14,7 +14,7 @@
 
 .imageWrapper {
   width: 100%;
-  height: 60%;
+  height: 65%;
   border-radius: 6px;
   overflow: hidden;
 
@@ -26,7 +26,7 @@
 
 .content {
   width: 100%;
-  height: 40%;
+  height: 35%;
   display: flex;
   flex-direction: column;
 }

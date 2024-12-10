@@ -1,47 +1,75 @@
 "use client";
 
-import classNames from 'classnames';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import styles from '@/styles/pages/post/list.module.scss';
 import SearchBox from '@/components/search/SearchBox';
 import LinkButton from '@/components/button/LinkButton';
 import PostCard from '@/components/card/PostCard';
+import NoSearch from "@/components/exception/NoSearch";
 
 const Post: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("recent");
+  // 상태 정의
+  const [recentPosts, setRecentPosts] = useState([]);
+  const [hotPosts, setHotPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const basePost = {
-    href: "/#",
-    title: "Post",
-    description: "예시 텍스트 입니다.",
-    user: "admin01",
-    date: "2024.11.20",
-    imageUrl: "/images/Rectangle.png"
-  };
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const page = Number(queryParams.get("page")) || 0;   //기본값을 0로 설정
+    const kw = queryParams.get("kw") || "";  // 기본값은 빈 문자열
 
-  const posts: Record<string, { href: string; title: string; description: string; user: string; date: string; imageUrl: string; }[]> = {
-    recent: Array.from({ length: 10 }, (_, index) => ({
-      ...basePost,
-      href: "/content-recent",
-      user: `recent ${index+1}`,
-      title: "recent",
-  })),
-    hot: Array.from({ length: 10 }, (_, index) => ({
-      ...basePost,
-      href: "/content-hot",
-      user: `hot ${index+1}`,
-      title: "hot",
-    })),
-    feed: Array.from({ length: 10 }, (_, index) => ({
-      ...basePost,
-      href: "/content-feed",
-      user: `feed ${index+1}`,
-      title: "feed",
-    })),
+    const fetchRecentPosts = async () => {
+      try {
+        const response = await axios.get("http://localhost:8081/api/v1/post", {
+          params: { page, size: 16, kw },
+        });
+        console.log(response.data.data);
+        setRecentPosts(response.data.data[0].content);
+        setHotPosts(response.data.data[1].content);
+        setLoading(false);
+      } catch (error) {
+        setError("Failed to fetch recent posts.");
+        setLoading(false);
+      }
+    };
+
+    fetchRecentPosts(); // 페이지가 로드될 때 데이터 호출
+  }, []); // 빈 배열을 넣어 컴포넌트가 마운트될 때 한 번만 호출
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  // posts 객체 정의
+  const posts = {
+    recent: recentPosts.length > 0 ? recentPosts.map(post => ({
+      href: `/post?id=${post.id}`, 
+      title: post.subject,
+      description: post.content,
+      user: post.authorName,
+      date: new Date(post.createdDate).toISOString().split('T')[0],
+      imageUrl: '/images/Rectangle.png',
+    })) : [],
+
+    hot: hotPosts.length > 0 ? hotPosts.map(post => ({
+      href: `/post?id=${post.id}`, 
+      title: post.subject,
+      description: post.content,
+      user: post.authorName,
+      date: new Date(post.createdDate).toISOString().split('T')[0],
+      imageUrl: '/images/Rectangle.png',
+    })) : [],
   };
 
   return (
-    <>
+    <div className={styles.bodyContainer}>
       <div className={styles.container}>
         <div className={styles.titleSection}>
           <h1 className={styles.title}>Totee Post</h1>
@@ -72,39 +100,35 @@ const Post: React.FC = () => {
                 </svg>
                 <span>인기글</span>
               </li>
-              <li 
-                className={`${activeTab === "feed" ? styles.active : ""}`}
-                onClick={() => setActiveTab("feed")}
-              >
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path fillRule="evenodd" clipRule="evenodd" d="M11 1C10.6048 1 10.2467 1.23273 10.0862 1.59386L6.35013 10H4C3.20435 10 2.44129 10.3161 1.87868 10.8787C1.31607 11.4413 1 12.2044 1 13V20C1 20.7957 1.31607 21.5587 1.87868 22.1213C2.44129 22.6839 3.20435 23 4 23H18.2748C18.9961 23.0067 19.6958 22.7532 20.2456 22.2859C20.7966 21.8175 21.1599 21.1658 21.2686 20.4507L22.6487 11.4501C22.7139 11.0201 22.6849 10.5811 22.5637 10.1634C22.4424 9.7458 22.2318 9.3595 21.9465 9.03134C21.6611 8.70317 21.3078 8.44096 20.911 8.26289C20.5162 8.08567 20.0876 7.996 19.6549 8H15V5C15 3.93913 14.5786 2.92172 13.8284 2.17157C13.0783 1.42143 12.0609 1 11 1ZM11.6078 3.0946L8 11.2122V21H18.2913C18.5325 21.0027 18.7665 20.9183 18.9503 20.7621C19.134 20.6059 19.2551 20.3885 19.2913 20.1501L20.6713 11.1499C20.693 11.0067 20.6834 10.8601 20.643 10.7211C20.6026 10.5818 20.5324 10.4531 20.4373 10.3437C20.3421 10.2343 20.2244 10.1469 20.0921 10.0875C19.9599 10.0282 19.8163 9.99829 19.6713 9.99994L19.66 10.0001L14 10C13.4477 10 13 9.55228 13 9V5C13 4.46957 12.7893 3.96086 12.4142 3.58579C12.1864 3.35794 11.9092 3.19075 11.6078 3.0946ZM6 12V21H4C3.73478 21 3.48043 20.8946 3.29289 20.7071C3.10536 20.5196 3 20.2652 3 20V13C3 12.7348 3.10536 12.4804 3.29289 12.2929C3.48043 12.1054 3.73478 12 4 12H6Z" fill="currentColor"/>
-                </svg>
-                <span>피드</span>
-              </li>
             </ul>
             <div className={styles.rightBox}>
-              <LinkButton to="">My Post</LinkButton>
+              <LinkButton to="/post/my">My Post</LinkButton>
               <SearchBox></SearchBox>
             </div>
           </div>
         </div>
       </div>
       <div className={styles.container}>
-          <div className={styles.containerItemBox}>
-            {posts[activeTab].map((post, index) => (
-              <PostCard
-                key={index} // 각 카드에 고유한 key 값을 지정
-                href={post.href}
-                title={post.title}
-                description={post.description}
-                user={post.user}
-                date={post.date}
-                imageUrl={post.imageUrl}
-              />
-            ))}
+            <div className={styles.containerItemBox}>          {activeTab === "recent" && recentPosts.length === 0
+              || activeTab === "hot" && hotPosts.length === 0
+              || activeTab === "feed" && feedPosts.length === 0 ? (
+              <NoSearch></NoSearch>
+            ) : (
+              posts[activeTab].map((post, index) => (
+                <PostCard
+                  key={index}
+                  href={post.href}
+                  title={post.title}
+                  description={post.description}
+                  user={post.user}
+                  date={post.date}
+                  imageUrl={post.imageUrl}
+                />
+              ))
+            )}
           </div>
       </div>
-    </>
+    </div>
   );
 }
 
