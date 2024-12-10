@@ -55,12 +55,6 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/qna/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/qna/**").permitAll()
 
-                        // Report 관련 API에 대한 권한 설정 추가
-                        .requestMatchers("/api/reports").permitAll()
-                        .requestMatchers("/api/reports/user/**").permitAll()
-                        .requestMatchers("/api/reports/**").hasRole("ADMIN")  // 신고 상태 변경 및 내역 조회는 관리자만
-
-
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())

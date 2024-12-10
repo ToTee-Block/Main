@@ -31,4 +31,17 @@ public class ErrorMessages {
     public static final String QNA_NOT_FOUND = "QnA를 찾을 수 없습니다.";
     public static final String QNA_ID_MISMATCH = "QnA와 일치하지 않는 댓글입니다.";
     public static final String COMMENT_NOT_BELONG_TO_QNA = "댓글이 해당 QnA와 일치하지 않습니다.";
+
+    // 게시물 신고 관련 오류 메시지
+    public static final String POST_ALREADY_REPORTED = "이미 신고한 게시물입니다.";
+    public static final String REPORT_NOT_FOUND = "신고를 찾을 수 없습니다.";
+    public static final String REPORT_PROCESS_FAILED = "신고 처리 실패";
+    public static final String INVALID_REPORT_STATUS = "잘못된 신고 상태입니다.";
+    public static final String POST_NOT_REPORTED = "해당 게시물은 신고되지 않았습니다.";
+    public static final String REPORT_ALREADY_EXISTS = "이미 처리된 신고입니다.";
+    public static final String INVALID_REPORT_REASON = "유효하지 않은 신고 사유입니다.";
+    public static final String USER_REPORT_NOT_FOUND = "본인이 신고한 내역이 없습니다.";
+
+    //
+    public static final String ONLY_ADMIN = "관리자 권한이 없습니다.";
 }

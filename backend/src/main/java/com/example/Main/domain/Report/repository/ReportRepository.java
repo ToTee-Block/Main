@@ -8,7 +8,9 @@ import java.util.List;
 
 @Repository
 public interface ReportRepository extends JpaRepository<Report,Long> {
-    List<Report> findByPostId(Long postId);
+    // 사용자가 신고한 내역을 조회하는 메서드
+    List<Report> findByReporter_Email(String reporterEmail);
 
-    List<Report> findByReporterEmail(String userEmail);
+    // 특정 게시물에 대한 중복 신고 여부를 확인하는 메서드
+    List<Report> findByPostIdAndReporterEmail(Long postId, String reporterEmail);
 }
