@@ -49,6 +49,10 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/post/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/post/**").permitAll()
 
+                        // 관리자만 접근 가능한 API
+                        .requestMatchers(HttpMethod.GET, "/api/*/post/**/report/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/post/**/report/**").hasRole("ADMIN")
+
                         // QnA 관련 API에 대한 권한 설정 추가
                         .requestMatchers(HttpMethod.GET, "/api/*/qna/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/*/qna/**").permitAll()
