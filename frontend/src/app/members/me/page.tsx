@@ -204,8 +204,8 @@ export default function ProfileForm() {
   return (
     <div className={styles.container}>
       <p className={styles.formTitle}>프로필</p>
-      <div className={styles.formbox}>
-        <div className={styles.image}>
+      <div className={styles.formBox}>
+        <div>
           <ProfileImage
             profileImage={profileImage || "/icon/user.svg"}
             onImageUpload={handleImageUpload}

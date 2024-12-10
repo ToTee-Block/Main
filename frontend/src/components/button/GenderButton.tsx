@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "@/styles/components/button/gender-button.module.scss";
 
 interface GenderButtonProps {
@@ -26,14 +26,14 @@ const GenderButton: React.FC<GenderButtonProps> = ({
 interface GenderSelectorProps {
   selectedGender: string | null;
   onGenderChange: (gender: string) => void;
-  showError?: boolean;
 }
 
 const GenderSelector: React.FC<GenderSelectorProps> = ({
   selectedGender,
   onGenderChange,
-  showError = false,
 }) => {
+  const [showError, setShowError] = useState(true);
+
   const genderOptions = [
     { label: "남자", value: "M" },
     { label: "여자", value: "F" },
@@ -44,14 +44,16 @@ const GenderSelector: React.FC<GenderSelectorProps> = ({
     onGenderChange(genderValue === selectedGender ? "" : genderValue);
   };
 
-  const hasError = showError && !selectedGender;
+  useEffect(() => {
+    setShowError(!selectedGender);
+  }, [selectedGender]);
 
   return (
     <div className={styles.GenderBox}>
       <p className={styles.GenderP}>성별</p>
       <div
         className={`${styles.GenderSelector} ${
-          hasError ? styles.errorInput : ""
+          showError ? styles.errorInput : ""
         }`}
       >
         {genderOptions.map(({ label, value }) => (
@@ -63,9 +65,7 @@ const GenderSelector: React.FC<GenderSelectorProps> = ({
           />
         ))}
       </div>
-      {hasError && (
-        <p className={styles.errorMessage}>성별을 선택해주세요.</p>
-      )}
+      {showError && <p className={styles.errorMessage}>성별을 선택해주세요.</p>}
     </div>
   );
 };
