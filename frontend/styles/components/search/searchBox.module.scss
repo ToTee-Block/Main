@@ -1,0 +1,15 @@
+@import '../../globals/font-mixin.scss';
+
+.searchBox {
+  display: flex;
+  gap: 10px;
+  padding: 12px 24px;
+  background-color: var(--gray-color);
+  
+  input {
+    @include font-XXS-B;
+    color: var(--text-blue);
+    background-color: var(--opacity-0);
+    border: none;
+  }
+}
