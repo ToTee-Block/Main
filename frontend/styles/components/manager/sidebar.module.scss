@@ -1,0 +1,33 @@
+.sidebar {
+  width: 240px;
+  padding: 24px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 32px;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menuItem {
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f3f4f6;
+  }
+
+  &.active {
+    background-color: #4263eb;
+    color: white;
+  }
+}

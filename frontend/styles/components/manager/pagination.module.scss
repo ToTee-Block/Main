@@ -1,0 +1,22 @@
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.pageInfo {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.pageButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.pageButton {
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}

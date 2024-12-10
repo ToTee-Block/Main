@@ -1,0 +1,36 @@
+.table {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+
+  th,
+  td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  th {
+    font-weight: 500;
+    color: #6b7280;
+  }
+}
+
+.statusCell {
+  display: flex;
+  gap: 8px;
+}
+
+.approveButton {
+  padding: 4px 16px;
+  background-color: #e5f3f3;
+  color: #00a5a5;
+  border-radius: 999px;
+}
+
+.rejectButton {
+  padding: 4px 16px;
+  background-color: #ffe9e9;
+  color: #ff4949;
+  border-radius: 999px;
+}
