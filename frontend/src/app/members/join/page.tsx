@@ -63,7 +63,11 @@ export default function Join() {
       <p className={styles.joinTitle}>ToTee Block</p>
       <div className={styles.joinBox}>
         {/* 아이디 입력 */}
-        <TextInput value={email} onChange={(e) => setEmail(e.target.value)}>
+        <TextInput
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={styles.wideInput}
+        >
           아이디 (E-mail)
         </TextInput>
 
@@ -72,6 +76,7 @@ export default function Join() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           isPassword
+          className={styles.wideInput}
         >
           비밀번호
         </TextInput>
@@ -81,12 +86,17 @@ export default function Join() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           isPassword
+          className={styles.wideInput}
         >
           비밀번호 확인
         </TextInput>
 
         {/* 이름 입력 */}
-        <TextInput value={name} onChange={(e) => setName(e.target.value)}>
+        <TextInput
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className={styles.wideInput}
+        >
           이름
         </TextInput>
 
@@ -104,7 +114,7 @@ export default function Join() {
       </div>
 
       {/* 에러 메시지 표시 */}
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <p>{error}</p>}
 
       {/* 회원가입 버튼 */}
       <LoginButton onClick={register}>회원가입</LoginButton>

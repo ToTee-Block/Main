@@ -1,12 +1,13 @@
-// pages/MentorSearch.tsx
 'use client';
-
 import React, { useState } from 'react';
-import styles from '@/styles/pages/mentor.module.scss';
+import styles from '@/styles/pages/mentor/mentor.module.scss';
 import Image from 'next/image';
 import MentorButton from '@/components/button/MentorButton';
 import Pagination from '@/components/pagination/custompagination';
 import Tag from '@/src/components/tag/tag';
+import SearchBox from '@/components/search/SearchBox'; 
+import Link from 'next/link';
+
 export default function MentorSearch() {
   const [selectedTags, setSelectedTags] = useState<Array<boolean>>(Array(7).fill(false));
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,26 +44,15 @@ export default function MentorSearch() {
           onTagToggle={handleTagToggle}
         />
         <div className={styles.searchWrapper}>
-          <MentorButton>
-            My Mentor
-          </MentorButton>
-          <div className={styles.searchBar}>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="search"
-              className={styles.searchInput}
-            />
-            <button className={styles.searchButton}>
-              <Image
-                src="/icon/search.svg"
-                alt="search"
-                width={40}
-                height={40}
-              />
-            </button>
-          </div>
+        <Link href="/mentor/mymentor" className={styles.linkWrapper}>
+            <MentorButton>
+              My Mentor
+            </MentorButton>
+          </Link>
+          <SearchBox // 사용된 SearchBox 컴포넌트
+            onClick={() => console.log('Search button clicked')}
+            disabled={false}
+          />
         </div>
       </div>
 
@@ -87,7 +77,7 @@ export default function MentorSearch() {
         ))}
       </div>
 
-      <Pagination 
+      <Pagination
         currentPage={currentPage}
         onPageChange={setCurrentPage}
         totalPages={100}

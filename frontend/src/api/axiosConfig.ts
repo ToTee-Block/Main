@@ -76,6 +76,7 @@ export const fetchUserProfile = async () => {
 
 // 사용자 프로필 수정 API 요청 메서드 (403 처리 포함)
 export const updateProfile = async (profileData: {
+  email: string;
   name: string;
   birthDate: string; // YYYY-MM-DD 형식
   gender: string;
@@ -85,6 +86,39 @@ export const updateProfile = async (profileData: {
       "/api/v1/members/profile",
       profileData
     );
+    return response.data;
+  } catch (error: any) {
+    handleForbiddenError(error); // 403 처리
+    throw error.response?.data || error.message; // 다른 에러 처리
+  }
+};
+
+// 프로필 이미지 업로드 API 요청 메서드 (403 처리 포함)
+export const uploadProfileImage = async (email: string, imageFile: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("profileImg", imageFile);
+
+    const response = await apiClient.post(
+      `/api/v1/members/profileImg/${email}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    handleForbiddenError(error); // 403 처리
+    throw error.response?.data || error.message; // 다른 에러 처리
+  }
+};
+
+// 프로필 이미지 삭제 API 요청 메서드 (403 처리 포함)
+export const deleteProfileImage = async () => {
+  try {
+    const response = await apiClient.delete("/api/v1/members/profile-image");
     return response.data;
   } catch (error: any) {
     handleForbiddenError(error); // 403 처리

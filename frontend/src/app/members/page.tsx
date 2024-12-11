@@ -161,7 +161,7 @@ export default function Login() {
           {loading ? "로그인 중..." : "로그인"}
         </LoginButton>
       </div>
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <p>{error}</p>}
     </div>
   );
 }

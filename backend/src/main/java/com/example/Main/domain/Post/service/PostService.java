@@ -7,7 +7,7 @@ import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,6 +45,19 @@ public class PostService {
         return postsByAuthor.stream()
                 .map(PostDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    // 본인이 작성한 게시글 조회
+    public Page<PostDTO> searchPostsByAuthor(int page, int size, String keyword, Member author) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> searchedPosts = this.postRepository.searchPostsByAuthor(keyword, pageable, author);
+
+        // Post 엔티티를 PostDTO로 변환
+        List<PostDTO> authoredPosts = searchedPosts.getContent().stream()
+                .map(PostDTO::new)  // Post 객체를 PostDTO로 변환
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(authoredPosts, pageable, searchedPosts.getTotalElements());
     }
 
     // 작성
@@ -143,16 +156,27 @@ public class PostService {
     }
 
     // 검색기능
-    public List<PostDTO> searchPosts(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            List<Post> postList = postRepository.findAllByIsDraftFalse(Sort.by(Sort.Order.desc("createdDate")));
-            return postList.stream()
-                    .map(PostDTO::new)
-                    .collect(Collectors.toList());
-        }
-        List<Post> postList = postRepository.searchByKeyword(keyword, Sort.by(Sort.Order.desc("createdDate")));
-        return postList.stream()
-                .map(PostDTO::new)
+    public Page<PostDTO> searchRecentPosts(int page, int size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> searchedPosts = this.postRepository.searchRecentPosts(keyword, pageable);
+
+        // Post 엔티티를 PostDTO로 변환
+        List<PostDTO> recentPosts = searchedPosts.getContent().stream()
+                .map(PostDTO::new)  // Post 객체를 PostDTO로 변환
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(recentPosts, pageable, searchedPosts.getTotalElements());
+    }
+
+    public Page<PostDTO> searchHotPosts(int page, int size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> searchedPosts = this.postRepository.searchHotPosts(keyword, pageable);
+
+        // Post 엔티티를 PostDTO로 변환
+        List<PostDTO> hotPosts = searchedPosts.getContent().stream()
+                .map(PostDTO::new)  // Post 객체를 PostDTO로 변환
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(hotPosts, pageable, searchedPosts.getTotalElements());
     }
 }

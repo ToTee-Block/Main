@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import styles from '@/styles/pages/mentor-form.module.scss';
+import styles from '@/styles/pages/mentor/mentor-form.module.scss';
 import Image from 'next/image';
 import ApplyButton from '@/components/button/ApplyButton';
 import Tag from '@/src/components/tag/tag';

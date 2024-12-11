@@ -46,27 +46,26 @@ const Header: React.FC = () => {
     window.addEventListener(LOGIN_EVENT, handleLogin as EventListener);
 
     // 알림 체크 (예시: 5초마다 새로운 알림 확인)
-    const checkNewNotifications = async () => {
-      try {
-        const response = await fetch('/api/notifications');
-        const data = await response.json();
-        
-        // 읽지 않은 새 알림이 있는지 확인
-        const hasUnread = data.some((notification: Notification) => !notification.isRead);
-        setHasNewNotification(hasUnread);
-        setNotifications(data);
-      } catch (error) {
-        console.error('알림 확인 중 오류 발생:', error);
-      }
-    };
+    let notificationInterval: NodeJS.Timeout | null = null;
 
-    const notificationInterval = setInterval(checkNewNotifications, 5000);
+    if (isLoggedIn) {
+      const checkNewNotifications = () => {
+        // 백엔드 연동 전까지는 빈 배열 사용
+        const mockNotifications: Notification[] = [];
+        setNotifications(mockNotifications);
+        setHasNewNotification(false);
+      };
+
+      notificationInterval = setInterval(checkNewNotifications, 5000);
+    }
 
     return () => {
       window.removeEventListener(LOGIN_EVENT, handleLogin as EventListener);
-      clearInterval(notificationInterval);
+      if (notificationInterval) {
+        clearInterval(notificationInterval);
+      }
     };
-  }, []);
+  }, [isLoggedIn]);  // isLoggedIn 의존성 추가
 
   const isActive = (path: string): boolean => {
     if (!pathname) return false;
@@ -124,8 +123,8 @@ const Header: React.FC = () => {
               <Image 
                 src="/icon/user.svg" 
                 alt="profile" 
-                width={32} 
-                height={32} 
+                width={40} 
+                height={40} 
                 className={styles.userImage}
               />
               <span className={styles.userName}>{userName}</span>
@@ -133,8 +132,8 @@ const Header: React.FC = () => {
                 <Image 
                   src="/icon/more.svg" 
                   alt="more" 
-                  width={20} 
-                  height={20} 
+                  width={18} 
+                  height={18} 
                 />
               </button>
               {showProfileMenu && (

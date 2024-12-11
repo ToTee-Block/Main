@@ -1,6 +1,8 @@
 package com.example.Main.domain.Post.entity;
 
+import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.Jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,9 +22,13 @@ import java.util.Set;
 @ToString(callSuper = true)
 public class Post extends BaseEntity {
     private String subject;
+
     private String content;
+
     @ManyToOne
     private Member author;
+
+    private Set<String> techStacks;
 
     @Column(name = "is_draft")
     private Boolean isDraft;
@@ -47,4 +54,9 @@ public class Post extends BaseEntity {
         likedByMembers.remove(member);
         likes = likedByMembers.size(); // 좋아요 수 업데이트
     }
+
+    // 댓글 목록
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @OrderBy("createdDate DESC")
+    private List<PostComment> comments;
 }
