@@ -3,6 +3,7 @@ package com.example.Main.domain.Post.dto;
 import com.example.Main.domain.Post.Comment.dto.PostCommentDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.entity.Post;
+import com.example.Main.domain.TechStack.enums.TechStacks;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,12 +25,14 @@ public class PostDTO {
 
     private String content;  // 마크다운을 HTML로 변환한 결과를 저장하기 위해 final을 제거
 
-    private final String authorEmail;
+    private final String authorName;
 
     private final LocalDateTime createdDate;
 
     @LastModifiedDate
     private final LocalDateTime modifiedDate;
+
+    private final Set<String> techStacks;
 
     private final Boolean isDraft;
 
@@ -46,9 +49,10 @@ public class PostDTO {
         this.id = post.getId();
         this.subject = post.getSubject();
         this.content = post.getContent();
-        this.authorEmail = post.getAuthor() != null ? post.getAuthor().getEmail() : "Unknown";
+        this.authorName = post.getAuthor() != null ? post.getAuthor().getName() : "Unknown";
         this.createdDate = post.getCreatedDate();
         this.modifiedDate = post.getModifiedDate();
+        this.techStacks = post.getTechStacks();
         this.isDraft = post.getIsDraft();
         this.likes = post.getLikes();
 
