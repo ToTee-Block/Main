@@ -13,10 +13,12 @@ import com.example.Main.domain.Post.dto.response.PostsResponse;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
 import com.example.Main.global.RsData.RsData;
+import com.example.Main.global.Security.SecurityMember;
 import com.example.Main.global.Util.Markdown.MarkdownService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -153,6 +155,38 @@ public class ApiV1PostController {
         this.postService.deletePost(id);
         return RsData.of("200", "%d 번 게시물 삭제 성공".formatted(id), null);
     }
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/{id}")
+    public RsData<PostResponse> deletePostByAdmin(@PathVariable("id") Long id, @AuthenticationPrincipal SecurityMember loggedInUser) {
+        // 로그인 여부 확인
+        if (loggedInUser == null) {
+            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+        }
+
+        // 권한 확인
+        String role = loggedInUser.getAuthorities().toString();
+        if (!role.contains("ROLE_ADMIN")) {
+            return RsData.of("403", "관리자만 게시글을 삭제할 수 있습니다.", null); // 권한이 없으면 403
+        }
+
+        // 게시글 정보 조회
+        Post post = this.postService.getPost(id);
+
+        if (post == null || post.getIsDraft()) {
+            return RsData.of("500", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
+        }
+
+        // 관리자 권한으로 게시글 삭제
+        this.postService.deletePostByAdmin(id);
+
+        // 삭제된 게시글에 대한 응답 객체 생성
+        PostDTO postDTO = new PostDTO(post);
+        return RsData.of("200", "%d 번 게시물 삭제 성공 (관리자 삭제)".formatted(id), new PostResponse(postDTO));
+    }
+
 
     // 임시 저장된 게시물 목록 전체 조회
     @GetMapping("/draftsAll")

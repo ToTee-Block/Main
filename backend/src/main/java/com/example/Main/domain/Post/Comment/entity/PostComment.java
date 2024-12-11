@@ -28,12 +28,11 @@ public class PostComment extends BaseEntity {
     private Member author;
 
     @ManyToOne
-    @JsonBackReference  // 댓글에서 해당 게시물 참조 시 무한 참조 방지
     private Post post;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "comment_likes",
+            name = "post_comment_likes",
             joinColumns = @JoinColumn(name = "comment_id"),
             inverseJoinColumns = @JoinColumn(name = "member_id")
     )
@@ -42,11 +41,9 @@ public class PostComment extends BaseEntity {
     private int likes;
     @ManyToOne
     @JoinColumn(name = "parent_comment_id")
-    @JsonBackReference
     private PostComment parentComment;
 
     @OneToMany(mappedBy = "parentComment")
-    @JsonManagedReference
     private List<PostComment> replies = new ArrayList<>();
 
     // 좋아요 추가

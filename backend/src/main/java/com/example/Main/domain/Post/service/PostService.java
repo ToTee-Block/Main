@@ -7,7 +7,12 @@ import com.example.Main.domain.Post.Comment.repository.PostCommentRepository;
 import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
+import com.example.Main.domain.Report.entity.Report;
+import com.example.Main.domain.Report.repository.ReportRepository;
+import com.example.Main.domain.Report.service.ReportService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +29,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final MemberService memberService;
     private final PostCommentRepository postCommentRepository;
+    private final ReportRepository reportRepository;
 
 
     // 게시글 전체 조회
@@ -85,6 +91,27 @@ public class PostService {
         Optional<Post> postOptional = postRepository.findById(postId);
         postOptional.ifPresent(postRepository::delete);
     }
+
+    // 삭제 : 관리자용
+    @Transactional
+    public PostDTO deletePostByAdmin(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+
+        List<Report> reports = reportRepository.findByPost(post);
+        reportRepository.deleteAll(reports);
+
+        postCommentRepository.deleteByPostId(postId);
+
+        postRepository.delete(post);
+
+        // 지연 로딩된 컬렉션을 초기화하여 안전하게 반환
+        Hibernate.initialize(post.getComments());
+        Hibernate.initialize(post.getAuthor());
+        return new PostDTO(post);
+    }
+
+
 
     // 임시 저장된 게시물 목록 조회
     public List<PostDTO> getDrafts() {
