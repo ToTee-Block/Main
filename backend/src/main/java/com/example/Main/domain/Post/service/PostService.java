@@ -3,12 +3,15 @@ package com.example.Main.domain.Post.service;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.repository.MemberRepository;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Post.Comment.repository.PostCommentRepository;
 import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +23,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final MemberService memberService;
+    private final PostCommentRepository postCommentRepository;
+
 
     // 게시글 전체 조회
     public List<PostDTO> getList() {
@@ -73,8 +78,12 @@ public class PostService {
     }
 
     // 삭제
-    public void delete(Post post) {
-        this.postRepository.delete(post);
+    @Transactional
+    public void deletePost(Long postId) {
+        postCommentRepository.deleteByPostId(postId);
+
+        Optional<Post> postOptional = postRepository.findById(postId);
+        postOptional.ifPresent(postRepository::delete);
     }
 
     // 임시 저장된 게시물 목록 조회

@@ -13,12 +13,10 @@ import com.example.Main.domain.Post.dto.response.PostsResponse;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
 import com.example.Main.global.RsData.RsData;
-import com.example.Main.global.Security.SecurityMember;
 import com.example.Main.global.Util.Markdown.MarkdownService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -152,9 +150,8 @@ public class ApiV1PostController {
             return RsData.of("403", "본인만 게시글을 삭제할 수 있습니다.", null);
         }
 
-        this.postService.delete(post);
-        PostDTO postDTO = new PostDTO(post);
-        return RsData.of("200", "%d 번 게시물 삭제 성공".formatted(id), new PostResponse(postDTO));
+        this.postService.deletePost(id);
+        return RsData.of("200", "%d 번 게시물 삭제 성공".formatted(id), null);
     }
 
     // 임시 저장된 게시물 목록 전체 조회

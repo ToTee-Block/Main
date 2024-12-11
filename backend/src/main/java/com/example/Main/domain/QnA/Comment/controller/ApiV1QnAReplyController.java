@@ -19,14 +19,14 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/qna/{qnAId}/comments")
+@RequestMapping(value = "/api/v1/qna/{qnAId}/comments/{commentId}/replies")
 public class ApiV1QnAReplyController {
 
     private final QnACommentService commentService;
     private final QnAService qnAService;
 
     // 대댓글 조회
-    @GetMapping("/{commentId}/replies")
+    @GetMapping
     public RsData<List<QnACommentDTO>> getReplies(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId) {
 
         QnA qna = qnAService.getQnA(qnAId);
@@ -44,7 +44,7 @@ public class ApiV1QnAReplyController {
     }
 
     // 대댓글 단건 조회
-    @GetMapping("/{commentId}/replies/{replyId}")
+    @GetMapping("/{replyId}")
     public RsData<QnACommentDTO> getReply(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId,
                                           @PathVariable("replyId") Long replyId) {
 
@@ -72,7 +72,7 @@ public class ApiV1QnAReplyController {
 
     // 특정 댓글의 본인이 작성한 대댓글 조회
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/{commentId}/myreplies")
+    @GetMapping("/myreplies")
     public RsData<List<QnACommentDTO>> getMyReplies(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId, Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
@@ -102,7 +102,7 @@ public class ApiV1QnAReplyController {
 
     // 대댓글 작성
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/{commentId}/replies")
+    @PostMapping
     public RsData<QnACommentDTO> postReplyCreate(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId,
                                                  @Valid @RequestBody QnACommentCreateRequest commentCreateRequest,
                                                  Principal principal) {
@@ -139,7 +139,7 @@ public class ApiV1QnAReplyController {
 
     // 대댓글 수정
     @PreAuthorize("isAuthenticated()")
-    @PatchMapping("/{commentId}/replies/{replyId}")
+    @PatchMapping("/{replyId}")
     public RsData<QnACommentDTO> modifyReply(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId,
                                              @PathVariable("replyId") Long replyId,
                                              @Valid @RequestBody QnACommentModifyRequest commentModifyRequest,
@@ -179,7 +179,7 @@ public class ApiV1QnAReplyController {
 
     // 대댓글 삭제
     @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/{commentId}/replies/{replyId}")
+    @DeleteMapping("/{replyId}")
     public RsData<String> deleteReply(@PathVariable("qnAId") Long qnAId,
                                       @PathVariable("commentId") Long commentId,
                                       @PathVariable("replyId") Long replyId,
