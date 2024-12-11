@@ -9,8 +9,15 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
   return (
     <div className={styles.sidebar}>
-      <h1 className={styles.title}>회원 관리</h1>
       <ul className={styles.menuList}>
+        <li
+          className={`${styles.menuItem} ${
+            activeTab === "memberManage" ? styles.active : ""
+          }`}
+          onClick={() => onTabChange("memberManage")}
+        >
+          회원 관리
+        </li>
         <li
           className={`${styles.menuItem} ${
             activeTab === "memberApproval" ? styles.active : ""

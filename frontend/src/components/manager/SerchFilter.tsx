@@ -1,7 +1,7 @@
 import React from "react";
+import Image from "next/image";
 import styles from "@/styles/components/manager/serchFilter.module.scss";
 
-// SearchFilters 인터페이스를 직접 정의
 interface SearchFilters {
   id: string;
   name: string;
@@ -9,18 +9,14 @@ interface SearchFilters {
   endDate: string;
 }
 
-interface SerchFilterProps {
-  searchTerm: string;
+interface SearchFilterProps {
   searchFilters: SearchFilters;
-  setSearchTerm: (value: string) => void;
-  setSearchFilters: React.Dispatch<React.SetStateAction<SearchFilters>>;
+  setSearchFilters: (filters: SearchFilters) => void;
   onSearch: () => void;
 }
 
-const SerchFilter: React.FC<SerchFilterProps> = ({
-  searchTerm,
+const SearchFilter: React.FC<SearchFilterProps> = ({
   searchFilters,
-  setSearchTerm,
   setSearchFilters,
   onSearch,
 }) => {
@@ -33,70 +29,76 @@ const SerchFilter: React.FC<SerchFilterProps> = ({
   };
 
   return (
-    <div className={styles.searchSection}>
-      <input
-        type="text"
-        placeholder="Search"
-        className={styles.searchInput}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <div className={styles.filterSection}>
-        <button className={styles.filterButton}>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
-        <input
-          type="text"
-          name="id"
-          placeholder="Id"
-          className={styles.filterInput}
-          value={searchFilters.id}
-          onChange={handleFilterChange}
+    <div className={styles.filterContainer}>
+      <div className={styles.filterRow}>
+        <Image
+          src="/icon/manager_search.svg"
+          alt="filter"
+          width={19.5}
+          height={22.5}
+          className={styles.filterIcon}
         />
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          className={styles.filterInput}
-          value={searchFilters.name}
-          onChange={handleFilterChange}
-        />
-        <div className={styles.dateRange}>
+        <div className={styles.divider}></div>
+        <div className={styles.inputGroup}>
           <input
-            type="date"
+            type="text"
+            name="id"
+            placeholder="Id"
+            value={searchFilters.id}
+            onChange={handleFilterChange}
+            className={styles.filterInput}
+          />
+          <div className={styles.divider}></div>
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={searchFilters.name}
+            onChange={handleFilterChange}
+            className={styles.filterInput}
+          />
+          <div className={styles.divider}></div>
+          <input
+            type="text"
             name="startDate"
-            className={styles.dateInput}
+            placeholder="Id"
             value={searchFilters.startDate}
             onChange={handleFilterChange}
+            className={styles.filterInput}
           />
-          <span>-</span>
+          <div className={styles.calendarWrapper}>
+            <Image
+              src="/icon/manager_calendrier.svg"
+              alt="calendar"
+              width={22}
+              height={25}
+            />
+          </div>
+          <span className={styles.dateDivider}>~</span>
           <input
-            type="date"
+            type="text"
             name="endDate"
-            className={styles.dateInput}
+            placeholder="Id"
             value={searchFilters.endDate}
             onChange={handleFilterChange}
+            className={styles.filterInput}
           />
+          <div className={styles.calendarWrapper}>
+            <Image
+              src="/icon/manager_calendrier.svg"
+              alt="calendar"
+              width={22}
+              height={25}
+            />
+          </div>
+          <div className={styles.divider}></div>
+          <button className={styles.searchButton} onClick={onSearch}>
+            <Image src="/icon/search.svg" alt="search" width={15} height={15} />
+          </button>
         </div>
-        <button className={styles.searchButton} onClick={onSearch}>
-          검색
-        </button>
       </div>
     </div>
   );
 };
 
-export default SerchFilter;
+export default SearchFilter;

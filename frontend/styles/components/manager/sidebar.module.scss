@@ -1,33 +1,29 @@
-.sidebar {
-  width: 240px;
-  padding: 24px;
-  background: white;
-  border-right: 1px solid #e5e7eb;
-}
+@import "../../globals/font-mixin.scss";
 
-.title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 32px;
+.sidebar {
+  width: 200px;
+  border-right: 1px solid var(--border-color);
+  text-align: center;
 }
 
 .menuList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 38px;
 }
 
 .menuItem {
+  @include font-XXS-B;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 15px;
   cursor: pointer;
 
   &:hover {
-    background-color: #f3f4f6;
+    background-color: var(--gray-color);
   }
 
   &.active {
-    background-color: #4263eb;
-    color: white;
+    background-color: var(--secondary-color);
+    color: var(--text-white);
   }
 }

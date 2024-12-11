@@ -1,36 +1,60 @@
+@import "../../globals/font-mixin.scss";
+
 .table {
   width: 100%;
-  background: white;
-  border-radius: 8px;
+  border-collapse: collapse;
 
   th,
   td {
-    padding: 16px;
-    text-align: left;
-    border-bottom: 1px solid #e5e7eb;
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-solid-color);
   }
 
   th {
-    font-weight: 500;
-    color: #6b7280;
+    @include font-XXS-B;
+    color: var(--gray-600);
+    background-color: var(--background);
   }
-}
 
-.statusCell {
-  display: flex;
-  gap: 8px;
-}
+  tbody {
+    tr {
+      &:hover {
+        background-color: var(--background);
+      }
+    }
+  }
 
-.approveButton {
-  padding: 4px 16px;
-  background-color: #e5f3f3;
-  color: #00a5a5;
-  border-radius: 999px;
-}
+  .statusCell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
 
-.rejectButton {
-  padding: 4px 16px;
-  background-color: #ffe9e9;
-  color: #ff4949;
-  border-radius: 999px;
+    span {
+      min-width: 60px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      @include font-XXS-B;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .approveStatus {
+      background-color: #e6f7f4;
+      color: #00a896;
+
+      &:hover {
+        background-color: darken(#e6f7f4, 5%);
+      }
+    }
+
+    .rejectStatus {
+      background-color: #ffe8e8;
+      color: #ff6b6b;
+
+      &:hover {
+        background-color: darken(#ffe8e8, 5%);
+      }
+    }
+  }
 }
