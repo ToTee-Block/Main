@@ -12,25 +12,25 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
       <ul className={styles.menuList}>
         <li
           className={`${styles.menuItem} ${
-            activeTab === "memberManage" ? styles.active : ""
+            activeTab === "members" ? styles.active : ""
           }`}
-          onClick={() => onTabChange("memberManage")}
+          onClick={() => onTabChange("members")}
         >
           회원 관리
         </li>
         <li
           className={`${styles.menuItem} ${
-            activeTab === "memberApproval" ? styles.active : ""
+            activeTab === "mentors" ? styles.active : ""
           }`}
-          onClick={() => onTabChange("memberApproval")}
+          onClick={() => onTabChange("mentors")}
         >
           멘토 승인 관리
         </li>
         <li
           className={`${styles.menuItem} ${
-            activeTab === "postManagement" ? styles.active : ""
+            activeTab === "post" ? styles.active : ""
           }`}
-          onClick={() => onTabChange("postManagement")}
+          onClick={() => onTabChange("post")}
         >
           게시글 관리
         </li>
