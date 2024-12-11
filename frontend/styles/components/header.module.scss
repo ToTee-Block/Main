@@ -36,74 +36,128 @@
 
 .active {
   color: var(--text-secondary-color) !important; // 활성화된 링크에 스타일을 적용
-  border-bottom: 2px solid var(--text-secondary-color);
+  border-bottom:
+   2px solid var(--text-secondary-color);
 }
-
 .userSection {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.userInfo, .iconWrapper {
+.userInfo {
   display: flex;
   align-items: center;
   gap: 8px;
-  position: relative; // 드롭다운 메뉴의 기준점
-}
+  position: relative;
 
-.userImage {
-  border-radius: 50%;
-}
+  .userName {
+    font-size: 14px;
+    color: #333333;
+  }
 
-.userName {
-  @include font-XS-B;
-  color: var(--text-black);
+  .userImage {
+    border-radius: 50%;
+  }
 }
 
 .iconButton {
   display: flex;
   align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   cursor: pointer;
+  padding: 4px;
+  position: relative;
+
+  &:hover {
+    background: #F5F5F5;
+    border-radius: 50%;
+  }
+}
+
+.iconWrapper {
+  position: relative;
 }
 
 .notificationDot {
-  width: 8px;
-  height: 8px;
-  background-color: red;
-  border-radius: 50%;
   position: absolute;
   top: -2px;
   right: -2px;
+  width: 8px;
+  height: 8px;
+  background-color: #FF4444;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
 }
 
 .dropdown {
   position: absolute;
   top: 100%;
   right: 0;
-  min-width: 200px;
-  background: white;
-  border: 1px solid var(--gray-300);
+  min-width: 160px;
+  background: #FFFFFF;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
   margin-top: 8px;
-  z-index: 1000;
+  overflow: hidden;
 }
 
 .dropdownItem {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 12px 16px;
-  text-align: left;
-  border: none;
   background: none;
-  cursor: pointer;
-  color: var(--text-black);
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  line-height: 20px;
+  color: #333333;
+  padding: 12px 16px;
   text-decoration: none;
-  
+  cursor: pointer;
+
   &:hover {
-    background-color: var(--gray-100);
+    background: #F5F5F5;
+  }
+
+  // 로그아웃 버튼 스타일
+  &:last-child {
+    color: #FF4444;
+  }
+}
+
+// 알림 드롭다운 스타일
+.iconWrapper .dropdown {
+  width: 280px; // 알림 드롭다운은 더 넓게
+  padding: 8px;
+
+  .dropdownItem {
+    border-radius: 4px;
+    background: #F8F9FA;
+    margin: 4px 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+// 로그인 버튼 스타일
+.loginButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 24px;
+  background: #0066FF;
+  color: #FFFFFF;
+  border-radius: 18px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover {
+    background: #0052CC;
   }
 }

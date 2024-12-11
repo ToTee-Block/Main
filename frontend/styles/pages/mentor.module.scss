@@ -35,15 +35,17 @@
 
 .searchBar {
   display: flex;
+  width: 300px;
+  height: 64px;
   align-items: center;
+  padding: 24 12px;
   border: 1px solid var(--gray-300);
-  border-radius: 8px;
   overflow: hidden;
 }
 
 .searchInput {
-  width: 200px;
-  height: 40px;
+  width: 300px;
+  height: 64px;
   border: none;
   padding: 0 16px;
   background-color: var(--gray-100);
