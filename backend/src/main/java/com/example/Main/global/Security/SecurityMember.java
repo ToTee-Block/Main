@@ -14,9 +14,10 @@ public class SecurityMember extends User {
     private long id;
     private Member member; // Member 객체 추가
 
-    public SecurityMember(long id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public SecurityMember(long id, String email, String password, Collection<? extends GrantedAuthority> authorities, Member member) {
         super(email, password, authorities);
         this.id = id;
+        this.member=member;
     }
 
     // getEmail() 메서드 추가

@@ -31,7 +31,7 @@ public class QnA extends BaseEntity {
 
     private int likes;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "qna_likes",
             joinColumns = @JoinColumn(name = "qna_id"),
