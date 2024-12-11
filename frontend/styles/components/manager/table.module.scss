@@ -1,59 +1,122 @@
 @import "../../globals/font-mixin.scss";
 
+.tableWrapper {
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  border-radius: 8px;
+  background-color: var(--background);
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 
   th,
   td {
-    padding: 12px;
+    @include font-XXXS-B;
+    padding: 0 16px;
     text-align: center;
     border-bottom: 1px solid var(--border-solid-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 50px;
+    line-height: 50px; // 텍스트 수직 가운데 정렬
+  }
+
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 100px;
+  }
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 300px;
+  }
+  th:nth-child(3),
+  td:nth-child(3) {
+    width: 200px;
+  }
+  th:nth-child(4),
+  td:nth-child(4) {
+    width: 290px;
+  }
+  th:nth-child(5),
+  td:nth-child(5) {
+    width: 250px;
+    padding: 8px 16px;
   }
 
   th {
     @include font-XXS-B;
-    color: var(--gray-600);
+    color: var(--text-black);
     background-color: var(--background);
+    height: 48px;
+    padding: 0 16px;
   }
 
   tbody {
     tr {
+      height: 52px;
+
       &:hover {
         background-color: var(--background);
+      }
+    }
+
+    .emptyRow {
+      height: 52px;
+
+      td {
+        background-color: var(--background);
+        border-bottom: 1px solid var(--border-solid-color);
+
+        .statusCell {
+          opacity: 0.5;
+          pointer-events: none;
+        }
       }
     }
   }
 
   .statusCell {
     display: flex;
-    gap: 8px;
-    justify-content: center;
+    gap: 12px;
+    justify-content: center; // 상태 버튼도 가운데 정렬
+    align-items: center;
+    height: 100%;
 
-    span {
-      min-width: 60px;
-      padding: 6px 12px;
+    button {
+      width: 85px;
+      height: 27px;
+      border: none;
       border-radius: 4px;
       @include font-XXS-B;
       cursor: pointer;
       transition: background-color 0.2s ease;
-    }
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-    .approveStatus {
-      background-color: #e6f7f4;
-      color: #00a896;
+      &.approveStatus {
+        background-color: var(--success-color);
+        color: var(--text-success-color);
 
-      &:hover {
-        background-color: darken(#e6f7f4, 5%);
+        &:hover {
+          background-color: var(--text-success-color);
+          color: var(--success-color);
+        }
       }
-    }
 
-    .rejectStatus {
-      background-color: #ffe8e8;
-      color: #ff6b6b;
+      &.rejectStatus {
+        background-color: var(--text-light-red);
+        color: var(--text-danger-color);
 
-      &:hover {
-        background-color: darken(#ffe8e8, 5%);
+        &:hover {
+          background-color: var(--text-danger-color);
+          color: var(--text-light-red);
+        }
       }
     }
   }

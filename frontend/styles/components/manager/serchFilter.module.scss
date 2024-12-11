@@ -41,7 +41,6 @@
 .filterRow {
   display: flex;
   align-items: center;
-  margin-left: 24px;
 
   .divider {
     width: 1px;
@@ -52,7 +51,6 @@
 
   .imageBox {
     margin-left: 24px;
-    margin-right: 24px;
   }
 
   .imageBox2 {
@@ -70,6 +68,7 @@
       border: 1px solid var(--gray-300);
       border-radius: 4px;
       margin-left: 24px;
+      background-color: var(--gray-200);
 
       &::placeholder {
         color: var(--gray-500);
@@ -85,6 +84,7 @@
         width: 9px;
         height: 19px;
         color: var(--gray-500);
+        margin-left: 24px;
       }
     }
 

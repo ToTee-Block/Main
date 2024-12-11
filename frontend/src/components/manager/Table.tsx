@@ -24,32 +24,69 @@ const Table: React.FC<TableProps> = ({
     );
   };
 
+  const renderEmptyRows = () => {
+    const emptyRowsCount = itemsPerPage - members.length;
+    return emptyRowsCount > 0
+      ? Array(emptyRowsCount)
+          .fill(null)
+          .map((_, index) => (
+            <tr key={`empty-${index}`} className={styles.emptyRow}>
+              <td>{getItemNumber(members.length + index)}</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+              <td>
+                <div className={styles.statusCell}>
+                  <button className={styles.approveStatus}>승인</button>
+                  <button className={styles.rejectStatus}>거부</button>
+                </div>
+              </td>
+            </tr>
+          ))
+      : null;
+  };
+
   return (
-    <table className={styles.table}>
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Id</th>
-          <th>Name</th>
-          <th>create DATE</th>
-          <th>STATUS</th>
-        </tr>
-      </thead>
-      <tbody>
-        {members.map((member, index) => (
-          <tr key={member.id}>
-            <td>{getItemNumber(index)}</td>
-            <td>{member.email}</td>
-            <td>{member.username}</td>
-            <td>{member.createDate}</td>
-            <td className={styles.statusCell}>
-              <span className={styles.approveStatus}>승인</span>
-              <span className={styles.rejectStatus}>거부</span>
-            </td>
+    <div className={styles.tableWrapper}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Id</th>
+            <th>Name</th>
+            <th>create DATE</th>
+            <th>STATUS</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {members.map((member, index) => (
+            <tr key={member.id}>
+              <td>{getItemNumber(index)}</td>
+              <td>{member.email}</td>
+              <td>{member.username}</td>
+              <td>{member.createDate}</td>
+              <td>
+                <div className={styles.statusCell}>
+                  <button
+                    className={styles.approveStatus}
+                    onClick={() => onApprove(member.id)}
+                  >
+                    승인
+                  </button>
+                  <button
+                    className={styles.rejectStatus}
+                    onClick={() => onReject(member.id)}
+                  >
+                    거부
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+          {renderEmptyRows()}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

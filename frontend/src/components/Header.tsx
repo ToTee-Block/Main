@@ -123,7 +123,7 @@ const Header: React.FC = () => {
             </div>
           )
         ) : (
-          <LinkButton to="/member">Login</LinkButton>
+          <LinkButton to="/members">Login</LinkButton>
         )}
       </div>
     </header>
