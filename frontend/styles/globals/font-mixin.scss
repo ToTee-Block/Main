@@ -66,6 +66,11 @@
 }
 //XXL / M
 @mixin font-XXL-M {
+    font-size: var(--font-size-XXL);
+    font-weight: var(--font-weight-Medium);
+}
+//XXL / M
+@mixin font-XXL-M {
   font-size: var(--font-size-XXL);
   font-weight: var(--font-weight-Medium);
 }
@@ -123,6 +128,12 @@
 
 @mixin font-XXXL-B {
     font-size: var(--font-size-XXXL);
+    font-weight: var(--font-weight-Bold);
+}
+
+//XXL /B
+@mixin font-XXL-B {
+    font-size: var(--font-size-XXL);
     font-weight: var(--font-weight-Bold);
 }
 

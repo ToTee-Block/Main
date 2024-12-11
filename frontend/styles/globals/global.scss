@@ -175,5 +175,8 @@ input:focus {
 }
 
 select:focus {
-  outline: none;
+	outline: none;
 }
+html, html > body {
+	font-family: var(--font-family);
+  }

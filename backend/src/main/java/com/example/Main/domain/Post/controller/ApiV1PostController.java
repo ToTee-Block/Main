@@ -12,18 +12,20 @@ import com.example.Main.domain.Post.dto.response.PostResponse;
 import com.example.Main.domain.Post.dto.response.PostsResponse;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
+import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
 import com.example.Main.global.Util.Markdown.MarkdownService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,28 +35,48 @@ public class ApiV1PostController {
     private final MemberService memberService;
     private final MarkdownService markdownService;
 
-    //검색
-    @GetMapping("/search")
-    public RsData<PostsResponse> search(@RequestParam("keyword") String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return RsData.of("400", ErrorMessages.SEARCH_KEYWORD_EMPTY, null);
-        }
-        List<PostDTO> postDTOS = postService.searchPosts(keyword);
-        if (postDTOS.isEmpty()) {
-            return RsData.of("404", ErrorMessages.SEARCH_NO_RESULTS, null);
-        }
-        return RsData.of("200", "검색 성공", new PostsResponse(postDTOS));
+    // 다건조회 - ver.전체
+    @GetMapping("")
+    public RsData list(@RequestParam(value = "page", defaultValue = "0")int page,
+                       @RequestParam(value = "size", defaultValue = "10") int size,
+                       @RequestParam(value = "kw", defaultValue = "") String keyword) {
+        Page<PostDTO> recentPosts = this.postService.searchRecentPosts(page, size, keyword);
+        Page<PostDTO> hotPosts = this.postService.searchHotPosts(page, size, keyword);
+        Page<PostDTO> feedPosts = this.postService.searchHotPosts(page, size, keyword);
+
+        List<Page> postPackage = new ArrayList<>();
+        postPackage.add(recentPosts);
+        postPackage.add(hotPosts);
+        postPackage.add(feedPosts);
+
+        return RsData.of("200", "게시글 다건 조회 성공", postPackage);
     }
 
-    // 다건조회
-    @GetMapping("")
-    public RsData<PostsResponse> list() {
-        List<PostDTO> postDTOS = this.postService.getList();
-        return RsData.of("200", "게시글 다건 조회 성공", new PostsResponse(postDTOS));
+    // 다건조회 - ver.특정사용자
+    @GetMapping("/{authorEmail}")
+    public RsData getMyPosts(@RequestParam(value = "page", defaultValue = "0")int page,
+                             @RequestParam(value = "size", defaultValue = "10") int size,
+                             @RequestParam(value = "kw", defaultValue = "") String keyword,
+                             @PathVariable(value = "authorEmail") String authorEmail) {
+        Member author = this.memberService.getMemberByEmail(authorEmail);
+        if (author == null) {
+            return RsData.of("400", "존재하지 않는 사용자입니다.");
+        }
+
+        Map<String, Object> returnMap = new HashMap<>();
+
+        List<String> wholeTechStacks = TechStacks.printAllTechStacks();
+        Page<PostDTO> entirePosts = postService.searchPostsByAuthor(page, size, keyword, author);
+
+        returnMap.put("stacks", wholeTechStacks);
+        returnMap.put("posts", entirePosts);
+
+
+        return RsData.of("200", "본인이 작성한 게시글 조회 성공", returnMap);
     }
 
     // 단건조회
-    @GetMapping("/{id}")
+    @GetMapping("/detail/{id}")
     public RsData<PostResponse> getPost(@PathVariable("id") Long id) {
         Post post = this.postService.getPost(id);
 
@@ -64,25 +86,6 @@ public class ApiV1PostController {
 
         PostDTO postDTO = new PostDTO(post);
         return RsData.of("200", "게시글 단건 조회 성공", new PostResponse(postDTO));
-    }
-
-    // 본인이 작성한 게시글 조회
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/myposts")
-    public RsData<PostsResponse> getMyPosts(Principal principal) {
-        if (principal == null) {
-            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
-        }
-
-        String loggedInUserEmail = principal.getName();
-
-        List<PostDTO> myPosts = postService.getPostsByAuthor(loggedInUserEmail);
-
-        if (myPosts.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_OWN_POSTS, null);
-        }
-
-        return RsData.of("200", "본인이 작성한 게시글 조회 성공", new PostsResponse(myPosts));
     }
 
     // 게시글 생성
