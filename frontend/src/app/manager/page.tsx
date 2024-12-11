@@ -23,14 +23,8 @@ interface SearchFilters {
   endDate: string;
 }
 
-interface SearchFilterProps {
-  searchFilters: SearchFilters;
-  setSearchFilters: (filters: SearchFilters) => void;
-  onSearch: () => void;
-}
-
 export default function ManagerPage() {
-  const [activeTab, setActiveTab] = useState("memberApproval");
+  const [activeTab, setActiveTab] = useState("memberManage");
   const [members, setMembers] = useState<Member[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -42,36 +36,62 @@ export default function ManagerPage() {
     endDate: "",
   });
 
-  const fetchMembers = async () => {
+  const fetchData = async () => {
     try {
+      let endpoint = "";
+      switch (activeTab) {
+        case "memberManage":
+          endpoint = "/api/v1/admin/members";
+          break;
+        case "memberApproval":
+          endpoint = "/api/v1/admin/mentors";
+          break;
+        case "postManagement":
+          endpoint = "/api/v1/admin/posts";
+          break;
+        case "reportManagement":
+          endpoint = "/api/v1/admin/reports";
+          break;
+      }
       const response = await apiClient.get(
-        `/api/v1/admin/members?page=${currentPage - 1}`
+        `${endpoint}?page=${currentPage - 1}`
       );
       if (response.data.resultCode === "200") {
         setMembers(response.data.data.content);
         setTotalItems(response.data.data.totalElements);
       }
     } catch (error) {
-      console.error("회원 목록 조회 실패:", error);
+      console.error("데이터 조회 실패:", error);
     }
   };
 
   useEffect(() => {
-    if (activeTab === "memberApproval") {
-      fetchMembers();
-    }
+    fetchData();
   }, [activeTab, currentPage]);
 
-  const handleDelete = async (id: number) => {
+  const handleApprove = async (id: number) => {
     try {
-      const response = await apiClient.delete(
-        `/api/v1/admin/members/delete/${id}`
+      const response = await apiClient.post(
+        `/api/v1/admin/${activeTab}/approve/${id}`
       );
       if (response.data.resultCode === "200") {
-        fetchMembers();
+        fetchData();
       }
     } catch (error) {
-      console.error("회원 삭제 실패:", error);
+      console.error("승인 실패:", error);
+    }
+  };
+
+  const handleReject = async (id: number) => {
+    try {
+      const response = await apiClient.post(
+        `/api/v1/admin/${activeTab}/reject/${id}`
+      );
+      if (response.data.resultCode === "200") {
+        fetchData();
+      }
+    } catch (error) {
+      console.error("거부 실패:", error);
     }
   };
 
@@ -86,15 +106,17 @@ export default function ManagerPage() {
         <SerchFilter
           searchFilters={searchFilters}
           setSearchFilters={handleFilterChange}
-          onSearch={fetchMembers}
+          onSearch={fetchData}
         />
         <Table
           members={members}
+          onApprove={handleApprove}
+          onReject={handleReject}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
-          onApprove={(id) => console.log("승인:", id)}
-          onReject={handleDelete}
+          activeTab={activeTab}
         />
+
         <Pagination
           currentPage={currentPage}
           totalItems={totalItems}

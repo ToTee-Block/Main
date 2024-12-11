@@ -4,10 +4,11 @@ import { Member } from "@/components/manager/Member";
 
 interface TableProps {
   members: Member[];
-  onApprove: (id: number) => void;
+  onApprove?: (id: number) => void;
   onReject: (id: number) => void;
   currentPage: number;
   itemsPerPage?: number;
+  activeTab: string;
 }
 
 const Table: React.FC<TableProps> = ({
@@ -16,6 +17,7 @@ const Table: React.FC<TableProps> = ({
   onReject,
   currentPage = 1,
   itemsPerPage = 10,
+  activeTab,
 }) => {
   const getItemNumber = (index: number) => {
     return String((currentPage - 1) * itemsPerPage + index + 1).padStart(
@@ -35,10 +37,20 @@ const Table: React.FC<TableProps> = ({
               <td>&nbsp;</td>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
+              {activeTab !== "memberApproval" && <td>&nbsp;</td>}
               <td>
                 <div className={styles.statusCell}>
-                  <button className={styles.approveStatus}>승인</button>
-                  <button className={styles.rejectStatus}>거부</button>
+                  {activeTab === "memberApproval" ? (
+                    <>
+                      <button className={styles.approveStatus}>승인</button>
+                      <button className={styles.rejectStatus}>거부</button>
+                    </>
+                  ) : (
+                    <>
+                      <button className={styles.approveStatus}>수정</button>
+                      <button className={styles.rejectStatus}>삭제</button>
+                    </>
+                  )}
                 </div>
               </td>
             </tr>
@@ -55,6 +67,7 @@ const Table: React.FC<TableProps> = ({
             <th>Id</th>
             <th>Name</th>
             <th>create DATE</th>
+            {activeTab !== "memberApproval" && <th>TYPE</th>}
             <th>STATUS</th>
           </tr>
         </thead>
@@ -65,20 +78,40 @@ const Table: React.FC<TableProps> = ({
               <td>{member.email}</td>
               <td>{member.username}</td>
               <td>{member.createDate}</td>
+              {activeTab !== "memberApproval" && <td>Member</td>}
               <td>
                 <div className={styles.statusCell}>
-                  <button
-                    className={styles.approveStatus}
-                    onClick={() => onApprove(member.id)}
-                  >
-                    승인
-                  </button>
-                  <button
-                    className={styles.rejectStatus}
-                    onClick={() => onReject(member.id)}
-                  >
-                    거부
-                  </button>
+                  {activeTab === "memberApproval" ? (
+                    <>
+                      <button
+                        className={styles.approveStatus}
+                        onClick={() => onApprove?.(member.id)}
+                      >
+                        승인
+                      </button>
+                      <button
+                        className={styles.rejectStatus}
+                        onClick={() => onReject(member.id)}
+                      >
+                        거부
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        className={styles.approveStatus}
+                        onClick={() => onApprove?.(member.id)}
+                      >
+                        수정
+                      </button>
+                      <button
+                        className={styles.rejectStatus}
+                        onClick={() => onReject(member.id)}
+                      >
+                        삭제
+                      </button>
+                    </>
+                  )}
                 </div>
               </td>
             </tr>
