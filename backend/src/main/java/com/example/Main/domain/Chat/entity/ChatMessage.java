@@ -18,12 +18,9 @@ import java.time.LocalDateTime;
 @Entity
 public class ChatMessage extends BaseEntity {
     @Column(nullable = false)
-    private String senderName;  // 발신자 이름
-
-    @Column(nullable = false)
     private String message;  // 메시지 내용
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_join_id")
+    @JoinColumn(name = "chat_join_id", nullable = false)
     private ChatJoin chatSender;
 }

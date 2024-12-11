@@ -31,6 +31,7 @@ const ChatContainer = () => {
   const [roomDetails, setRoomDetails] = useState<RoomDetails | null>(null);
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const subscriptionRef = useRef<string | null>(null);
+  const [senderId, setSenderId] = useState<number | null>(null);
 
   // 현재 시간/날짜 가져오기
   const getCurrentTime = (): string =>
@@ -93,7 +94,7 @@ const ChatContainer = () => {
 
     // 기존 구독 해제
     if (subscriptionRef.current) {
-      stompClient.unsubscribe(subscriptionRef.current); // 이전 구독 ID 사용
+      stompClient.unsubscribe(subscriptionRef.current);
     }
 
     // 새로운 방 구독
@@ -101,31 +102,26 @@ const ChatContainer = () => {
       `/sub/chatroom/${roomId}`,
       (messageOutput) => {
         const data = JSON.parse(messageOutput.body);
-        console.log("Received message:", data);
 
-        // 내 메시지는 제외하고, 상대 메시지만 추가
-        if (data.name !== "Me") {
-          setChatHistory((prev) => ({
-            ...prev,
-            [roomId]: [
-              ...(prev[roomId] || []),
-              {
-                text: data.message,
-                senderName: data.name,
-                type: "received",
-                time: new Date(data.sendTime).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }),
-                date: new Date(data.sendTime).toISOString().split("T")[0],
-              },
-            ],
-          }));
-        }
+        setChatHistory((prev) => ({
+          ...prev,
+          [roomId]: [
+            ...(prev[roomId] || []),
+            {
+              text: data.message,
+              senderId: data.senderId, // ChatDTO의 `senderId`
+              type: data.senderId === 1 ? "sent" : "received", // 사용자 ID에 따라 메시지 타입 구분
+              time: new Date(data.sendTime).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              date: new Date(data.sendTime).toISOString().split("T")[0],
+            },
+          ],
+        }));
       }
     );
 
-    // 새로운 구독 ID 저장
     subscriptionRef.current = subscription.id;
 
     // 채팅방 세부 정보 가져오기
@@ -135,9 +131,9 @@ const ChatContainer = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰 추가
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          credentials: "include", // 쿠키를 사용하는 경우
+          credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to fetch room details");
         const data = await res.json();
@@ -154,15 +150,12 @@ const ChatContainer = () => {
     if (!stompClient || !activeRoom) return;
 
     const payload = {
-      type: "message",
-      roomId: activeRoom,
+      roomId: Number(activeRoom), // `ChatDTO`의 `roomId`는 Long 타입
       message,
-      sender: "Me", // 내 메시지 구분
-      sendTime: new Date().toISOString(),
     };
 
     stompClient.publish({
-      destination: `/pub/message`,
+      destination: "/pub/message",
       body: JSON.stringify(payload),
     });
 

@@ -2,6 +2,7 @@ package com.example.Main.domain.Chat.contrroller;
 
 import com.example.Main.domain.Chat.dto.ChatDTO;
 import com.example.Main.domain.Chat.entity.Chat;
+import com.example.Main.domain.Chat.entity.ChatMessage;
 import com.example.Main.domain.Chat.entity.ChatRoom;
 import com.example.Main.domain.Chat.serivce.ChatService;
 import com.example.Main.domain.Member.entity.Member;
@@ -86,7 +87,7 @@ public class ChatController {
         try {
             Member chatJoiner = this.memberService.getMemberByEmail(principal.getName());
             ChatRoom roomDetails = this.chatService.getRoomDetails(roomId);
-            if (!this.chatService.isJoiner(chatJoiner, roomDetails)) {
+            if (!this.chatService.isJoiner(chatJoiner.getId(), roomDetails.getId())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User does not have author to join room.");
             }
             return ResponseEntity.ok(Map.of(
@@ -112,15 +113,16 @@ public class ChatController {
         System.out.println("Message received: " + chatDTO);
 
         // 메시지 저장
-        chatService.saveMessage(chatDTO, member);
+        chatDTO.setSenderId(member.getId());
+        chatService.saveMessage(chatDTO);
 
         // 메시지를 전송하는 방의 ID와 일치하는 채팅방에 메시지를 전송
-        String destination = "/sub/chatroom/" + chatDTO.getId();
+        String destination = "/sub/chatroom/" + chatDTO.getRoomId();
         if (!principal.getName().equals(member.getName())) {
             // 본인에게 메시지 전송하지 않도록 예외 처리
             ChatDTO enrichedChatDTO = new ChatDTO(
-                    chatDTO.getId(),
-                    member.getName(),
+                    chatDTO.getRoomId(),
+                    member.getId(),
                     chatDTO.getMessage(),
                     LocalDateTime.now()
             );
@@ -133,7 +135,7 @@ public class ChatController {
     @GetMapping("/chat/{roomId}/messages")
     public ResponseEntity<List<ChatDTO>> getMessages(@PathVariable("roomId") Long roomId) {
         try {
-            List<Chat> messages = chatService.getMessagesByRoomId(roomId);
+            List<ChatMessage> messages = chatService.getMessagesByRoomId(roomId);
             List<ChatDTO> messageDTOs = messages.stream()
                     .map(chatService::toDTO)
                     .toList();

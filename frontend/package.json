@@ -12,6 +12,8 @@
     "@stomp/stompjs": "^7.0.0",
     "axios": "^1.7.8",
     "classnames": "^2.5.1",
+    "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "next": "15.0.3",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
@@ -19,6 +21,8 @@
     "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/jwt-decode": "^2.2.1",
     "@types/node": "20.17.7",
     "@types/react": "18.3.12",
     "@types/react-dom": "^18",
