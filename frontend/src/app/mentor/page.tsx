@@ -13,7 +13,7 @@ export default function MentorSearch() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const tags = ['전체', 'React', 'React', 'React', 'React', 'React', '임시태그'];
+  const tags = ['전체', 'React', 'React', 'React', 'React', 'React', '임시저장'];
 
   const handleTagToggle = (index: number): void => {
     setSelectedTags(prev => {
@@ -57,30 +57,30 @@ export default function MentorSearch() {
       </div>
 
       <div className={styles.mentorGrid}>
-        {Array(15).fill(null).map((_, index) => (
-          <div key={index} className={styles.mentorCard}>
-            <div className={styles.profileImage} />
-            <div className={styles.mentorInfo}>
-              <div className={styles.nameWrapper}>
-                <span className={styles.nameText}>박승우</span>
-                <span className={styles.mentorText}>멘토</span>
-              </div>
-              <div className={styles.infoWrapper}>
-                <span className={styles.company}>Google</span>
-                <span className={styles.position}>Full-Stack</span>
-              </div>
-              <div className={styles.descriptionWrapper}>
-                <span className={styles.description}>구글의 모든 서비스를 총괄</span>
-              </div>
-            </div>
-          </div>
-        ))}
+  {Array(15).fill(null).map((_, index) => (
+    <Link href="/mentor/detail" key={index} className={styles.mentorCard}>
+      <div className={styles.profileImage} />
+      <div className={styles.mentorInfo}>
+        <div className={styles.nameWrapper}>
+          <span className={styles.nameText}>박승우</span>
+          <span className={styles.mentorText}>멘토</span>
+        </div>
+        <div className={styles.infoWrapper}>
+          <span className={styles.company}>Google</span>
+          <span className={styles.position}>Full-Stack</span>
+        </div>
+        <div className={styles.descriptionWrapper}>
+          <span className={styles.description}>구글의 모든 서비스를 총괄</span>
+        </div>
       </div>
+    </Link>
+  ))}
+</div>
 
       <Pagination
         currentPage={currentPage}
         onPageChange={setCurrentPage}
-        totalPages={100}
+        totalPages={78}
       />
     </div>
   );

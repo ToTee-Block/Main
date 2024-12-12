@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';  // Link 추가
+import Link from 'next/link';
 import styles from '@/styles/pages/mentor/mymentor.module.scss';
 import MentorButton from '@/components/button/MentorButton';
 import Pagination from '@/components/pagination/custompagination';
@@ -12,8 +12,16 @@ import SearchBox from '@/components/search/SearchBox';
 export default function MyMentor() {
   const [selectedTags, setSelectedTags] = useState<Array<boolean>>(Array(8).fill(false));
   const [currentPage, setCurrentPage] = useState(1);
+  const [userName, setUserName] = useState('');
 
-  const tags = ['전체', 'React', 'React', 'React', 'React', 'React', 'React', '임시태그'];
+  useEffect(() => {
+    const storedName = localStorage.getItem('name');
+    if (storedName) {
+      setUserName(storedName);
+    }
+  }, []);
+
+  const tags = ['전체', 'React', 'React', 'React', 'React', 'React', 'React', '임시저장'];
 
   const handleTagToggle = (index: number): void => {
     setSelectedTags(prev => {
@@ -34,7 +42,10 @@ export default function MyMentor() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Admin의 Mentor</h1>
+        <div className={styles.titleWrapper}>
+          <h1 className={styles.title}>{userName ? `${userName}의 Mentor` : '사용자의 Mentor'}</h1>
+          <div className={styles.titleLine}></div>
+        </div>
       </div>
 
       <div className={styles.tagSection}>
@@ -57,25 +68,25 @@ export default function MyMentor() {
       </div>
 
       <div className={styles.mentorGrid}>
-        {Array(5).fill(null).map((_, index) => (
-          <div key={index} className={styles.mentorCard}>
-            <div className={styles.profileImage} />
-            <div className={styles.mentorInfo}>
-              <div className={styles.nameWrapper}>
-                <span className={styles.nameText}>박승우</span>
-                <span className={styles.mentorText}>멘토</span>
-              </div>
-              <div className={styles.infoWrapper}>
-                <span className={styles.company}>Google</span>
-                <span className={styles.position}>Full-Stack</span>
-              </div>
-              <div className={styles.descriptionWrapper}>
-                <span className={styles.description}>구글의 모든 서비스를 총괄</span>
-              </div>
-            </div>
-          </div>
-        ))}
+  {Array(5).fill(null).map((_, index) => (
+    <Link href="/mentor/detail" key={index} className={styles.mentorCard}>
+      <div className={styles.profileImage} />
+      <div className={styles.mentorInfo}>
+        <div className={styles.nameWrapper}>
+          <span className={styles.nameText}>박승우</span>
+          <span className={styles.mentorText}>멘토</span>
+        </div>
+        <div className={styles.infoWrapper}>
+          <span className={styles.company}>Google</span>
+          <span className={styles.position}>Full-Stack</span>
+        </div>
+        <div className={styles.descriptionWrapper}>
+          <span className={styles.description}>구글의 모든 서비스를 총괄</span>
+        </div>
       </div>
+    </Link>
+  ))}
+</div>
 
       <Pagination
         currentPage={currentPage}

@@ -1,3 +1,17 @@
+@import "../../globals/font-mixin.scss";
+
+.paginationWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+}
+
+.pageCounter {
+  display: flex;
+  justify-content: flex-end;
+  @include font-XXXS-R;
+  color: var(--gray-600);
+}
 .pagination {
   display: flex;
   align-items: center;

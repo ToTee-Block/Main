@@ -21,6 +21,10 @@ const Pagination: React.FC<PaginationProps> = ({
   const endPage = Math.min(currentGroup * 10, totalPages);
 
   return (
+    <div className={styles.paginationWrapper}>
+      <div className={styles.pageCounter}>
+        Page {startPage}-{endPage} of {totalPages}
+      </div>
     <div className={styles.pagination}>
       <button 
         className={`${styles.pageButton} ${styles.iconButton}`}
@@ -85,7 +89,8 @@ const Pagination: React.FC<PaginationProps> = ({
         />
       </button>
     </div>
-  );
+  </div>
+);
 };
 
 export default Pagination;

@@ -4,7 +4,6 @@
     width: 100%;
     max-width: 2500px;
     margin: auto;
-    padding: 40px;
     display: flex;
     flex-direction: column;
     gap: 40px;
@@ -12,16 +11,29 @@
   
   .header {
     display: flex;
-    justify-content: space-between;
     width: 100%;
-    border-bottom: 1px solid var(--gray-300);
-    padding-bottom: 20px;
   }
+
+  .titleWrapper { 
+    display: flex;
+    flex-direction: column;
+    gap: 40px;  
+}
+
   
   .title {
-    @include font-XXXL-B;
-    color: var(--text-black);
+    @include font-XXL-B;
+    color: var(--text-blue);
+    width: 500px;
+    white-space: nowrap;
   }
+
+  .titleLine {  
+    width: 500px;
+    height: 6px;
+    background-color: var(--dark-blue-color);
+}
+  
   
   .tagSection {
     display: flex;
