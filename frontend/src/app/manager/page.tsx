@@ -22,6 +22,21 @@ interface Member {
   reviews: any[];
 }
 
+interface Mentor {
+  id: number;
+  createdDate: string;
+  modifiedDate: string;
+  member: Member;
+  bio: string;
+  approved: boolean;
+  matchingStatus: boolean;
+  oneLineBio: string;
+  portfolio: string;
+  myMentees: any[];
+  reviews: any[];
+  techStacks: any[];
+}
+
 interface SearchFilters {
   id: string;
   name: string;
@@ -29,11 +44,11 @@ interface SearchFilters {
   endDate: string;
 }
 
-interface ApiResponse {
+interface ApiResponse<T> {
   resultCode: string;
   msg: string;
   data: {
-    content: Member[];
+    content: T[];
     totalElements: number;
     totalPages: number;
     size: number;
@@ -43,7 +58,7 @@ interface ApiResponse {
 
 export default function ManagerPage() {
   const [activeTab, setActiveTab] = useState("members");
-  const [members, setMembers] = useState<Member[]>([]);
+  const [data, setData] = useState<(Member | Mentor)[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
@@ -64,8 +79,8 @@ export default function ManagerPage() {
         case "mentors":
           endpoint = "/api/v1/admin/mentors";
           break;
-        case "post":
-          endpoint = "/api/v1/admin/post";
+        case "posts":
+          endpoint = "/api/v1/admin/posts";
           break;
         case "reports":
           endpoint = "/api/v1/admin/reports";
@@ -81,16 +96,20 @@ export default function ManagerPage() {
         params.append("endDate", searchFilters.endDate);
       params.append("page", String(currentPage - 1));
 
-      const response = await apiClient.get<ApiResponse>(
+      const response = await apiClient.get<ApiResponse<Member | Mentor>>(
         `${endpoint}?${params.toString()}`
       );
 
       if (response.data.resultCode === "200") {
-        const formattedData = response.data.data.content.map((member) => ({
-          ...member,
-          createdDate: new Date(member.createdDate).toLocaleDateString(),
+        const formattedData = response.data.data.content.map((item) => ({
+          ...item,
+          createdDate: formatDate(
+            activeTab === "mentors"
+              ? (item as Mentor).createdDate
+              : (item as Member).createdDate
+          ),
         }));
-        setMembers(formattedData);
+        setData(formattedData);
         setTotalItems(response.data.data.totalElements);
       }
     } catch (error) {
@@ -98,16 +117,71 @@ export default function ManagerPage() {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
+  };
+
   useEffect(() => {
     fetchData();
   }, [activeTab, currentPage]);
 
+  const handleApprove = async (mentorId: number, memberId: number) => {
+    const isConfirmed = window.confirm("승인하시겠습니까?");
+    if (isConfirmed) {
+      try {
+        const requestData = {
+          mentorId: mentorId,
+          memberId: memberId,
+          approve: true,
+        };
+
+        console.log("멘토 승인 요청 데이터:", requestData);
+
+        const response = await apiClient.post(
+          "/api/v1/admin/mentors/approve",
+          requestData
+        );
+        console.log("멘토 승인 응답:", response.data);
+
+        if (response.data.resultCode === "200") {
+          console.log("멘토 승인 성공");
+          fetchData();
+        }
+      } catch (error) {
+        console.error("승인 실패:", error);
+      }
+    }
+  };
+
+  const handleReject = async (mentorId: number, memberId: number) => {
+    const isConfirmed = window.confirm("거부하시겠습니까?");
+    if (isConfirmed) {
+      try {
+        const response = await apiClient.post("/api/v1/admin/mentors/approve", {
+          mentorId: mentorId,
+          memberId: memberId,
+          approve: false,
+        });
+
+        if (response.data.resultCode === "200") {
+          fetchData();
+        }
+      } catch (error) {
+        console.error("거부 실패:", error);
+      }
+    }
+  };
+
   const handleDelete = async (id: number) => {
-    const isConfirmed = window.confirm("정말 삭제하시겠습니까?");
+    const isConfirmed = window.confirm("삭제하시겠습니까?");
     if (isConfirmed) {
       try {
         const response = await apiClient.delete(
-          `/api/v1/admin/${activeTab}/delete/${id}`
+          `/api/v1/admin/members/delete/${id}`
         );
         if (response.data.resultCode === "200") {
           fetchData();
@@ -137,12 +211,22 @@ export default function ManagerPage() {
           onSearch={handleSearch}
         />
         <Table
-          members={members}
-          onReject={handleDelete}
+          data={data}
+          onApprove={
+            activeTab === "mentors"
+              ? (mentorId, memberId) => handleApprove(mentorId, memberId)
+              : undefined
+          }
+          onReject={
+            activeTab === "mentors"
+              ? (mentorId, memberId) => handleReject(mentorId, memberId)
+              : handleDelete
+          }
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           activeTab={activeTab}
         />
+
         <Pagination
           currentPage={currentPage}
           totalItems={totalItems}
