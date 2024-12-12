@@ -26,10 +26,10 @@ const Header: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [hasNewNotification, setHasNewNotification] = useState(false);
 
+  // 초기 로그인 상태 체크
   useEffect(() => {
-    // 초기 로그인 상태 체크
     const token = localStorage.getItem('token');
-    const storedName = localStorage.getItem('name'); // name으로 변경
+    const storedName = localStorage.getItem('name');
     if (token) {
       setIsLoggedIn(true);
       setUserName(storedName || '사용자');
@@ -37,7 +37,7 @@ const Header: React.FC = () => {
 
     // 로그인 이벤트 리스너
     const handleLogin = (e: CustomEvent) => {
-      const { name } = e.detail; // name으로 변경
+      const { name } = e.detail;
       setIsLoggedIn(true);
       setUserName(name || '사용자');
     };
@@ -65,7 +65,27 @@ const Header: React.FC = () => {
         clearInterval(notificationInterval);
       }
     };
-  }, [isLoggedIn]);  // isLoggedIn 의존성 추가
+  }, [isLoggedIn]);
+
+  // pathname이 변경될 때마다 드롭다운 메뉴 닫기
+  useEffect(() => {
+    setShowProfileMenu(false);
+    setShowNotifications(false);
+  }, [pathname]);
+
+  // 페이지 새로고침 시 드롭다운 메뉴 닫기
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      setShowProfileMenu(false);
+      setShowNotifications(false);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   const isActive = (path: string): boolean => {
     if (!pathname) return false;
@@ -89,7 +109,7 @@ const Header: React.FC = () => {
     setShowNotifications(!showNotifications);
     setShowProfileMenu(false);
     if (hasNewNotification) {
-      setHasNewNotification(false); // 알림을 열면 새 알림 표시 제거
+      setHasNewNotification(false);
       // 여기에 알림 읽음 처리 API 호출 추가
     }
   };
@@ -119,7 +139,7 @@ const Header: React.FC = () => {
         </nav>
         {isLoggedIn ? (
           <div className={styles.userSection}>
-            <div className={styles.userInfo}>
+            <div className={styles.userInfo} onClick={toggleProfileMenu}>
               <Image 
                 src="/icon/user.svg" 
                 alt="profile" 
@@ -128,14 +148,12 @@ const Header: React.FC = () => {
                 className={styles.userImage}
               />
               <span className={styles.userName}>{userName}</span>
-              <button onClick={toggleProfileMenu} className={styles.iconButton}>
-                <Image 
-                  src="/icon/more.svg" 
-                  alt="more" 
-                  width={18} 
-                  height={18} 
-                />
-              </button>
+              <Image 
+                src="/icon/more.svg" 
+                alt="more" 
+                width={18} 
+                height={18}
+              />
               {showProfileMenu && (
                 <div className={styles.dropdown}>
                   <Link href="/members/me" className={styles.dropdownItem}>My Profile</Link>
