@@ -1,0 +1,13 @@
+@import "../../globals/font-mixin.scss";
+
+.noSearch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 200px;
+
+  span {
+    @include font-S-B;
+  }
+}
