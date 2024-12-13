@@ -37,6 +37,14 @@ interface Mentor {
   techStacks: any[];
 }
 
+interface Post {
+  id: number;
+  email: string;
+  name: string;
+  createdDate: string;
+  url: string;
+}
+
 interface SearchFilters {
   id: string;
   name: string;
@@ -59,6 +67,7 @@ interface ApiResponse<T> {
 export default function ManagerPage() {
   const [activeTab, setActiveTab] = useState("members");
   const [data, setData] = useState<(Member | Mentor)[]>([]);
+  const [postData, setPostData] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
@@ -80,7 +89,7 @@ export default function ManagerPage() {
           endpoint = "/api/v1/admin/mentors";
           break;
         case "posts":
-          endpoint = "/api/v1/admin/posts";
+          endpoint = "/api/v1/post/admin";
           break;
         case "reports":
           endpoint = "/api/v1/admin/reports";
@@ -96,20 +105,28 @@ export default function ManagerPage() {
         params.append("endDate", searchFilters.endDate);
       params.append("page", String(currentPage - 1));
 
-      const response = await apiClient.get<ApiResponse<Member | Mentor>>(
+      const response = await apiClient.get<ApiResponse<Member | Mentor | Post>>(
         `${endpoint}?${params.toString()}`
       );
 
       if (response.data.resultCode === "200") {
-        const formattedData = response.data.data.content.map((item) => ({
-          ...item,
-          createdDate: formatDate(
-            activeTab === "mentors"
-              ? (item as Mentor).createdDate
-              : (item as Member).createdDate
-          ),
-        }));
-        setData(formattedData);
+        if (activeTab === "posts") {
+          const formattedData = response.data.data.content.map((item) => ({
+            ...item,
+            createdDate: formatDate((item as Post).createdDate),
+          }));
+          setPostData(formattedData as Post[]);
+        } else {
+          const formattedData = response.data.data.content.map((item) => ({
+            ...item,
+            createdDate: formatDate(
+              activeTab === "mentors"
+                ? (item as Mentor).createdDate
+                : (item as Member).createdDate
+            ),
+          }));
+          setData(formattedData as (Member | Mentor)[]);
+        }
         setTotalItems(response.data.data.totalElements);
       }
     } catch (error) {
@@ -192,6 +209,20 @@ export default function ManagerPage() {
     }
   };
 
+  const handlePostDelete = async (id: number) => {
+    const isConfirmed = window.confirm("게시글을 삭제하시겠습니까?");
+    if (isConfirmed) {
+      try {
+        const response = await apiClient.delete(`/api/v1/post/admin/${id}`);
+        if (response.data.resultCode === "200") {
+          fetchData();
+        }
+      } catch (error) {
+        console.error("게시글 삭제 실패:", error);
+      }
+    }
+  };
+
   const handleFilterChange = (newFilters: SearchFilters) => {
     setSearchFilters(newFilters);
   };
@@ -211,7 +242,7 @@ export default function ManagerPage() {
           onSearch={handleSearch}
         />
         <Table
-          data={data}
+          data={activeTab === "posts" ? postData : data}
           onApprove={
             activeTab === "mentors"
               ? (mentorId, memberId) => handleApprove(mentorId, memberId)
@@ -220,13 +251,19 @@ export default function ManagerPage() {
           onReject={
             activeTab === "mentors"
               ? (mentorId, memberId) => handleReject(mentorId, memberId)
-              : handleDelete
+              : undefined
+          }
+          onDelete={
+            activeTab === "posts"
+              ? handlePostDelete
+              : activeTab === "members"
+              ? handleDelete
+              : undefined
           }
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           activeTab={activeTab}
         />
-
         <Pagination
           currentPage={currentPage}
           totalItems={totalItems}

@@ -15,10 +15,20 @@ interface Mentor {
   member: Member;
 }
 
+interface Post {
+  id: number;
+  email: string;
+  name: string;
+  createdDate: string;
+  url: string;
+}
+
 interface TableProps {
-  data: (Member | Mentor)[];
+  data: (Member | Mentor | Post)[];
   onApprove?: (mentorId: number, memberId: number) => void;
-  onReject: (mentorId: number, memberId: number) => void;
+  onReject?: (mentorId: number, memberId: number) => void;
+  onWarning?: (id: number) => void;
+  onDelete?: (id: number) => void;
   currentPage: number;
   itemsPerPage?: number;
   activeTab: string;
@@ -28,6 +38,7 @@ const Table: React.FC<TableProps> = ({
   data,
   onApprove,
   onReject,
+  onDelete,
   currentPage = 1,
   itemsPerPage = 10,
   activeTab,
@@ -51,9 +62,12 @@ const Table: React.FC<TableProps> = ({
               <td>&nbsp;</td>
               <td>&nbsp;</td>
               {activeTab === "members" && <td>&nbsp;</td>}
+              {activeTab === "posts" && <td>&nbsp;</td>}
               <td>
                 <div className={styles.statusCell}>
-                  {activeTab === "mentors" ? (
+                  {activeTab === "posts" ? (
+                    <button className={styles.deleteStatus}>삭제</button>
+                  ) : activeTab === "mentors" ? (
                     <>
                       <button className={styles.approveStatus}>승인</button>
                       <button className={styles.rejectStatus}>거부</button>
@@ -76,9 +90,12 @@ const Table: React.FC<TableProps> = ({
     )}-${String(date.getDate()).padStart(2, "0")}`;
   };
 
-  const getMemberData = (item: Member | Mentor) => {
+  const getMemberData = (item: Member | Mentor | Post) => {
     if ("member" in item) {
       return (item as Mentor).member;
+    }
+    if ("url" in item) {
+      return item as Post;
     }
     return item as Member;
   };
@@ -93,37 +110,49 @@ const Table: React.FC<TableProps> = ({
             <th>Name</th>
             <th>create DATE</th>
             {activeTab === "members" && <th>TYPE</th>}
+            {activeTab === "posts" && <th>URL</th>}
             <th>STATUS</th>
           </tr>
         </thead>
         <tbody>
           {data.map((item, index) => {
-            const memberData = getMemberData(item);
-            if (!memberData) return null;
-
-            const mentorId = "member" in item ? item.id : memberData.id;
-            const memberId = memberData.id;
+            const itemData = getMemberData(item);
+            if (!itemData) return null;
 
             return (
               <tr key={item.id}>
                 <td>{getItemNumber(index)}</td>
-                <td>{memberData.email}</td>
-                <td>{memberData.name}</td>
+                <td>{itemData.email}</td>
+                <td>{itemData.name}</td>
                 <td>{formatDate(item.createdDate)}</td>
-                {activeTab === "members" && <td>{memberData.role}</td>}
+                {activeTab === "members" && (
+                  <td>{(itemData as Member).role}</td>
+                )}
+                {activeTab === "posts" && <td>{(itemData as Post).url}</td>}
                 <td>
                   <div className={styles.statusCell}>
-                    {activeTab === "mentors" ? (
+                    {activeTab === "posts" ? (
+                      <button
+                        className={styles.deleteStatus}
+                        onClick={() => onDelete?.(item.id)}
+                      >
+                        삭제
+                      </button>
+                    ) : activeTab === "mentors" ? (
                       <>
                         <button
                           className={styles.approveStatus}
-                          onClick={() => onApprove?.(mentorId, memberId)}
+                          onClick={() =>
+                            onApprove?.(item.id, (itemData as Member).id)
+                          }
                         >
                           승인
                         </button>
                         <button
                           className={styles.rejectStatus}
-                          onClick={() => onReject(mentorId, memberId)}
+                          onClick={() =>
+                            onReject?.(item.id, (itemData as Member).id)
+                          }
                         >
                           거부
                         </button>
@@ -131,7 +160,7 @@ const Table: React.FC<TableProps> = ({
                     ) : (
                       <button
                         className={styles.rejectStatus}
-                        onClick={() => onReject(mentorId, memberId)}
+                        onClick={() => onDelete?.(item.id)}
                       >
                         삭제
                       </button>
