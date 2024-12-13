@@ -3,6 +3,8 @@ package com.example.Main.domain.Post.Comment.entity;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.global.Jpa.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -30,7 +32,7 @@ public class PostComment extends BaseEntity {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "comment_likes",
+            name = "post_comment_likes",
             joinColumns = @JoinColumn(name = "comment_id"),
             inverseJoinColumns = @JoinColumn(name = "member_id")
     )
@@ -40,6 +42,7 @@ public class PostComment extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "parent_comment_id")
     private PostComment parentComment;
+
     @OneToMany(mappedBy = "parentComment")
     private List<PostComment> replies = new ArrayList<>();
 

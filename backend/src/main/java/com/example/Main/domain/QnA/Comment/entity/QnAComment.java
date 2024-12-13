@@ -30,7 +30,7 @@ public class QnAComment extends BaseEntity {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "comment_likes",
+            name = "qna_comment_likes",
             joinColumns = @JoinColumn(name = "comment_id"),
             inverseJoinColumns = @JoinColumn(name = "member_id")
     )
