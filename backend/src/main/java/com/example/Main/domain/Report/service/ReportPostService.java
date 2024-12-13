@@ -4,11 +4,11 @@ import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
-import com.example.Main.domain.Report.dto.ReportDTO;
-import com.example.Main.domain.Report.entity.Report;
+import com.example.Main.domain.Report.dto.ReportPostDTO;
+import com.example.Main.domain.Report.entity.ReportPost;
 import com.example.Main.domain.Report.eunums.ReportReason;
 import com.example.Main.domain.Report.eunums.ReportStatus;
-import com.example.Main.domain.Report.repository.ReportRepository;
+import com.example.Main.domain.Report.repository.ReportPostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,15 +18,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ReportService {
+public class ReportPostService {
 
-    private final ReportRepository reportRepository;
+    private final ReportPostRepository reportPostRepository;
     private final PostService postService;
     private final MemberService memberService;
 
     // 게시물 신고
     @Transactional
-    public Report reportPost(Long postId, String reporterEmail, ReportReason reason) {
+    public ReportPost reportPost(Long postId, String reporterEmail, ReportReason reason) {
         Post post = postService.getPost(postId);
         if (post == null) {
             throw new IllegalArgumentException("게시물이 존재하지 않습니다.");
@@ -37,44 +37,44 @@ public class ReportService {
             throw new IllegalArgumentException("신고자가 존재하지 않습니다.");
         }
 
-        Report report = new Report();
-        report.setPost(post);
-        report.setReporter(reporter);
-        report.setReason(reason);
+        ReportPost reportPost = new ReportPost();
+        reportPost.setPost(post);
+        reportPost.setReporter(reporter);
+        reportPost.setReason(reason);
 
-        return reportRepository.save(report);
+        return reportPostRepository.save(reportPost);
     }
 
     // 신고 상태 변경
     @Transactional
-    public Report updateReportStatus(Long reportId, ReportStatus status) {
-        Report report = getReportById(reportId);
-        report.setStatus(status);
-        return reportRepository.save(report);
+    public ReportPost updateReportStatus(Long reportId, ReportStatus status) {
+        ReportPost reportPost = getReportById(reportId);
+        reportPost.setStatus(status);
+        return reportPostRepository.save(reportPost);
     }
     // 사용자가 신고한 내역을 조회하는 메서드
-    public List<ReportDTO> getReportsByUser(String reporterEmail) {
-        List<Report> reports = reportRepository.findByReporter_Email(reporterEmail); // 이메일을 통해 신고 내역을 조회
-        return reports.stream()
-                .map(ReportDTO::new)
+    public List<ReportPostDTO> getReportsByUser(String reporterEmail) {
+        List<ReportPost> reportPosts = reportPostRepository.findByReporter_Email(reporterEmail); // 이메일을 통해 신고 내역을 조회
+        return reportPosts.stream()
+                .map(ReportPostDTO::new)
                 .collect(Collectors.toList());
     }
 
     // 모든 신고 내역을 조회하는 메서드
-    public List<ReportDTO> getAllReports() {
-        List<Report> reports = reportRepository.findAll();
-        return reports.stream().map(ReportDTO::new).collect(Collectors.toList());
+    public List<ReportPostDTO> getAllReports() {
+        List<ReportPost> reportPosts = reportPostRepository.findAll();
+        return reportPosts.stream().map(ReportPostDTO::new).collect(Collectors.toList());
     }
 
     // 특정 게시물에 대한 중복 신고 여부를 확인하는 메서드
     public boolean existsReport(Long postId, String reporterEmail) {
-        List<Report> existingReports = reportRepository.findByPostIdAndReporterEmail(postId, reporterEmail);
-        return !existingReports.isEmpty();
+        List<ReportPost> existingReportPosts = reportPostRepository.findByPostIdAndReporterEmail(postId, reporterEmail);
+        return !existingReportPosts.isEmpty();
     }
 
     // 특정 신고 ID에 해당하는 신고 내역을 조회하는 메서드
-    public Report getReportById(Long reportId) {
-        return reportRepository.findById(reportId)
+    public ReportPost getReportById(Long reportId) {
+        return reportPostRepository.findById(reportId)
                 .orElseThrow(() -> new IllegalArgumentException("신고를 찾을 수 없습니다."));
     }
 

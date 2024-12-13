@@ -2,6 +2,9 @@ package com.example.Main.domain.QnA.controller;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Post.dto.PostDTO;
+import com.example.Main.domain.Post.dto.response.PostResponse;
+import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.QnA.dto.QnADTO;
 import com.example.Main.domain.QnA.dto.request.QnACreateRequest;
 import com.example.Main.domain.QnA.dto.request.QnALikeDTO;
@@ -12,11 +15,14 @@ import com.example.Main.domain.QnA.dto.response.QnAResponse;
 import com.example.Main.domain.QnA.dto.response.QnAsResponse;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
+import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
+import com.example.Main.global.Security.SecurityMember;
 import com.example.Main.global.Util.Markdown.MarkdownService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -126,26 +132,57 @@ public class ApiV1QnAController {
         return RsData.of("200", "QnA 게시글 수정 성공", new QnAModifyResponse(qna));
     }
 
-    // QnA 게시글 삭제
+    // QNA 삭제
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public RsData<QnAResponse> delete(@PathVariable("id") Long id, Principal principal) {
         if (principal == null) {
-            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
-        QnA qna = this.qnAService.getQnA(id);
 
-        if (qna == null || qna.getIsDraft()) {
-            return RsData.of("500", "%d 번 QnA 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
+        QnA qnA = this.qnAService.getQnA(id);
+
+        if (qnA == null || qnA.getIsDraft()) {
+            return RsData.of("404", "%d 번 QnA 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
         }
+
         String loggedInUser = principal.getName();
-        if (!qna.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", "본인만 QnA 게시글을 삭제할 수 있습니다.", null);
+        if (!qnA.getAuthor().getEmail().equals(loggedInUser)) {
+            return RsData.of("403", ErrorMessages.QNA_NOT_YOUR_OWN, null);
         }
 
-        this.qnAService.delete(qna);
-        QnADTO qnADTO = new QnADTO(qna);
-        return RsData.of("200", "%d 번 QnA 게시물 삭제 성공".formatted(id), new QnAResponse(qnADTO));
+        this.qnAService.deleteQnA(id);
+        return RsData.of("200", "%d 번 QnA 삭제 성공".formatted(id), null);
+    }
+
+    // 관리자용 게시글 삭제
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/{id}")
+    public RsData<QnAResponse> deleteQnAByAdmin(@PathVariable("id") Long id, @AuthenticationPrincipal SecurityMember loggedInUser) {
+        // 로그인 여부 확인
+        if (loggedInUser == null) {
+            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
+        }
+
+        // 권한 확인
+        String role = loggedInUser.getAuthorities().toString();
+        if (!role.contains("ROLE_ADMIN")) {
+            return RsData.of("403", ErrorMessages.ONLY_ADMIN, null);
+        }
+
+        // 게시글 정보 조회
+        QnA qnA = this.qnAService.getQnA(id);
+
+        if (qnA == null || qnA.getIsDraft()) {
+            return RsData.of("404", "%d 번 QnA 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
+        }
+
+        // 관리자 권한으로 게시글 삭제
+        this.qnAService.deleteQnAByAdmin(id);
+
+        // 삭제된 게시글에 대한 응답 객체 생성
+        QnADTO qnADTO = new QnADTO(qnA);
+        return RsData.of("200", "%d 번 QnA 삭제 성공 (관리자 삭제)".formatted(id), new QnAResponse(qnADTO));
     }
 
     // 임시 저장된 QnA 게시물 목록 전체 조회

@@ -4,20 +4,17 @@ import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.repository.MemberRepository;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Post.Comment.repository.PostCommentRepository;
+import com.example.Main.domain.Report.entity.ReportPost;
+import com.example.Main.domain.Report.repository.ReportPostRepository;
 import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
-import com.example.Main.domain.Report.entity.Report;
-import com.example.Main.domain.Report.repository.ReportRepository;
-import com.example.Main.domain.Report.service.ReportService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +27,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final MemberService memberService;
     private final PostCommentRepository postCommentRepository;
-    private final ReportRepository reportRepository;
+    private final ReportPostRepository reportPostRepository;
 
 
     // 게시글 전체 조회
@@ -112,8 +109,8 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
 
-        List<Report> reports = reportRepository.findByPost(post);
-        reportRepository.deleteAll(reports);
+        List<ReportPost> reportPosts = reportPostRepository.findByPost(post);
+        reportPostRepository.deleteAll(reportPosts);
 
         postCommentRepository.deleteByPostId(postId);
 

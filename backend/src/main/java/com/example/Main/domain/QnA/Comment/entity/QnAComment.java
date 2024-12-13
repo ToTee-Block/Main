@@ -26,6 +26,7 @@ public class QnAComment extends BaseEntity {
     private Member author;
 
     @ManyToOne
+    @JoinColumn(name = "qna_id")
     private QnA qnA;
 
     @ManyToMany(fetch = FetchType.EAGER)

@@ -3,12 +3,18 @@ package com.example.Main.domain.QnA.service;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.repository.MemberRepository;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.QnA.Comment.repository.QnACommentRepository;
 import com.example.Main.domain.QnA.dto.QnADTO;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.repository.QnARepository;
+import com.example.Main.domain.Report.entity.ReportQnA;
+import com.example.Main.domain.Report.repository.ReportQnARepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +26,8 @@ public class QnAService {
     private final QnARepository qnARepository;
     private final MemberRepository memberRepository;
     private final MemberService memberService;
+    private final ReportQnARepository reportQnARepository;
+    private final QnACommentRepository qnACommentRepository;
 
     // 검색 기능
     public List<QnADTO> searchPosts(String keyword) {
@@ -83,11 +91,33 @@ public class QnAService {
         this.qnARepository.save(qnA);
         return qnA;
     }
-
     // 삭제
-    public void delete(QnA qnA) {
-        this.qnARepository.delete(qnA);
+    @Transactional
+    public void deleteQnA(Long qnAId) {
+        qnACommentRepository.deleteByQnAId(qnAId);
+
+        Optional<QnA> qnAOptional = qnARepository.findById(qnAId);
+        qnAOptional.ifPresent(qnARepository::delete);
     }
+
+    // 삭제 : 관리자용
+    @Transactional
+    public QnADTO deleteQnAByAdmin(Long qnAId) {
+        QnA qnA = qnARepository.findById(qnAId)
+                .orElseThrow(() -> new EntityNotFoundException("QnA not found"));
+
+        List<ReportQnA> reportQnAs = reportQnARepository.findByQnA(qnA);
+        reportQnARepository.deleteAll(reportQnAs);
+
+        qnACommentRepository.deleteByQnAId(qnAId);
+
+        qnARepository.delete(qnA);
+
+        Hibernate.initialize(qnA.getComments());
+        Hibernate.initialize(qnA.getAuthor());
+        return new QnADTO(qnA);
+    }
+
 
     // 임시 저장된 QnA 게시글 목록 조회
     public List<QnADTO> getDrafts() {
