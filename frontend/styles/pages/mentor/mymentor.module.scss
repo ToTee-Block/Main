@@ -51,7 +51,8 @@
   .mentorGrid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 24px;
+    column-gap: 95px;
+    row-gap: 24px;
   }
   
   .mentorCard {
@@ -59,14 +60,8 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
-    padding: 20px;
-    border-radius: 8px;
-    transition: transform 0.2s;
-  
-    &:hover {
-      transform: translateY(-5px);
-    }
   }
+  
   
   .profileImage {
     width: 200px;
@@ -106,7 +101,6 @@
   
   .company {
     @include font-XXS-M;
-    font-weight: 500;
   }
   
   .position {
@@ -115,10 +109,9 @@
   }
   
   .description {
-    @include font-XXXS-R;
-    color: var(--gray-600);
+    @include font-XXXS-M;
+    color: var(--text-black);
   }
-  
   .linkWrapper {
     text-decoration: none;
     color: inherit;

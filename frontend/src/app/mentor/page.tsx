@@ -36,7 +36,6 @@ export default function MentorSearch() {
       <div className={styles.header}>
         <h1 className={styles.title}>ToTee Mentor</h1>
       </div>
-
       <div className={styles.tagSection}>
         <Tag
           tags={tags}
@@ -62,7 +61,7 @@ export default function MentorSearch() {
       <div className={styles.profileImage} />
       <div className={styles.mentorInfo}>
         <div className={styles.nameWrapper}>
-          <span className={styles.nameText}>박승우</span>
+          <span className={styles.nameText}>박승수</span>
           <span className={styles.mentorText}>멘토</span>
         </div>
         <div className={styles.infoWrapper}>
