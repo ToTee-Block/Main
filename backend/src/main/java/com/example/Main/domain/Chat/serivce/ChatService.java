@@ -52,7 +52,9 @@ public class ChatService {
                 message.getChatSender().getChatRoom().getId(),
                 message.getChatSender().getChatJoiner().getId(),
                 message.getMessage(),
-                message.getCreatedDate()
+                message.getCreatedDate(),
+                message.getChatSender().getChatJoiner().getName(),
+                ""
         );
     }
 

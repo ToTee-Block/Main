@@ -6,18 +6,18 @@ import ChatFooter from "./ChatFooter";
 import ChatHeader from "./ChatHeader";
 import { Client } from "@stomp/stompjs";
 
-// 메시지 타입 정의
-interface ChatMessage {
+interface Message {
   text: string;
-  type: "sent" | "received";
-  senderName?: string;
-  time: string;
-  date: string;
-  senderId?: number;
+  type: "sent" | "received"; // 메시지 타입
+  senderId?: number; // 발신자 ID
+  senderName?: string; // 발신자 이름
+  senderProfile?: string; // 발신자 프로필 (옵션)
+  time: string; // 메시지 전송 시간
+  date: string; // 메시지 전송 날짜
 }
 
 type ChatHistory = {
-  [roomId: string]: ChatMessage[];
+  [roomId: string]: Message[];
 };
 
 interface RoomDetails {
@@ -61,6 +61,27 @@ const ChatContainer = () => {
     };
 
     fetchRooms();
+  }, []);
+
+  // 현재 사용자 ID 가져오기 (예: localStorage에서)
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        const res = await fetch("http://localhost:8081/user/me", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰 추가
+          },
+          credentials: "include", // 쿠키를 사용하는 경우
+        });
+        const userData = await res.json();
+        setSenderId(userData.id);
+      } catch (err) {
+        console.error("Error fetching user ID:", err);
+      }
+    };
+
+    fetchUserId();
   }, []);
 
   // STOMP 클라이언트 초기화
@@ -128,7 +149,7 @@ const ChatContainer = () => {
         [roomId]: messages.map((message: any) => ({
           text: message.message,
           senderName: message.senderName,
-          type: message.senderId === senderId ? "sent" : "received",
+          type: message.type, // 서버에서 받은 타입 사용
           time: new Date(message.sendTime).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -164,7 +185,7 @@ const ChatContainer = () => {
             {
               text: data.message,
               senderName: data.senderName,
-              type: data.senderId === senderId ? "sent" : "received",
+              type: data.type, // 서버에서 받은 타입 사용
               time: new Date(data.sendTime).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -183,31 +204,18 @@ const ChatContainer = () => {
   };
 
   const handleSendMessage = (message: string) => {
-    if (!stompClient || !activeRoom) return;
+    if (!stompClient || !activeRoom || senderId === null) return;
 
     const payload = {
       roomId: Number(activeRoom),
       message,
+      senderId, // 메시지에 senderId 추가
     };
 
     stompClient.publish({
       destination: "/pub/message",
       body: JSON.stringify(payload),
     });
-
-    // 내 메시지는 즉시 화면에 추가
-    setChatHistory((prev) => ({
-      ...prev,
-      [activeRoom]: [
-        ...(prev[activeRoom] || []),
-        {
-          text: message,
-          type: "sent",
-          time: getCurrentTime(),
-          date: getCurrentDate(),
-        },
-      ],
-    }));
   };
 
   return (
@@ -224,6 +232,7 @@ const ChatContainer = () => {
             <ChatMessages
               roomName={roomDetails?.name || ""}
               messages={chatHistory[activeRoom] || []}
+              senderId={senderId}
             />
             <ChatFooter onSend={handleSendMessage} activeRoom={activeRoom} />
           </>
