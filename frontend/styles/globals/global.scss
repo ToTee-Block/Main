@@ -134,6 +134,7 @@ body {
 
 .contentArea {
   flex-grow: 1;
+  padding: 32px 0;
 }
 
 ol,
@@ -180,3 +181,14 @@ select:focus {
 html, html > body {
 	font-family: var(--font-family);
   }
+
+ //페이지 양쪽 여백
+.contentArea {
+   width: calc(100% - 240px);  
+   margin: 0 auto;  
+ }
+
+ //메인,상세페이지 여백적용x
+ .contentAreaFull {
+  width: 100%;
+}

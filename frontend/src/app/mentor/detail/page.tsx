@@ -1,6 +1,6 @@
 'use client'
 
-import styles from '@/styles/pages/mentor-detail.module.scss';
+import styles from '@/styles/pages/mentor/mentor-detail.module.scss';
 import Image from 'next/image';
 import MentorButton from '@/components/button/MentorButton';
 

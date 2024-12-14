@@ -37,7 +37,7 @@ public class ApiV1PostController {
 
     // 다건조회 - ver.전체
     @GetMapping("")
-    public RsData list(@RequestParam(value = "page", defaultValue = "0") int page,
+    public RsData list(@RequestParam(value = "page", defaultValue = "0")int page,
                        @RequestParam(value = "size", defaultValue = "10") int size,
                        @RequestParam(value = "kw", defaultValue = "") String keyword) {
         Page<PostDTO> recentPosts = this.postService.searchRecentPosts(page, size, keyword);
@@ -54,7 +54,7 @@ public class ApiV1PostController {
 
     // 다건조회 - ver.특정사용자
     @GetMapping("/{authorEmail}")
-    public RsData getMyPosts(@RequestParam(value = "page", defaultValue = "0") int page,
+    public RsData getMyPosts(@RequestParam(value = "page", defaultValue = "0")int page,
                              @RequestParam(value = "size", defaultValue = "10") int size,
                              @RequestParam(value = "kw", defaultValue = "") String keyword,
                              @PathVariable(value = "authorEmail") String authorEmail) {
@@ -128,7 +128,7 @@ public class ApiV1PostController {
 
         String loggedInUser = principal.getName();
         if (!post.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.POST_NOT_YOUR_OWN, null);
+            return RsData.of("403", "본인만 게시글을 수정할 수 있습니다.", null);
         }
 
         String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());

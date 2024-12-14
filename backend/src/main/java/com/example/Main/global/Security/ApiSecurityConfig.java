@@ -61,6 +61,9 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/comments/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/comments/**").permitAll()
 
+                        // 관리자만 접근 가능한 API
+                        .requestMatchers(HttpMethod.GET, "/api/*/post/**/report/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/post/**/report/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())
