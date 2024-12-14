@@ -2,9 +2,6 @@ package com.example.Main.domain.QnA.controller;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
-import com.example.Main.domain.Post.dto.PostDTO;
-import com.example.Main.domain.Post.dto.response.PostResponse;
-import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.QnA.dto.QnADTO;
 import com.example.Main.domain.QnA.dto.request.QnACreateRequest;
 import com.example.Main.domain.QnA.dto.request.QnALikeDTO;
@@ -30,7 +27,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/qna")
+@RequestMapping(value = "/api/v1/qnas")
 public class ApiV1QnAController {
     private final QnAService qnAService;
     private final MemberService memberService;
@@ -159,28 +156,23 @@ public class ApiV1QnAController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/{id}")
     public RsData<QnAResponse> deleteQnAByAdmin(@PathVariable("id") Long id, @AuthenticationPrincipal SecurityMember loggedInUser) {
-        // 로그인 여부 확인
         if (loggedInUser == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
 
-        // 권한 확인
         String role = loggedInUser.getAuthorities().toString();
         if (!role.contains("ROLE_ADMIN")) {
             return RsData.of("403", ErrorMessages.ONLY_ADMIN, null);
         }
 
-        // 게시글 정보 조회
         QnA qnA = this.qnAService.getQnA(id);
 
         if (qnA == null || qnA.getIsDraft()) {
             return RsData.of("404", "%d 번 QnA 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
         }
 
-        // 관리자 권한으로 게시글 삭제
         this.qnAService.deleteQnAByAdmin(id);
 
-        // 삭제된 게시글에 대한 응답 객체 생성
         QnADTO qnADTO = new QnADTO(qnA);
         return RsData.of("200", "%d 번 QnA 삭제 성공 (관리자 삭제)".formatted(id), new QnAResponse(qnADTO));
     }

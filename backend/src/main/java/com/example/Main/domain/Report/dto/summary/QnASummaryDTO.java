@@ -1,4 +1,4 @@
-package com.example.Main.domain.Report.dto;
+package com.example.Main.domain.Report.dto.summary;
 
 import com.example.Main.domain.QnA.entity.QnA;
 import lombok.Getter;

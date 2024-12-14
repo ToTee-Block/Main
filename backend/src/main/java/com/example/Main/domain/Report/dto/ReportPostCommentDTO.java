@@ -1,5 +1,6 @@
 package com.example.Main.domain.Report.dto;
 
+import com.example.Main.domain.Report.dto.summary.PostCommentSummaryDTO;
 import com.example.Main.domain.Report.entity.ReportPostComment;
 import lombok.Getter;
 

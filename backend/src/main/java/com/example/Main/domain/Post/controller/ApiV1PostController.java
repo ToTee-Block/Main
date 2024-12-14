@@ -29,7 +29,7 @@ import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/post")
+@RequestMapping(value = "/api/v1/posts")
 public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
@@ -37,7 +37,7 @@ public class ApiV1PostController {
 
     // 다건조회 - ver.전체
     @GetMapping("")
-    public RsData list(@RequestParam(value = "page", defaultValue = "0")int page,
+    public RsData list(@RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "size", defaultValue = "10") int size,
                        @RequestParam(value = "kw", defaultValue = "") String keyword) {
         Page<PostDTO> recentPosts = this.postService.searchRecentPosts(page, size, keyword);
@@ -54,7 +54,7 @@ public class ApiV1PostController {
 
     // 다건조회 - ver.특정사용자
     @GetMapping("/{authorEmail}")
-    public RsData getMyPosts(@RequestParam(value = "page", defaultValue = "0")int page,
+    public RsData getMyPosts(@RequestParam(value = "page", defaultValue = "0") int page,
                              @RequestParam(value = "size", defaultValue = "10") int size,
                              @RequestParam(value = "kw", defaultValue = "") String keyword,
                              @PathVariable(value = "authorEmail") String authorEmail) {
@@ -159,31 +159,6 @@ public class ApiV1PostController {
 
         this.postService.deletePost(id);
         return RsData.of("200", "%d 번 게시물 삭제 성공".formatted(id), null);
-    }
-
-    // 관리자용 게시글 삭제
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/admin/{id}")
-    public RsData<PostResponse> deletePostByAdmin(@PathVariable("id") Long id, @AuthenticationPrincipal SecurityMember loggedInUser) {
-        if (loggedInUser == null) {
-            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
-        }
-
-        String role = loggedInUser.getAuthorities().toString();
-        if (!role.contains("ROLE_ADMIN")) {
-            return RsData.of("403", ErrorMessages.ONLY_ADMIN, null);
-        }
-
-        Post post = this.postService.getPost(id);
-
-        if (post == null || post.getIsDraft()) {
-            return RsData.of("404", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
-        }
-
-        this.postService.deletePostByAdmin(id);
-
-        PostDTO postDTO = new PostDTO(post);
-        return RsData.of("200", "%d 번 게시물 삭제 성공 (관리자 삭제)".formatted(id), new PostResponse(postDTO));
     }
 
     // 임시 저장된 게시물 목록 전체 조회

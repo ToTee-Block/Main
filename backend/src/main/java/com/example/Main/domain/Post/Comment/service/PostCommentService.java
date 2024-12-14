@@ -121,6 +121,7 @@ public class PostCommentService {
         return commentRepository.save(comment);
     }
 
+    // 댓글 삭제
     @Transactional
     public boolean deleteComment(Long commentId) {
         PostComment comment = commentRepository.findById(commentId)
@@ -134,6 +135,7 @@ public class PostCommentService {
         return true;
     }
 
+    // 댓글 삭제 : 관리자
     @Transactional
     public boolean deleteCommentByAdmin(Long commentId) {
         PostComment comment = commentRepository.findById(commentId)

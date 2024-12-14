@@ -27,7 +27,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/qna/{qnAId}/comments")
+@RequestMapping(value = "/api/v1/qnas/{qnAId}/comments")
 public class ApiV1QnACommentController {
 
     private final QnACommentService commentService;
@@ -92,8 +92,8 @@ public class ApiV1QnACommentController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping
     public RsData<QnACommentCreateResponse> QnACommentCreate(@PathVariable("qnAId") Long qnAId,
-                                                              @Valid @RequestBody QnACommentCreateRequest commentCreateRequest,
-                                                              Principal principal) {
+                                                             @Valid @RequestBody QnACommentCreateRequest commentCreateRequest,
+                                                             Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -166,30 +166,6 @@ public class ApiV1QnACommentController {
 
         commentService.deleteComment(commentId);
         return RsData.of("200", "%d 번 댓글 삭제 성공".formatted(commentId), null);
-    }
-
-    // 관리자용 댓글 삭제
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/admin/{commentId}")
-    public RsData<String> deleteCommentByAdmin(@PathVariable("commentId") Long commentId, @AuthenticationPrincipal SecurityMember loggedInUser) {
-        if (loggedInUser == null) {
-            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
-        }
-
-        String role = loggedInUser.getAuthorities().toString();
-        if (!role.contains("ROLE_ADMIN")) {
-            return RsData.of("403", ErrorMessages.ONLY_ADMIN, null);
-        }
-
-        QnAComment comment = commentService.getComment(commentId).orElse(null);
-
-        if (comment == null) {
-            return RsData.of("404", ErrorMessages.COMMENT_NOT_FOUND, null);
-        }
-
-        commentService.deleteCommentByAdmin(commentId);
-
-        return RsData.of("200", "%d 번 댓글 삭제 성공 (관리자 삭제)".formatted(commentId), null);
     }
 
     // QnA 댓글 좋아요

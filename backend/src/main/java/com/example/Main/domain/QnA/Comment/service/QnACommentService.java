@@ -132,6 +132,7 @@ public class QnACommentService {
         return commentRepository.save(comment);
     }
 
+    // 댓글 삭제
     @Transactional
     public boolean deleteComment(Long commentId) {
         QnAComment comment = commentRepository.findById(commentId)
@@ -145,6 +146,7 @@ public class QnACommentService {
         return true;
     }
 
+    // 댓글 삭제 : 관리자
     @Transactional
     public boolean deleteCommentByAdmin(Long commentId) {
         QnAComment comment = commentRepository.findById(commentId)
