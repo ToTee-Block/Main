@@ -97,11 +97,15 @@ public class PostService {
     // 삭제
     @Transactional
     public void deletePost(Long postId) {
+        List<ReportPost> reportPosts = reportPostRepository.findByPostId(postId);
+        reportPostRepository.deleteAll(reportPosts);
+
         postCommentRepository.deleteByPostId(postId);
 
         Optional<Post> postOptional = postRepository.findById(postId);
         postOptional.ifPresent(postRepository::delete);
     }
+
 
     // 삭제 : 관리자용
     @Transactional

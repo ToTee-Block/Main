@@ -7,6 +7,7 @@ import com.example.Main.domain.QnA.Comment.repository.QnACommentRepository;
 import com.example.Main.domain.QnA.dto.QnADTO;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.repository.QnARepository;
+import com.example.Main.domain.Report.entity.ReportPost;
 import com.example.Main.domain.Report.entity.ReportQnA;
 import com.example.Main.domain.Report.repository.ReportQnARepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -94,6 +95,10 @@ public class QnAService {
     // 삭제
     @Transactional
     public void deleteQnA(Long qnAId) {
+        List<ReportQnA> reportQnAS = reportQnARepository.findByQnAId(qnAId);
+        reportQnARepository.deleteAll(reportQnAS);
+
+
         qnACommentRepository.deleteByQnAId(qnAId);
 
         Optional<QnA> qnAOptional = qnARepository.findById(qnAId);

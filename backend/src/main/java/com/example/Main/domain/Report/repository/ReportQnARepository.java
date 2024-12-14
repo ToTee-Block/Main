@@ -18,4 +18,6 @@ public interface ReportQnARepository extends JpaRepository<ReportQnA,Long> {
     List<ReportQnA> findByQnAIdAndReporterEmail(Long qnaId, String reporterEmail);
 
     List<ReportQnA> findByQnA(QnA qnA);
+
+    List<ReportQnA> findByQnAId(Long qnAId);
 }

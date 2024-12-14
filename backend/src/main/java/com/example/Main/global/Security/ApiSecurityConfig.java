@@ -55,9 +55,16 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/qna/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/qna/**").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/*/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/*/comments/**").permitAll()
+
                         // 관리자만 접근 가능한 API
                         .requestMatchers(HttpMethod.GET, "/api/*/post/**/report/admin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/*/post/**/report/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/*/comments/report/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/comments/**/report/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/*/qna/**/report/admin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/*/qna/**/report/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

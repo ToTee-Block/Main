@@ -16,4 +16,6 @@ public interface ReportPostRepository extends JpaRepository<ReportPost,Long> {
     List<ReportPost> findByPostIdAndReporterEmail(Long postId, String reporterEmail);
 
     List<ReportPost> findByPost(Post post);
+
+    List<ReportPost> findByPostId(Long postId);
 }
