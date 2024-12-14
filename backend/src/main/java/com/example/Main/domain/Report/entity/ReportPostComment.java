@@ -15,7 +15,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class ReportComment extends BaseEntity {
+public class ReportPostComment extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "comment_id")

@@ -2,10 +2,8 @@ package com.example.Main.domain.Post.Comment.entity;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.entity.Post;
-import com.example.Main.domain.Report.entity.ReportComment;
+import com.example.Main.domain.Report.entity.ReportPostComment;
 import com.example.Main.global.Jpa.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -45,7 +43,7 @@ public class PostComment extends BaseEntity {
     private PostComment parentComment;
 
     @OneToMany(mappedBy = "postComment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReportComment> reportComments = new ArrayList<>();
+    private List<ReportPostComment> reportPostComments = new ArrayList<>();
 
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostComment> replies = new ArrayList<>();

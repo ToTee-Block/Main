@@ -15,9 +15,11 @@ import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
+import com.example.Main.global.Security.SecurityMember;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -89,7 +91,7 @@ public class ApiV1QnACommentController {
     // QnA 댓글 작성
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public RsData<QnACommentCreateResponse> postCommentCreate(@PathVariable("qnAId") Long qnAId,
+    public RsData<QnACommentCreateResponse> QnACommentCreate(@PathVariable("qnAId") Long qnAId,
                                                               @Valid @RequestBody QnACommentCreateRequest commentCreateRequest,
                                                               Principal principal) {
         if (principal == null) {
@@ -112,7 +114,7 @@ public class ApiV1QnACommentController {
     // QnA 댓글 수정
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{commentId}")
-    public RsData<QnACommentModifyResponse> postCommentModify(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId, @Valid @RequestBody QnACommentModifyRequest commentModifyRequest, Principal principal) {
+    public RsData<QnACommentModifyResponse> QnACommentModify(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId, @Valid @RequestBody QnACommentModifyRequest commentModifyRequest, Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -143,7 +145,6 @@ public class ApiV1QnACommentController {
     public RsData<String> deleteComment(@PathVariable("qnAId") Long qnAId,
                                         @PathVariable("commentId") Long commentId,
                                         Principal principal) {
-
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -159,16 +160,36 @@ public class ApiV1QnACommentController {
             return RsData.of("404", ErrorMessages.QNA_ID_MISMATCH, null);
         }
 
-        if (commentService.hasReplies(comment)) {
-            return RsData.of("400", ErrorMessages.COMMENT_HAS_REPLIES, null);
-        }
-
         if (!comment.getAuthor().getEmail().equals(loggedInUser)) {
             return RsData.of("403", ErrorMessages.FORBIDDEN, null);
         }
 
         commentService.deleteComment(commentId);
         return RsData.of("200", "%d 번 댓글 삭제 성공".formatted(commentId), null);
+    }
+
+    // 관리자용 댓글 삭제
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/{commentId}")
+    public RsData<String> deleteCommentByAdmin(@PathVariable("commentId") Long commentId, @AuthenticationPrincipal SecurityMember loggedInUser) {
+        if (loggedInUser == null) {
+            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
+        }
+
+        String role = loggedInUser.getAuthorities().toString();
+        if (!role.contains("ROLE_ADMIN")) {
+            return RsData.of("403", ErrorMessages.ONLY_ADMIN, null);
+        }
+
+        QnAComment comment = commentService.getComment(commentId).orElse(null);
+
+        if (comment == null) {
+            return RsData.of("404", ErrorMessages.COMMENT_NOT_FOUND, null);
+        }
+
+        commentService.deleteCommentByAdmin(commentId);
+
+        return RsData.of("200", "%d 번 댓글 삭제 성공 (관리자 삭제)".formatted(commentId), null);
     }
 
     // QnA 댓글 좋아요

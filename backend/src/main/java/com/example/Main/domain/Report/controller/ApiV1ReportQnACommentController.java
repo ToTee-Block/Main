@@ -1,10 +1,10 @@
 package com.example.Main.domain.Report.controller;
 
-import com.example.Main.domain.Report.dto.ReportCommentDTO;
-import com.example.Main.domain.Report.entity.ReportComment;
+import com.example.Main.domain.Report.dto.ReportQnACommentDTO;
+import com.example.Main.domain.Report.entity.ReportQnAComment;
 import com.example.Main.domain.Report.eunums.ReportReason;
 import com.example.Main.domain.Report.eunums.ReportStatus;
-import com.example.Main.domain.Report.service.ReportCommentService;
+import com.example.Main.domain.Report.service.ReportQnACommentService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
@@ -20,18 +20,18 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/comments")
-public class ApiV1ReportCommentController {
+@RequestMapping("/api/v1/qna/comments")
+public class ApiV1ReportQnACommentController {
 
-    private final ReportCommentService reportCommentService;
+    private final ReportQnACommentService reportQnACommentService;
 
-    // 댓글 신고
-    // 예시 : /api/v1/comments/1/report?reason=1
+    // QnA 댓글 신고
+    // 예시 : /api/v1/qna/comments/1/report?reason=1
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{commentId}/report")
-    public RsData<ReportCommentDTO> reportComment(@PathVariable("commentId") Long commentId,
-                                                  @RequestParam("reason") int reason,
-                                                  Principal principal) {
+    public RsData<ReportQnACommentDTO> reportQnAComment(@PathVariable("commentId") Long commentId,
+                                                        @RequestParam("reason") int reason,
+                                                        Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -39,46 +39,46 @@ public class ApiV1ReportCommentController {
         String reporterEmail = principal.getName();
         ReportReason reportReason = ReportReason.fromCode(reason);
 
-        if (!reportCommentService.existsComment(commentId)) {
+        if (!reportQnACommentService.existsComment(commentId)) {
             return RsData.of("404", ErrorMessages.NO_COMMENTS, null);
         }
 
-        if (reportCommentService.existsReport(commentId, reporterEmail)) {
+        if (reportQnACommentService.existsReport(commentId, reporterEmail)) {
             return RsData.of("400", ErrorMessages.REPORT_ALREADY_EXISTS, null);
         }
 
-        ReportComment reportComment = reportCommentService.reportComment(commentId, reporterEmail, reportReason);
+        ReportQnAComment reportQnAComment = reportQnACommentService.reportComment(commentId, reporterEmail, reportReason);
 
-        if (reportComment == null) {
+        if (reportQnAComment == null) {
             return RsData.of("400", ErrorMessages.REPORT_PROCESS_FAILED, null);
         }
 
-        return RsData.of("201", "댓글 신고 성공", new ReportCommentDTO(reportComment));
+        return RsData.of("201", "QnA 댓글 신고 성공", new ReportQnACommentDTO(reportQnAComment));
     }
 
-    // 전체 댓글의 본인 신고 내역
-    // 예시 : /api/v1/comments/report/my
+    // 전체 QnA 댓글의 본인 신고 내역
+    // 예시 : /api/v1/qna/comments/report/my
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/report/my")
-    public RsData<List<ReportCommentDTO>> getReportsByUser(Principal principal) {
+    public RsData<List<ReportQnACommentDTO>> getReportsByUser(Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
 
         String reporterEmail = principal.getName();
-        List<ReportCommentDTO> reportCommentDTOList = reportCommentService.getReportsByUser(reporterEmail);
+        List<ReportQnACommentDTO> reportQnACommentDTOList = reportQnACommentService.getReportsByUser(reporterEmail);
 
-        if (reportCommentDTOList.isEmpty()) {
+        if (reportQnACommentDTOList.isEmpty()) {
             return RsData.of("404", ErrorMessages.REPORT_NOT_FOUND, null);
         }
 
-        return RsData.of("200", "본인 댓글 신고 내역 조회 성공", reportCommentDTOList);
+        return RsData.of("200", "본인 QnA 댓글 신고 내역 조회 성공", reportQnACommentDTOList);
     }
 
-    // 관리자 권한으로 댓글 신고 내역 조회
-    // 예시 : /api/v1/comments/report/admin    @PreAuthorize("isAuthenticated()")
+    // 관리자 권한으로 QnA 댓글 신고 내역 조회
+    // 예시 : /api/v1/qna/comments/report/admin
     @GetMapping("/report/admin")
-    public ResponseEntity<RsData<List<ReportCommentDTO>>> getAllReports(@AuthenticationPrincipal SecurityMember loggedInUser) {
+    public ResponseEntity<RsData<List<ReportQnACommentDTO>>> getAllReports(@AuthenticationPrincipal SecurityMember loggedInUser) {
         if (loggedInUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(RsData.of("401", ErrorMessages.UNAUTHORIZED, null));
@@ -89,23 +89,23 @@ public class ApiV1ReportCommentController {
                     .body(RsData.of("403", ErrorMessages.ONLY_ADMIN, null));
         }
 
-        List<ReportCommentDTO> reportCommentDTOList = reportCommentService.getAllReports();
+        List<ReportQnACommentDTO> reportQnACommentDTOList = reportQnACommentService.getAllReports();
 
-        if (reportCommentDTOList.isEmpty()) {
+        if (reportQnACommentDTOList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(RsData.of("404", ErrorMessages.REPORT_NOT_FOUND, null));
         }
 
-        return ResponseEntity.ok(RsData.of("200", "전체 댓글 신고 내역 조회 성공", reportCommentDTOList));
+        return ResponseEntity.ok(RsData.of("200", "전체 QnA 댓글 신고 내역 조회 성공", reportQnACommentDTOList));
     }
 
-    // 댓글 신고 상태 변경
-    // 예시 : /api/v1/comments/{commentId}/report/{reportId}
+    // QnA 댓글 신고 상태 변경
+    // 예시 : /api/v1/qna/comments/{commentId}/report/{reportId}
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{commentId}/report/{reportId}")
-    public ResponseEntity<RsData<ReportCommentDTO>> updateReportStatus(@PathVariable("reportId") Long reportId,
-                                                                       @RequestParam("status") int status,
-                                                                       @AuthenticationPrincipal SecurityMember loggedInUser) {
+    public ResponseEntity<RsData<ReportQnACommentDTO>> updateReportStatus(@PathVariable("reportId") Long reportId,
+                                                                          @RequestParam("status") int status,
+                                                                          @AuthenticationPrincipal SecurityMember loggedInUser) {
         if (loggedInUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(RsData.of("401", ErrorMessages.UNAUTHORIZED, null));
@@ -116,8 +116,8 @@ public class ApiV1ReportCommentController {
                     .body(RsData.of("403", ErrorMessages.ONLY_ADMIN, null));
         }
 
-        ReportComment reportComment = reportCommentService.getReportById(reportId);
-        if (reportComment == null) {
+        ReportQnAComment reportQnAComment = reportQnACommentService.getReportById(reportId);
+        if (reportQnAComment == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(RsData.of("404", ErrorMessages.REPORT_NOT_FOUND, null));
         }
@@ -128,7 +128,7 @@ public class ApiV1ReportCommentController {
                     .body(RsData.of("400", ErrorMessages.INVALID_REPORT_STATUS, null));
         }
 
-        reportComment = reportCommentService.updateReportStatus(reportId, reportStatus);
-        return ResponseEntity.ok(RsData.of("200", "댓글 신고 상태 업데이트 성공", new ReportCommentDTO(reportComment)));
+        reportQnAComment = reportQnACommentService.updateReportStatus(reportId, reportStatus);
+        return ResponseEntity.ok(RsData.of("200", "QnA 댓글 신고 상태 업데이트 성공", new ReportQnACommentDTO(reportQnAComment)));
     }
 }
