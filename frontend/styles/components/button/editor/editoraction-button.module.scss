@@ -1,40 +1,49 @@
+@import "../../../globals/font-mixin.scss";
+
 .actionButtonsContainer {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    padding-top: 16px;
   }
   
   .rightButtons {
     display: flex;
+    margin-left: auto;
     gap: 8px;
   }
   
   .exitButton {
-    padding: 12px 20px;
-    border-radius: 4px;
-    background-color: var(--text-black);
+    width: 84px;
+    height: 40px;
+    border-radius: 6px;
+    background-color: var(--text-blue);
     color: var(--text-white);
-    font-size: var(--font-size-XXXS);
-    font-family: var(--font-family);
-    font-weight: var(--font-weight-Medium);
+    @include font-XXS-B;
     cursor: pointer;
     border: none;
     transition: all 0.3s ease;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; 
   
     &:hover {
-      background-color: var(--gray-800);
+      background-color: var(--gray-700);
     }
   }
   
   .draftButton, .submitButton {
-    padding: 12px 20px;
-    border-radius: 4px;
+    width: 80px;
+    height: 40px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: var(--font-size-XXXS);
-    font-family: var(--font-family);
-    font-weight: var(--font-weight-Medium);
+    @include font-XXS-B;
     transition: all 0.3s ease;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .draftButton {
@@ -50,7 +59,7 @@
   
   .submitButton {
     background-color: var(--primary-color);
-    color: var(--secondary-color);
+    color: var(--text-black);
     border: 1px solid var(--primary-color);
   
     &:hover {

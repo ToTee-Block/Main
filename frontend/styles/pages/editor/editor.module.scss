@@ -1,0 +1,159 @@
+@import '../../globals/font-mixin.scss';
+
+.editorContainer {
+  display: flex;
+  width: 1680px;
+  margin: 0 auto;
+  background-color: var(--background);
+  padding-bottom: 32px;
+  gap: 50px
+}
+
+.editorSection {
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px;
+  width: 840px;
+  height: 1200px;
+  background-color: var(--gray-50);
+  margin-bottom: 32px; 
+}
+
+
+.editorContent {
+  display: flex;
+  flex-direction: column;
+  width: 840px;
+  height: auto;
+  flex: 1;
+}
+
+.titleInput {
+  width: 816px;
+  border: none;
+  @include font-XL-B;
+  color: var(--text-black);
+  background-color: transparent;
+  margin-bottom: 12px;  
+
+  &::placeholder {
+    color: var(--text-gray);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.divider {
+  width: 64px;
+  height: 6px;
+  background-color: var(--text-blue);
+  margin-bottom: 12px;  
+}
+
+.tagSection {
+  width: 816px;
+  margin-bottom: 12px;
+  min-height: 48px;
+  max-height: 140px;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+.editorTextarea {
+  width: 816px;
+  flex: 1;
+  min-height: 815px; 
+  padding: 16px;
+  border: none;
+  resize: none;
+  @include font-XXS-B;
+  line-height: 1.5;
+  background-color: var(--background);
+  border-radius: 4px;
+  color: var(--text-black);
+  overflow-y: scroll !important;
+  scrollbar-gutter: stable;
+  display: block; 
+
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: var(--text-gray);
+  }
+}
+
+.previewSection {
+  width: 830px;
+  padding: 24px;  // 패딩 추가
+  background-color: var(--background);
+  overflow-y: auto;
+
+
+  .previewContent {
+    display: flex;
+    flex-direction: column;
+    width: 816px;
+    height: auto;
+  }
+
+  .previewTitle {
+    width: 816px;
+    border: none;
+    @include font-XL-B;
+    color: var(--text-black);
+    background-color: transparent;
+    margin: 0 0 12px; 
+    pointer-events: none;
+  }
+
+  .divider {
+    width: 64px;
+    height: 6px;
+    background-color: var(--text-blue);
+    margin-bottom: 150px; 
+  }
+
+  .markdownContent {
+    .markdownH1 {
+      @include font-XL-B;
+      margin-bottom: var(--spacing-4);
+    }
+
+    .markdownH2 {
+      @include font-L-B;
+      margin-bottom: var(--spacing-3);
+    }
+
+    .markdownH3 {
+      @include font-M-B;
+      margin-bottom: var(--spacing-3);
+    }
+
+    .markdownH4 {
+      @include font-S-B;
+      margin-bottom: var(--spacing-2);
+    }
+
+    .markdownLink {
+      color: var(--text-blue);
+      text-decoration: underline;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .markdownStrike {
+      text-decoration: line-through;
+    }
+  }
+}
+.actionButtons {
+  width: 816px;
+  padding: 24px 0;
+  margin-top: auto;
+}

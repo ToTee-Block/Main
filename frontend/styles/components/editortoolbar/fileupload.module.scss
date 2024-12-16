@@ -1,18 +1,23 @@
 .uploadWrapper {
-    padding: 16px;
-    margin: 16px 0;
+    padding: 10 10px;
+    width: 812px;
+    height: 42px;
     border: 1px solid var(--gray-200);
-    border-radius: 4px;
+    border-radius: 10px;
     background-color: var(--background);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    cursor: pointer;
-  }
-  
+    box-shadow: 0 0 5px rgba(231, 182, 238, 0.2), 0 4px 6px rgba(231, 182, 238, 0.2);
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+    margin-bottom: 12px;
+} 
+
   .uploadContent {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    cursor: pointer;
   }
   
   .uploadIcon {
@@ -27,11 +32,11 @@
   .browseFiles {
     display: inline-flex;
     align-items: center;
-    padding: 4px 12px;
+    padding: 6px 12px;
     background-color: var(--background);
     border: 1px solid var(--secondary-color);
-    border-radius: 4px;
-    font-size: var(--font-size-XXXS);
+    border-radius: 8px;
+    font-size: var(--font-size-XXXXS);
     color: var(--secondary-color);
     transition: all 0.2s ease;
   
