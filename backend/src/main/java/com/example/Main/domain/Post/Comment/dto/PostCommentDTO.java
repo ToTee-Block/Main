@@ -4,6 +4,9 @@ import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.Member.entity.Member;
 import lombok.Getter;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,7 +17,10 @@ public class PostCommentDTO {
     private final Long id;
     private final String content;
     private final String authorEmail;
+    private final String authorName;
+    private final String profileImg;
     private final int likes;
+    private final LocalDateTime createDate;   // 열람 시간과 작성 시간의 차이
     private final List<String> likedByEmails;
     private final Long postId;
     private final Long parentCommentId;
@@ -24,6 +30,9 @@ public class PostCommentDTO {
         this.id = comment.getId();
         this.content = comment.getContent();
         this.authorEmail = comment.getAuthor().getEmail();
+        this.authorName = comment.getAuthor().getName();
+        this.profileImg = comment.getAuthor().getProfileImg();
+        this.createDate = comment.getCreatedDate();
 
         // 좋아요
         this.likes = comment.getLikes();

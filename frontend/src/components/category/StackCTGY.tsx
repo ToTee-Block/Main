@@ -15,21 +15,27 @@ const StackCTGY: React.FC<StackCTGYProps> = ({
   activeTab,
   setActiveTab,
   onClick,
-  disabled = false,
+  disabled,
 }) => {
 
 
   return (
     <ul className={styles.stackCTGY}>
-      {stacks.map((stacks, index) => (
-        <li
-          key={stacks} // 고유한 key 값을 추가  
-          className={`${activeTab === stacks ? styles.active : ""}`}
-          onClick={() => setActiveTab(stacks)}
-        >
-          <span>{stacks}</span>
-        </li>
-      ))}
+      {disabled ? (
+        // disabled가 true일 때 표시할 요소
+        <div></div>
+      ) : (
+        // disabled가 false일 때, stacks 배열을 순회하여 요소를 렌더링
+        stacks.map((stack, index) => (
+          <li
+            key={stack} // 고유한 key 값을 추가  
+            className={`${activeTab === stack ? styles.active : ""}`}
+            onClick={() => setActiveTab(stack)}
+          >
+            <span>{stack}</span>
+          </li>
+        ))
+      )}
     </ul>
   );
 };

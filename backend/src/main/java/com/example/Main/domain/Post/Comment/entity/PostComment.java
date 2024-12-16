@@ -39,6 +39,7 @@ public class PostComment extends BaseEntity {
     private Set<Member> likedByMembers = new HashSet<>();
 
     private int likes;
+
     @ManyToOne
     @JoinColumn(name = "parent_comment_id")
     private PostComment parentComment;

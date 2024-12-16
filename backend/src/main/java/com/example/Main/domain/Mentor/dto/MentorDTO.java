@@ -3,10 +3,12 @@ package com.example.Main.domain.Mentor.dto;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Mentor.entity.Mentor;
 import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @ToString
 @Getter
