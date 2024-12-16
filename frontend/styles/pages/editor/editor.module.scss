@@ -120,25 +120,25 @@
 
   .markdownContent {
     .markdownH1 {
-      @include font-XL-B;
+      @include font-L-M;  // Bold에서 Medium으로 변경
       margin-bottom: var(--spacing-4);
     }
-
+  
     .markdownH2 {
-      @include font-L-B;
+      @include font-M-M;  // Bold에서 Medium으로 변경
       margin-bottom: var(--spacing-3);
     }
-
+  
     .markdownH3 {
-      @include font-M-B;
+      @include font-S-M;  // Bold에서 Medium으로 변경
       margin-bottom: var(--spacing-3);
     }
-
+  
     .markdownH4 {
-      @include font-S-B;
+      @include font-XS-M;  // Bold에서 Medium으로 변경
       margin-bottom: var(--spacing-2);
     }
-
+  
     .markdownLink {
       color: var(--text-blue);
       text-decoration: underline;
@@ -146,9 +146,22 @@
         opacity: 0.8;
       }
     }
-
+  
     .markdownStrike {
       text-decoration: line-through;
+    }
+  
+    // Bold 적용을 위한 스타일
+    strong {
+      font-weight: var(--font-weight-Bold);  // 볼드체 적용시 Bold 폰트로
+    }
+  
+    hr {
+      width: 100%;
+      height: 1px;
+      background-color: var(--gray-300);
+      border: none;
+      margin: 24px 0;
     }
   }
 }
