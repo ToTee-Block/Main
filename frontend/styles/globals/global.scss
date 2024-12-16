@@ -192,3 +192,29 @@ html, html > body {
  .contentAreaFull {
   width: 100%;
 }
+// 에디터 스크롤바 스타일
+::-webkit-scrollbar {
+  width: 8px;
+  background-color: var(--gray-200);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--gray-400);
+  border-radius: 4px;
+  margin: 8px 0; // 스크롤바 썸네일 여백
+}
+
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment {
+  display: block;
+  height: 16px; // 버튼 높이 증가
+  background-color: transparent; // 배경색 투명으로
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+}
+
+::-webkit-scrollbar-button:start:decrement {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none'%3E%3Cpath d='M6 0l6 6H0z' fill='%23495057'/%3E%3C/svg%3E");
+  margin-bottom: 4px; // 아래쪽 여백 추가
+}

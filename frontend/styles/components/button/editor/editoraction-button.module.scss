@@ -1,0 +1,61 @@
+.actionButtonsContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+  }
+  
+  .rightButtons {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .exitButton {
+    padding: 12px 20px;
+    border-radius: 4px;
+    background-color: var(--text-black);
+    color: var(--text-white);
+    font-size: var(--font-size-XXXS);
+    font-family: var(--font-family);
+    font-weight: var(--font-weight-Medium);
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+  
+    &:hover {
+      background-color: var(--gray-800);
+    }
+  }
+  
+  .draftButton, .submitButton {
+    padding: 12px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: var(--font-size-XXXS);
+    font-family: var(--font-family);
+    font-weight: var(--font-weight-Medium);
+    transition: all 0.3s ease;
+  }
+  
+  .draftButton {
+    background-color: var(--gray-200);
+    color: var(--text-black);
+    border: none;
+  
+    &:hover {
+      background-color: var(--dark-blue-color);
+      color: var(--text-white);
+    }
+  }
+  
+  .submitButton {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    border: 1px solid var(--primary-color);
+  
+    &:hover {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      border-color: var(--secondary-color);
+    }
+  }

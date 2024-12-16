@@ -1,0 +1,35 @@
+.toolbar {
+    display: flex;
+    gap: 16px;
+    padding: 8px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--background);
+  }
+  
+  .toolGroup {
+    display: flex;
+    gap: 8px;
+    padding-right: 16px;
+    border-right: 1px solid var(--gray-300);
+  
+    &:last-child {
+      border-right: none;
+    }
+  }
+  
+  .toolButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: none;
+    background: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-blue);
+  
+    &:hover {
+      background-color: var(--gray-100);
+    }
+  }
