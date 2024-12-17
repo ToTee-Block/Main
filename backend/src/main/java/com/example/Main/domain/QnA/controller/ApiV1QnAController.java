@@ -2,6 +2,7 @@ package com.example.Main.domain.QnA.controller;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.QnA.dto.QnADTO;
 import com.example.Main.domain.QnA.dto.request.QnACreateRequest;
 import com.example.Main.domain.QnA.dto.request.QnALikeDTO;
@@ -18,11 +19,13 @@ import com.example.Main.global.Security.SecurityMember;
 import com.example.Main.global.Util.Markdown.MarkdownService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -48,10 +51,19 @@ public class ApiV1QnAController {
 
     // 다건 조회
     @GetMapping("")
-    public RsData<QnAsResponse> list() {
-        List<QnADTO> qnADTOs = this.qnAService.getList();
-        return RsData.of("200", "QnA 게시글 다건 조회 성공", new QnAsResponse(qnADTOs));
+    public RsData list(@RequestParam(value = "page", defaultValue = "0")int page,
+                       @RequestParam(value = "size", defaultValue = "10") int size,
+                       @RequestParam(value = "kw", defaultValue = "") String keyword) {
+        Page<QnADTO> qnAs = this.qnAService.searchRecentQnAs(page, size, keyword);
+
+        return RsData.of("200", "게시글 다건 조회 성공", qnAs);
     }
+
+//    @GetMapping("")
+//    public RsData<QnAsResponse> list() {
+//        List<QnADTO> qnADTOs = this.qnAService.getList();
+//        return RsData.of("200", "QnA 게시글 다건 조회 성공", new QnAsResponse(qnADTOs));
+//    }
 
     // 단건 조회
     @GetMapping("/{id}")
@@ -267,7 +279,6 @@ public class ApiV1QnAController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/like")
     public RsData<QnAResponse> like(@PathVariable("id") Long id,
-                                    @RequestBody QnALikeDTO qnALikeDTO,
                                     Principal principal) {
         if (principal == null) {
             return RsData.of("401", "로그인 후 사용 가능합니다.", null);

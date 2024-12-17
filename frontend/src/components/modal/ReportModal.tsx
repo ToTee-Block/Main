@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "@/styles/components/modal/report-modal.module.scss";
 import TextInput from "../input/TextInput";
 
@@ -22,6 +22,38 @@ const YesNoModal: React.FC<YesNoModalProps> = ({
     "예시2",
   ]);
   const [reportInput, setReportInput] = useState<string>();
+
+  // useEffect(() => {
+  //     const queryParams = new URLSearchParams(window.location.search);
+  //     const id = Number(queryParams.get("id")) || 0; //기본값을 0로 설정
+
+  //     const fetchRecentPosts = async () => {
+  //       setLoginStatus(await getMe());
+  //       try {
+  //         const response = await axios.get(
+  //           `http://localhost:8081/api/v1/posts/detail/${id}`
+  //         );
+
+  //         const resultCode = response.data.resultCode;
+  //         const data = response.data.data;
+  //         if (resultCode == "200") {
+  //           setStacks(data.techStacks);
+  //           setValues(data.post);
+  //           console.log(data.post);
+  //         } else if (resultCode == "400") {
+  //           setError("올바른 게시물이 아닙니다.");
+  //         } else if (resultCode == "500") {
+  //           setError(response.data.msg);
+  //         }
+  //         setLoading(false);
+  //       } catch (error) {
+  //         setError("Failed to fetch recent posts.");
+  //         setLoading(false);
+  //       }
+  //     };
+
+  //     fetchRecentPosts();
+  //   }, []);
 
   if (!visible) return null;
 

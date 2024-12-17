@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import apiClient, { fetchUserProfile } from "@/api/axiosConfig";
-import styles from "@/styles/pages/post/detail.module.scss";
+import styles from "@/styles/pages/qna/detail.module.scss";
 import DivideBar from "@/components/divideBar";
-import StackCTGY from "@/components/category/StackCTGY";
 import LikeButton from "@/components/button/LikeButton";
 import ReportButton from "@/components/button/ReportButton";
 import ModifyButton from "@/components/button/ModifyButton";
@@ -15,18 +14,6 @@ import CommentCard from "@/components/card/CommentCard";
 import ReportModal from "@/components/modal/ReportModal";
 import MarkdownWithHtml from "@/components/MarkdownWithHtml";
 import YesNoModal from "@/components/modal/YesNoModal";
-
-interface Me {
-  birthDate: string;
-  createdDate: string;
-  email: string;
-  gender: string;
-  id: number;
-  modifiedDate: string;
-  name: string;
-  profileImg: string;
-  role: string;
-}
 
 interface Comment {
   id: number;
@@ -39,7 +26,7 @@ interface Comment {
   replies: [];
 }
 
-interface Post {
+interface QnA {
   id: number;
   authorEmail: string;
   authorName: string;
@@ -51,14 +38,12 @@ interface Post {
   likes: number;
   modifiedDate: string;
   subject: string;
-  techStacks: string[] | null;
 }
 
 const Detail: React.FC = () => {
   const [loginStatus, setLoginStatus] = useState(false);
-  const [me, setMe] = useState<Me>();
-  const [stacks, setStacks] = useState<string[]>();
-  const [post, setPost] = useState<Post>();
+  const [me, setMe] = useState();
+  const [qna, setQnA] = useState<QnA>();
   const [likes, setLikes] = useState(0);
   const [comments, setComments] = useState<Comment>();
   const [comment, setComment] = useState("");
@@ -68,10 +53,10 @@ const Detail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const setValues = (post) => {
-    setPost(post);
-    setComments(post.comments);
-    setLikes(post.likes);
+  const setValues = (qna) => {
+    setQnA(qna);
+    setComments(qna.comments);
+    setLikes(qna.likes);
   };
 
   const getMe = async () => {
@@ -92,16 +77,16 @@ const Detail: React.FC = () => {
     }
     try {
       const response = await apiClient.post(
-        `http://localhost:8081/api/v1/posts/${post.id}/like`
+        `http://localhost:8081/api/v1/qnas/${qna.id}/like`
       );
 
       const resultCode = response.data.resultCode;
       const msg = response.data.msg;
       const data = response.data.data;
-      console.log(response.data);
+      console.log(data);
       if (resultCode == "200") {
-        setPost(data);
-        setLikes(data.likes);
+        setQnA(data.qnADTO);
+        setLikes(data.qnADTO.likes);
       } else {
         alert(msg);
       }
@@ -110,7 +95,7 @@ const Detail: React.FC = () => {
     }
   };
 
-  const deletePost = async () => {
+  const deleteQnA = async () => {
     if (!loginStatus) {
       alert("로그인이 필요합니다.");
       location.href = "/members";
@@ -118,7 +103,7 @@ const Detail: React.FC = () => {
     }
     try {
       const response = await apiClient.delete(
-        `http://localhost:8081/api/v1/posts/${post.id}`
+        `http://localhost:8081/api/v1/qnas/${qna.id}`
       );
 
       const resultCode = response.data.resultCode;
@@ -139,17 +124,15 @@ const Detail: React.FC = () => {
       location.href = "/members";
       return;
     }
-    const postId = post?.id;
     if (comment == "" || comment == null) {
       alert("댓글의 내용을 입력해주세요.");
       return;
     }
     try {
       const response = await apiClient.post(
-        `http://localhost:8081/api/v1/posts/${post.id}/comments`,
+        `http://localhost:8081/api/v1/qnas/${qna?.id}/comments`,
         {
           content: comment,
-          parentId: postId,
         },
         {
           headers: {
@@ -176,19 +159,19 @@ const Detail: React.FC = () => {
     const queryParams = new URLSearchParams(window.location.search);
     const id = Number(queryParams.get("id")) || 0; //기본값을 0로 설정
 
-    const fetchRecentPosts = async () => {
+    const fetchRecentQnAs = async () => {
       setLoginStatus(await getMe());
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/v1/posts/detail/${id}`
+          `http://localhost:8081/api/v1/qnas/${id}`
         );
 
         const resultCode = response.data.resultCode;
         const data = response.data.data;
+        console.log(data);
         if (resultCode == "200") {
-          setStacks(data.techStacks);
-          setValues(data.post);
-          console.log(data.post);
+          setValues(data.qnADTO);
+          console.log(data.qnADTO);
         } else if (resultCode == "400") {
           setError("올바른 게시물이 아닙니다.");
         } else if (resultCode == "500") {
@@ -196,12 +179,12 @@ const Detail: React.FC = () => {
         }
         setLoading(false);
       } catch (error) {
-        setError("Failed to fetch recent posts.");
+        setError("Failed to fetch recent qnas.");
         setLoading(false);
       }
     };
 
-    fetchRecentPosts(); // 페이지가 로드될 때 데이터 호출
+    fetchRecentQnAs(); // 페이지가 로드될 때 데이터 호출
   }, []); // 빈 배열을 넣어 컴포넌트가 마운트될 때 한 번만 호출
 
   if (loading) {
@@ -215,15 +198,14 @@ const Detail: React.FC = () => {
   return (
     <div className={styles.bodyContainer}>
       <div className={styles.container}>
-        <div className={styles.postSection}>
+        <div className={styles.qnaSection}>
           <div className={styles.titleBox}>
-            <h1 className={styles.title}>{post?.subject}</h1>
+            <h1 className={styles.title}>{qna?.subject}</h1>
             <DivideBar width={300}></DivideBar>
-            <StackCTGY stacks={stacks} disabled={true}></StackCTGY>
           </div>
           <div className={styles.contentBox}>
             <div className={styles.content}>
-              <MarkdownWithHtml markdownContent={post?.content} />
+              <MarkdownWithHtml markdownContent={qna?.content} />
             </div>
           </div>
         </div>
@@ -233,7 +215,7 @@ const Detail: React.FC = () => {
             setModalVisible={() => setModalVisibleReport(true)}
           ></ReportButton>
           <div className={styles.airBox}></div>
-          {post?.authorEmail !== me?.email ? (
+          {qna?.authorEmail !== me?.email ? (
             <></>
           ) : (
             <>
@@ -245,7 +227,7 @@ const Detail: React.FC = () => {
           )}
         </div>
         <div className={styles.commentSection}>
-          <span>{post?.comments.length}개의 답변이 있습니다.</span>
+          {/* <span>{qna?.comments.length}개의 답변이 있습니다.</span> */}
           <CommentForm
             disabled={loginStatus}
             myProfileImg={me?.profileImg}
@@ -258,7 +240,7 @@ const Detail: React.FC = () => {
               <CommentCard
                 key={comment.id}
                 loginStatus={loginStatus}
-                parentId={post.id}
+                parentId={qna.id}
                 comment={comment}
                 me={me}
               ></CommentCard>
@@ -279,7 +261,7 @@ const Detail: React.FC = () => {
       <YesNoModal
         visible={modalVisibleDelete}
         questionTxt="게시글을 삭제하시겠습니까?"
-        onConfirm={deletePost}
+        onConfirm={deleteQnA}
         onClose={() => setModalVisibleDelete(false)}
       ></YesNoModal>
     </div>

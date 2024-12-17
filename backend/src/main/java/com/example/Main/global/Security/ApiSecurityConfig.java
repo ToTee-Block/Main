@@ -51,15 +51,15 @@ public class ApiSecurityConfig {
 
                         // QnA 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.GET, "/api/*/qnas/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/*/qnas/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/*/qnas/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/*/qnas/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/qnas/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/qnas/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/*/qnas/**").authenticated()
 
                         // 댓글 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.GET, "/api/*/comments/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/*/comments/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/*/comments/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/*/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/*/comments/**").authenticated()
 
                         // 관리자만 접근 가능한 API
                         .requestMatchers(HttpMethod.GET, "/api/*/post/**/report/admin").hasRole("ADMIN")
