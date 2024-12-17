@@ -133,6 +133,7 @@ public class ChatController {
                 chatDTO.getMessage(),
                 LocalDateTime.now(),
                 member.getName(), // 보낸 사람의 이름 추가
+                null,
                 messageType // 타입 설정
         );
 
@@ -164,6 +165,14 @@ public class ChatController {
                                         : "Unknown"
                         );
 
+                        // senderProfile 설정 추가
+                        dto.setSenderProfile(
+                                null
+                                /*message.getChatSender() != null
+                                        ? message.getChatSender().getChatJoiner().getProfileImage() // 프로필 이미지가 있는 경우
+                                        : null*/
+                        );
+
                         // senderId와 currentUserId를 비교하여 메시지 타입을 설정
                         if (message.getChatSender() != null && message.getChatSender().getChatJoiner().getId().equals(currentUserId)) {
                             dto.setType("sent"); // 내 메시지
@@ -182,6 +191,7 @@ public class ChatController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
 
     private Member getAuthenticatedMember(HttpServletRequest req) {

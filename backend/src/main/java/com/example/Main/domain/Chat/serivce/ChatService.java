@@ -54,6 +54,7 @@ public class ChatService {
                 message.getMessage(),
                 message.getCreatedDate(),
                 message.getChatSender().getChatJoiner().getName(),
+                null,
                 ""
         );
     }

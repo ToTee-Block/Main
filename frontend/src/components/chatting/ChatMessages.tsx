@@ -52,7 +52,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
               }`}
             >
               {/* 수신 메시지의 프로필과 이름 */}
-              {message.type === "received" && senderId !== message.senderId && (
+              {message.type === "received" ? (
                 <div className={styles.senderInfo}>
                   <img
                     src={message.senderProfile || "/icon/circle_user.svg"}
@@ -65,7 +65,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                     {message.senderName || "알 수 없는 사용자"}
                   </span>
                 </div>
-              )}
+              ) : null}
               {/* 메시지 내용 */}
               <div className={styles.message}>
                 {message.text}

@@ -149,7 +149,8 @@ const ChatContainer = () => {
         [roomId]: messages.map((message: any) => ({
           text: message.message,
           senderName: message.senderName,
-          type: message.type, // 서버에서 받은 타입 사용
+          senderProfile: message.senderProfile, // senderProfile 추가
+          type: message.type,
           time: new Date(message.sendTime).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -185,7 +186,8 @@ const ChatContainer = () => {
             {
               text: data.message,
               senderName: data.senderName,
-              type: data.type, // 서버에서 받은 타입 사용
+              senderProfile: data.senderProfile, // senderProfile 추가
+              type: data.type,
               time: new Date(data.sendTime).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
