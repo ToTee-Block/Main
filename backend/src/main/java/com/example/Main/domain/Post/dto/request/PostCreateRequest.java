@@ -16,5 +16,7 @@ public class PostCreateRequest {
 
     private MultipartFile thumbnail;
 
+    private MultipartFile[] filePaths;
+
     private Boolean isDraft = true;
 }

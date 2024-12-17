@@ -102,7 +102,9 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("")
     public RsData<PostCreateResponse> create(@Valid @RequestBody PostCreateRequest postCreateRequest,
-                                             Principal principal, @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail) {
+                                             Principal principal,
+                                             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+                                             @RequestParam(value = "files", required = false) MultipartFile[] files) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -117,12 +119,19 @@ public class ApiV1PostController {
             thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
         }
 
+        // 여러 파일 등록
+        List<String> filePaths = new ArrayList<>();
+        if (files != null && files.length > 0) {
+            filePaths = imageService.saveFiles("posts/files", files);
+        }
+
         Post post = postService.write(
                 postCreateRequest.getSubject(),
                 htmlContent,
                 loggedInUser,  // 로그인한 사용자의 이메일을 작성자로 설정
                 postCreateRequest.getIsDraft(),
-                thumbnailPath
+                thumbnailPath,
+                filePaths
         );
 
         return RsData.of("200", "게시글 등록 성공", new PostCreateResponse(post));
@@ -131,8 +140,10 @@ public class ApiV1PostController {
     // 게시글 수정
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}")
-    public RsData<PostModifyResponse> modify(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
-                                             Principal principal, @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail ) {
+    public RsData<PostModifyResponse> modify(@PathVariable("id") Long id, Principal principal,
+                                             @Valid @RequestBody PostModifyRequest postModifyRequest,
+                                             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+                                             @RequestParam(value = "files", required = false) MultipartFile[] files) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -156,6 +167,12 @@ public class ApiV1PostController {
             thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
         }
 
+        // 파일 수정
+        List<String> filePaths = post.getFilePaths();
+        if (files != null && files.length > 0) {
+            List<String> newFilePaths = imageService.saveFiles("posts/files", files);
+            filePaths.addAll(newFilePaths);
+        }
         post = this.postService.update(
                 post
                 , htmlContent
@@ -163,6 +180,7 @@ public class ApiV1PostController {
                 , loggedInUser
                 , postModifyRequest.getIsDraft()
                 , thumbnailPath
+                , filePaths
         );
 
         return RsData.of("200", "게시글 수정 성공", new PostModifyResponse(post));
@@ -224,8 +242,10 @@ public class ApiV1PostController {
     // 임시 저장된 게시글 이어서 수정 작성
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/draft/{id}")
-    public RsData<PostModifyResponse> continueDraft(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
-                                                    Principal principal, @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail ){
+    public RsData<PostModifyResponse> continueDraft(@PathVariable("id") Long id, Principal principal,
+                                                    @Valid @RequestBody PostModifyRequest postModifyRequest,
+                                                    @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+                                                    @RequestParam(value = "files", required = false) MultipartFile[] files ){
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -249,13 +269,21 @@ public class ApiV1PostController {
             thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
         }
 
+        // 파일 수정
+        List<String> filePaths = post.getFilePaths();
+        if (files != null && files.length > 0) {
+            List<String> newFilePaths = imageService.saveFiles("posts/files", files);
+            filePaths.addAll(newFilePaths);  // 기존 파일 경로에 새 파일 경로 추가
+        }
+
         post = this.postService.continueDraft(
                 id,
                 htmlContent,
                 postModifyRequest.getSubject(),
                 loggedInUser,
                 postModifyRequest.getIsDraft(),
-                thumbnailPath
+                thumbnailPath,
+                filePaths
         );
 
         return RsData.of("200", "임시 저장된 게시글 이어서 작성 성공", new PostModifyResponse(post));

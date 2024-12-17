@@ -70,7 +70,7 @@ public class PostService {
     }
 
     // 작성
-    public Post write(String subject, String content, String userEmail, boolean isDraft, String thumbnailPath) {
+    public Post write(String subject, String content, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
         Member member = memberService.getMemberByEmail(userEmail);
 
         Post post = Post.builder()
@@ -79,19 +79,21 @@ public class PostService {
                 .author(member)
                 .isDraft(isDraft)
                 .thumbnail(thumbnailPath)
+                .filePaths(filePaths)
                 .build();
         this.postRepository.save(post);
         return post;
     }
 
     // 수정
-    public Post update(Post post, String content, String subject, String userEmail, boolean isDraft, String thumbnailPath) {
+    public Post update(Post post, String content, String subject, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
         Member member = memberService.getMemberByEmail(userEmail);
         post.setSubject(subject);
         post.setContent(content);
         post.setAuthor(member);
         post.setIsDraft(isDraft);
         post.setThumbnail(thumbnailPath);
+        post.setFilePaths(filePaths);
         this.postRepository.save(post);
         return post;
     }
@@ -139,7 +141,7 @@ public class PostService {
     }
 
     // 임시 저장된 게시글 전체 조회
-    public Post continueDraft(Long postId, String content, String subject, String userEmail, boolean isDraft, String thumbnailPath) {
+    public Post continueDraft(Long postId, String content, String subject, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
         Post post = this.getPost(postId);
 
         if (post == null || !post.getIsDraft()) {
@@ -152,6 +154,7 @@ public class PostService {
         post.setAuthor(member);
         post.setIsDraft(isDraft);
         post.setThumbnail(thumbnailPath);
+        post.setFilePaths(filePaths);
         this.postRepository.save(post);
         return post;
     }

@@ -16,5 +16,7 @@ public class PostModifyRequest {
 
     private MultipartFile thumbnail;
 
+    private MultipartFile[] filePaths;
+
     private Boolean isDraft;
 }

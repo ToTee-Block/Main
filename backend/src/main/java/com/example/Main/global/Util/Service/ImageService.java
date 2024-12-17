@@ -1,6 +1,5 @@
 package com.example.Main.global.Util.Service;
 
-import com.example.Main.domain.Member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,7 +10,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -60,5 +61,26 @@ public class ImageService {
             e.printStackTrace();
             throw new RuntimeException("Image upload or resize failed.");
         }
+    }
+
+    // 게시글 등록시 여러개의 파일 업로드
+    public List<String> saveFiles(String folder, MultipartFile[] files) {
+        List<String> filePaths = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                String filePath = folder + "/" + UUID.randomUUID().toString();
+                File savedFile = new File(fileDirPath + "/" + filePath);
+
+                try {
+                    file.transferTo(savedFile);
+                    filePaths.add(filePath);
+                } catch (IOException e) {
+                    throw new RuntimeException("File upload error", e);
+                }
+            }
+        }
+
+        return filePaths;
     }
 }

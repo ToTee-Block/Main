@@ -48,6 +48,9 @@ public class PostDTO {
     // 썸네일 경로 추가
     private final String thumbnail;
 
+    // 파일업로드
+    private final List<String> filePaths;
+
     // 포스트 등록 수정 임시수정시 마크다운 문법으로 작성
     public PostDTO(Post post) {
         this.id = post.getId();
@@ -76,6 +79,7 @@ public class PostDTO {
                         .map(PostCommentDTO::new)
                         .collect(Collectors.toList()) : List.of();
         this.thumbnail = post.getThumbnail();
+        this.filePaths= post.getFilePaths();
     }
 
     // content 값을 동적으로 수정하는 setter

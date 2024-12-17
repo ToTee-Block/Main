@@ -62,4 +62,5 @@ public class Post extends BaseEntity {
     private List<PostComment> comments;
 
     private String thumbnail;
+    private List<String> filePaths;
 }
