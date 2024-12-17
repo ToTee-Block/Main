@@ -56,10 +56,10 @@ public class Member extends BaseEntity {
     private Mentor mentorQualify;
 
     /*나와 멘토 관계인 멘토 리스트*/
-    @OneToMany(mappedBy = "mentee")
+    @OneToMany(mappedBy = "mentee", cascade = CascadeType.ALL)
     private List<MentorMenteeMatching> myMentors;
 
     /*내가 작성한 멘토 리뷰들*/
-    @OneToMany(mappedBy = "reviewer")
+    @OneToMany(mappedBy = "reviewer",cascade = CascadeType.ALL)
     private List<MentorReview> reviews;
 }

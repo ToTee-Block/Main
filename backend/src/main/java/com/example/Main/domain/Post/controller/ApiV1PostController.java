@@ -4,7 +4,6 @@ import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.dto.request.PostCreateRequest;
-import com.example.Main.domain.Post.dto.request.PostLikeDTO;
 import com.example.Main.domain.Post.dto.request.PostModifyRequest;
 import com.example.Main.domain.Post.dto.response.PostCreateResponse;
 import com.example.Main.domain.Post.dto.response.PostModifyResponse;
@@ -47,7 +46,6 @@ public class ApiV1PostController {
         List<Page> postPackage = new ArrayList<>();
         postPackage.add(recentPosts);
         postPackage.add(hotPosts);
-        postPackage.add(feedPosts);
 
         return RsData.of("200", "게시글 다건 조회 성공", postPackage);
     }
@@ -77,15 +75,23 @@ public class ApiV1PostController {
 
     // 단건조회
     @GetMapping("/detail/{id}")
-    public RsData<PostResponse> getPost(@PathVariable("id") Long id) {
+    public RsData getPost(@PathVariable(value = "id") Long id) {
+        if (id == 0) return RsData.of("400", "게시물의 id가 올바르지 않습니다.");
+
         Post post = this.postService.getPost(id);
 
         if (post == null || post.getIsDraft()) {
             return RsData.of("404", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
         }
 
+        List<String> techStacks = TechStacks.printAllTechStacks();
         PostDTO postDTO = new PostDTO(post);
-        return RsData.of("200", "게시글 단건 조회 성공", new PostResponse(postDTO));
+
+        Map returnValue = new HashMap();
+        returnValue.put("techStacks", techStacks);
+        returnValue.put("post", postDTO);
+
+        return RsData.of("200", "게시글 단건 조회 성공", returnValue);
     }
 
     // 게시글 생성
@@ -248,15 +254,12 @@ public class ApiV1PostController {
     }
 
     // 좋아요
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/like")
-    public RsData<PostResponse> like(@PathVariable("id") Long id,
-                                     @RequestBody PostLikeDTO postLikeDTO,
-                                     Principal principal) {
+    public RsData<PostDTO> like(@PathVariable("id") Long id, Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
-
-        String loggedInUser = principal.getName();
 
         Post post = this.postService.getPost(id);
 
@@ -264,19 +267,19 @@ public class ApiV1PostController {
             return RsData.of("404", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
         }
 
-        String loggedInUserEmail = loggedInUser;
+        String loggedInUserEmail = principal.getName();
 
         Member member = memberService.getMemberByEmail(loggedInUserEmail);
         boolean isLiked = post.getLikedByMembers().contains(member);
 
         if (isLiked) {
             // 좋아요 취소
-            this.postService.unlikePost(id, loggedInUserEmail);
-            return RsData.of("200", "%d 번 게시물의 좋아요가 취소되었습니다.".formatted(id), new PostResponse(new PostDTO(post)));
+            Post modifiedPost = this.postService.unlikePost(id, loggedInUserEmail);
+            return RsData.of("200", "%d 번 게시물의 좋아요가 취소되었습니다.".formatted(id), new PostDTO(modifiedPost));
         } else {
             // 좋아요
-            this.postService.likePost(id, loggedInUserEmail);
-            return RsData.of("200", "%d 번 게시물에 좋아요 성공".formatted(id), new PostResponse(new PostDTO(post)));
+            Post modifiedPost = this.postService.likePost(id, loggedInUserEmail);
+            return RsData.of("200", "%d 번 게시물에 좋아요 성공".formatted(id), new PostDTO(modifiedPost));
         }
     }
 }

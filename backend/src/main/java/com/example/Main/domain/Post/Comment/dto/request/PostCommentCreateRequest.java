@@ -8,5 +8,5 @@ public class PostCommentCreateRequest {
     @NotBlank(message = "댓글 내용을 입력해 주세요.")
     private String content;
 
-    private Long parentCommentId;
+    private Long parentId;
 }

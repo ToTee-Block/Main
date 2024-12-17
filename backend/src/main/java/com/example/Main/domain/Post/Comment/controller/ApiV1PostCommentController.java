@@ -92,20 +92,22 @@ public class ApiV1PostCommentController {
                                                                @Valid @RequestBody PostCommentCreateRequest commentCreateRequest,
                                                                Principal principal) {
         if (principal == null) {
-            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
+            return RsData.of("401", ErrorMessages.UNAUTHORIZED);
         }
 
-        String userEmail = principal.getName();
-        Long parentCommentId = commentCreateRequest.getParentCommentId();
-
-        PostComment comment = commentService.addComment(postId, userEmail, commentCreateRequest.getContent(), parentCommentId);
-
-        if (comment == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_EXIST, null);
+        Member author = this.memberService.getMemberByEmail(principal.getName());
+        if (author == null) {
+            return RsData.of("401", "존재하는 사용자가 아닙니다.");
         }
 
-        PostCommentCreateResponse response = new PostCommentCreateResponse(comment);
-        return RsData.of("201", "댓글 작성 성공", response);
+        Post post = this.postService.getPost(postId);
+        if (post == null) {
+            return RsData.of("400", ErrorMessages.POST_NOT_EXIST);
+        }
+
+        PostComment comment = commentService.addComment(commentCreateRequest.getContent(), post, author);
+
+        return RsData.of("201", "댓글 작성 성공", new PostCommentCreateResponse(comment));
     }
 
     // 게시글 댓글 수정
