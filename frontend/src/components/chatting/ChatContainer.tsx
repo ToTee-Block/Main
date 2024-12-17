@@ -33,7 +33,6 @@ const ChatContainer = () => {
   const [roomDetails, setRoomDetails] = useState<RoomDetails | null>(null);
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const subscriptionRef = useRef<string | null>(null);
-  const [senderId, setSenderId] = useState<number | null>(null);
 
   // 현재 시간/날짜 가져오기
   const getCurrentTime = (): string =>
@@ -61,27 +60,6 @@ const ChatContainer = () => {
     };
 
     fetchRooms();
-  }, []);
-
-  // 현재 사용자 ID 가져오기 (예: localStorage에서)
-  useEffect(() => {
-    const fetchUserId = async () => {
-      try {
-        const res = await fetch("http://localhost:8081/user/me", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰 추가
-          },
-          credentials: "include", // 쿠키를 사용하는 경우
-        });
-        const userData = await res.json();
-        setSenderId(userData.id);
-      } catch (err) {
-        console.error("Error fetching user ID:", err);
-      }
-    };
-
-    fetchUserId();
   }, []);
 
   // STOMP 클라이언트 초기화
@@ -206,12 +184,12 @@ const ChatContainer = () => {
   };
 
   const handleSendMessage = (message: string) => {
-    if (!stompClient || !activeRoom || senderId === null) return;
+    if (!stompClient || !activeRoom) return;
 
     const payload = {
       roomId: Number(activeRoom),
       message,
-      senderId, // 메시지에 senderId 추가
+      senderId: 1, // senderId를 직접 설정 (예시로 1 사용, 실제로는 로그인한 사용자 ID를 가져와서 설정)
     };
 
     stompClient.publish({
@@ -234,7 +212,6 @@ const ChatContainer = () => {
             <ChatMessages
               roomName={roomDetails?.name || ""}
               messages={chatHistory[activeRoom] || []}
-              senderId={senderId}
             />
             <ChatFooter onSend={handleSendMessage} activeRoom={activeRoom} />
           </>
