@@ -33,6 +33,47 @@ const ChatContainer = () => {
   const [roomDetails, setRoomDetails] = useState<RoomDetails | null>(null);
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const subscriptionRef = useRef<string | null>(null);
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+
+  // 드래그 시작
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (chatContainerRef.current) {
+      const rect = chatContainerRef.current.getBoundingClientRect();
+      setDragOffset({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      setIsDragging(true);
+    }
+  };
+
+  // 드래그 이동
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging && chatContainerRef.current) {
+      chatContainerRef.current.style.left = `${e.clientX - dragOffset.x}px`;
+      chatContainerRef.current.style.top = `${e.clientY - dragOffset.y}px`;
+    }
+  };
+
+  // 드래그 종료
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // 이벤트 리스너 추가 및 제거
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    } else {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging]);
 
   // 현재 시간/날짜 가져오기
   const getCurrentTime = (): string =>
@@ -200,7 +241,11 @@ const ChatContainer = () => {
   };
 
   return (
-    <div className={styles.chatContainer}>
+    <div
+      className={styles.chatContainer}
+      ref={chatContainerRef}
+      onMouseDown={handleMouseDown}
+    >
       <ChatList
         activeRoom={activeRoom}
         rooms={rooms}
