@@ -1,4 +1,4 @@
-package com.example.Main.domain.Report.eunums;
+package com.example.Main.domain.Report.enums;
 
 public enum ReportStatus {
     PENDING(1, "대기중"),

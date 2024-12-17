@@ -30,10 +30,6 @@ const Post: React.FC = () => {
     setLoginStatus(false);
   };
 
-  const pageHangler = async (page: Number) => {
-    location.href = `/post/my?page=${page}`;
-  };
-
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const page = Number(queryParams.get("page")) || 0;

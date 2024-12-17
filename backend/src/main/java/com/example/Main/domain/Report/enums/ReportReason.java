@@ -1,4 +1,4 @@
-package com.example.Main.domain.Report.eunums;
+package com.example.Main.domain.Report.enums;
 
 public enum ReportReason {
     INAPPROPRIATE_CONTENT(1, "부적절한 내용"),
