@@ -9,6 +9,7 @@ import SearchBox from '@/components/search/SearchBox';
 import Pagination from '@/components/pagination/custompagination';
 import Tag from '@/components/tag/tag';
 
+
 export default function QnA() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
