@@ -236,11 +236,11 @@ const Header: React.FC = () => {
                 )}
               </button>
               {showNotifications && notifications.length > 0 && (
-                <div className={styles.dropdown}>
+                <div className={styles.notificationDropdown}>
                   {notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className={`${styles.dropdownItem} ${
+                      className={`${styles.notificationItem} ${
                         expandedNotificationId === notification.id
                           ? styles.fullText
                           : ""
