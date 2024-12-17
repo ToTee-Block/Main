@@ -89,7 +89,7 @@
 
 .previewSection {
   width: 830px;
-  padding: 24px;  // 패딩 추가
+  padding: 24px;  
   background-color: var(--background);
   overflow-y: auto;
 
@@ -114,46 +114,47 @@
   .divider {
     width: 64px;
     height: 6px;
-    background-color: var(--text-blue);
+    background-color: var(--text-black);
     margin-bottom: 150px; 
   }
 
   .markdownContent {
     .markdownH1 {
-      @include font-L-M;  // Bold에서 Medium으로 변경
+      @include font-L-M;  
       margin-bottom: var(--spacing-4);
     }
   
     .markdownH2 {
-      @include font-M-M;  // Bold에서 Medium으로 변경
+      @include font-M-M;  
       margin-bottom: var(--spacing-3);
     }
   
     .markdownH3 {
-      @include font-S-M;  // Bold에서 Medium으로 변경
+      @include font-S-M;  
       margin-bottom: var(--spacing-3);
     }
   
     .markdownH4 {
-      @include font-XS-M;  // Bold에서 Medium으로 변경
+      @include font-XS-M;  
       margin-bottom: var(--spacing-2);
     }
   
     .markdownLink {
-      color: var(--text-blue);
+      color: var(--text-secondary-color);
       text-decoration: underline;
       &:hover {
         opacity: 0.8;
       }
     }
-  
-    .markdownStrike {
-      text-decoration: line-through;
+
+    // 취소선 
+    .markdownStrike, del {
+      text-decoration: line-through !important;
     }
   
     // Bold 적용을 위한 스타일
     strong {
-      font-weight: var(--font-weight-Bold);  // 볼드체 적용시 Bold 폰트로
+      font-weight: var(--font-weight-Bold);  
     }
   
     hr {
