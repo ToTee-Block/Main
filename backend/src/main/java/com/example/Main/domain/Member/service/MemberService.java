@@ -121,7 +121,7 @@ public class MemberService {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        return new SecurityMember(id, email, "", authorities);
+        return new SecurityMember(id, email, "", authorities,null);
     }
 
     @Transactional
