@@ -12,21 +12,22 @@ import com.example.Main.domain.Post.dto.response.PostsResponse;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
 import com.example.Main.domain.TechStack.enums.TechStacks;
-import com.example.Main.global.RsData.RsData;
-import com.example.Main.global.Security.SecurityMember;
-import com.example.Main.global.Util.Markdown.MarkdownService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
+import com.example.Main.global.RsData.RsData;
+import com.example.Main.global.Util.Markdown.MarkdownService;
 import com.example.Main.global.Util.Service.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
