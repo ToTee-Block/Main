@@ -16,7 +16,7 @@
   .titleSection {
     width: 100%;
     margin-bottom: 24px;
-  
+
     .title {
       @include font-XXXL-B;
       color: var(--text-blue);
@@ -40,7 +40,7 @@
           align-items: center;
           gap: 8px;
           cursor: pointer;
-          border-bottom: 2px solid var(--text-blue-gray); 
+          border-bottom: 2px solid var(--text-blue-gray);
 
           svg {
             width: 24px;
@@ -52,7 +52,6 @@
             @include font-XXS-B;
             color: var(--text-blue-gray);
           }
-          
         }
       }
 

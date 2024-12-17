@@ -45,9 +45,9 @@ public class ApiSecurityConfig {
 
                         // post 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.GET, "/api/*/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/*/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/*/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/*/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/*/posts/**").authenticated()
 
                         // QnA 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.GET, "/api/*/qnas/**").permitAll()

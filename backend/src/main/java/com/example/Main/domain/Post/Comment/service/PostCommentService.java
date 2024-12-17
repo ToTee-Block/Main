@@ -80,7 +80,19 @@ public class PostCommentService {
                 .collect(Collectors.toList());
     }
 
-    // 댓글 작성
+    // 댓글 작성 - ver. of post
+    public PostComment addComment(String content, Post post, Member author) {
+        PostComment comment = new PostComment();
+        comment.setContent(content);
+        comment.setAuthor(author);
+        comment.setPost(post);
+
+        commentRepository.save(comment);
+
+        return comment;
+    }
+
+    // 댓글 작성 - ver. of comment
     public PostComment addComment(Long postId, String userEmail, String content, Long parentCommentId) {
 
         Member author = Optional.ofNullable(memberService.getMemberByEmail(userEmail))
@@ -106,7 +118,6 @@ public class PostCommentService {
 
         return newComment;
     }
-
 
     // 댓글 수정
     public PostComment updateComment(Long commentId, String content, String userEmail) {
