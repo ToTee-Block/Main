@@ -1,6 +1,5 @@
 @import '../globals/font-mixin.scss';
 
-/* styles/header.module.scss */
 .header {
   width: 100%;
   height: 100px !important;
@@ -10,6 +9,7 @@
   align-items: center;
   justify-content: space-between;
   border: 1px solid var(--gray-400);
+  white-space: nowrap;
 }
 
 .navSection {
@@ -36,5 +36,117 @@
 
 .active {
   color: var(--text-secondary-color) !important; // 활성화된 링크에 스타일을 적용
-  border-bottom: 2px solid var(--text-secondary-color);
+  border-bottom:
+   2px solid var(--text-secondary-color);
+}
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 24px;
+  background: transparent;
+  transition: background-color 0.2s;
+  position: relative;
+
+  &:hover {
+    background: var(--background);
+  }
+}
+
+.userName {
+  @include font-XXXS-B;
+  color: var(--text-black);
+}
+
+.userImage {
+  width: 40px;
+  height: 40px;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: var(--background);
+  }
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.notificationDot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--text-danger-color);
+  border-radius: 50%;
+  border: 2px solid var(--background);
+  margin-left: -12px;
+  margin-top: -8px;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--background);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 175px;
+  height: 220px;
+  overflow: hidden;
+
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 44px;
+  background: none;
+  border: none;
+  text-align: left;
+  @include font-XXS-R;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--text-black);
+  padding: 0px 16px;
+  cursor: pointer;
+  margin: 0;
+
+  &:hover {
+    background: var(--gray-200);
+  }
+}
+
+.iconWrapper .dropdown {
+  width: 280px;
+  padding: 8px;
+
+  .dropdownItem {
+    border-radius: 4px;
+    background: var(--background);
+    margin: 4px 0;
+    @include font-XXS-R;
+    line-height: 1.5;
+  }
 }

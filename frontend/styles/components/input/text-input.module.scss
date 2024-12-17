@@ -5,18 +5,18 @@
   flex-direction: column;
   width: 350px;
   align-content: center;
-  gap: 3px; // 간격을 조정
-  margin-bottom: 20px;
+  gap: 4px; // 간격을 조정
+}
+
+.inputP {
+  @include font-XXXS-M;
 }
 
 .inputWrapper {
   display: flex; // 입력 필드와 버튼을 가로로 정렬
-  align-items: center; // 세로 중앙 정렬
-  width: 100%;
-  border: 1px solid var(--border-gray-color); // 입력 박스 테두리
+  border: 1px solid var(--border-color); // 입력 박스 테두리
   border-radius: 5px;
   background-color: var(--background);
-  @include font-XXXS-M;
 
   input {
     flex: 1; // 입력 필드가 남은 공간을 차지

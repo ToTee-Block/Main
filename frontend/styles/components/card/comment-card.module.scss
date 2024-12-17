@@ -1,0 +1,124 @@
+@import "../../globals/font-mixin.scss";
+
+.CommentCard {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+
+  & > .likeBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+
+    .like {
+      @include font-XXS-B;
+      padding: 7px 11px;
+      border: 1px solid var(--gray-color);
+      border-radius: 6px;
+    }
+  }
+
+  & > .contentBox {
+    flex-grow: 1;
+    flex-basis: 0;
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 53px;
+
+      & > .profileImg {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+      }
+
+      & > .name {
+        font-size: 13px;
+        font-weight: bold;
+        text-wrap: nowrap;
+      }
+
+      & > .timeGap {
+        font-size: 11px;
+      }
+    }
+
+    .content {
+      & > pre {
+        font-size: 13px;
+        line-height: 32px;
+      }
+
+      & > .modifyCommentForm {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        & > textarea {
+          resize: none;
+          font-size: 13px;
+          flex-grow: 1;
+          min-height: 66px;
+          padding: 14px 12px;
+          border: 1px solid var(--gray-color);
+          border-radius: 6px;
+        }
+
+        & > .action {
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+        }
+
+        & > .action > button {
+          font-size: 13px;
+          display: block;
+          width: 90px;
+          height: 38px;
+          border-radius: 6px;
+          text-align: center;
+          transition: 0.2s ease;
+
+          &:hover {
+            filter: brightness(0.8);
+          }
+        }
+
+        & > .action > button:first-child {
+          border: 1px solid var(--gray-color);
+        }
+        & > .action > button:nth-child(2) {
+          border: none;
+          background-color: #0090f9;
+          color: var(--text-white);
+        }
+      }
+    }
+
+    .util {
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--gray-500);
+
+      & > div {
+        display: flex;
+      }
+    }
+
+    .reply {
+      padding: 10px;
+      background-color: var(--gray-100);
+    }
+  }
+}
+
+.imgBox {
+  overflow: hidden;
+  & > img {
+    object-fit: cover;
+  }
+}

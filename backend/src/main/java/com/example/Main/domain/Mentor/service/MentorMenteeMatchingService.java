@@ -14,7 +14,7 @@ import java.util.List;
 public class MentorMenteeMatchingService {
     private final MentorMenteeMatchingRepository matchingRepository;
 
-
+// ------ MENTOR ------
     public MentorMenteeMatching requestMentoring(Member mentee, Mentor mentor) {
         MentorMenteeMatching matching = new MentorMenteeMatching(mentee, mentor, false);
 
@@ -40,7 +40,28 @@ public class MentorMenteeMatchingService {
         this.matchingRepository.save(matching);
     }
 
-    public void denyMatching(MentorMenteeMatching matching) {
-        this.matchingRepository.delete(matching);
+// ------ MEMBER ------
+    public List<MentorMenteeMatching> getMyMatchings(Member member) {
+        return this.matchingRepository.findByMentee(member);
     }
+
+    public List<MentorMenteeMatching> getMyApprovedMentoringList(Member member) {
+        return this.matchingRepository.findByMenteeAndApprovedTrue(member);
+    }
+
+    public boolean checkMatchingExist(Member mentee, Mentor mentor) {
+        List<MentorMenteeMatching> matching = this.matchingRepository.findByMenteeAndMentor(mentee, mentor);
+
+        if (matching.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+// ------ MENTOR & MEMBER ------
+    public void denyMatching(MentorMenteeMatching matching) {
+    this.matchingRepository.delete(matching);
+}
+
 }

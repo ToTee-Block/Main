@@ -8,6 +8,7 @@ import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -120,6 +121,14 @@ public class MemberService {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        return new SecurityMember(id, email, "", authorities);
+        return new SecurityMember(id, email, "", authorities,null);
+    }
+
+    @Transactional
+    public Member save(Member member) {
+        if (member == null) {
+            throw new IllegalArgumentException("Member cannot be null");
+        }
+        return memberRepository.save(member);
     }
 }

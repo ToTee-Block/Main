@@ -3,11 +3,9 @@
 // styles/components/button/gender-button.module.scss
 .GenderBox {
   .GenderP {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
     color: var(--text-black-color);
     @include font-XXXS-M;
+    margin-bottom: 4px;
   }
 
   .GenderButton {
@@ -15,7 +13,6 @@
     flex-direction: column;
     align-items: center;
     padding: 10px 20px;
-    margin-bottom: 20px;
     width: 100%;
     @include font-XXXS-B;
     border: 1px solid var(--border-color);
@@ -35,18 +32,17 @@
 
   .Selected {
     display: flex;
-    align-items: center;
     background-color: var(--text-primary-color);
     color: var(--text-black);
-    border-color: var(--background);
   }
 
   .GenderSelector {
     display: flex;
-    gap: 10px; // 버튼 간 간격
+    gap: 4px; // 버튼 간 간격
   }
 
   .errorMessage {
+    margin-top: 4px;
     @include font-XXXXS-M;
     color: var(--text-danger-light-color);
 

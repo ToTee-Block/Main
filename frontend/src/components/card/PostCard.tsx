@@ -1,6 +1,7 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import styles from '@/styles/components/card/post-card.module.scss';
+import Link from "next/link";
+import Image from "next/image";
+import styles from "@/styles/components/card/post-card.module.scss";
+import MarkdownWithHtml from "../MarkdownWithHtml";
 
 interface PostCardProps {
   href: string;
@@ -11,7 +12,14 @@ interface PostCardProps {
   imageUrl: string;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ href, title, description, user, date, imageUrl }) => {
+const PostCard: React.FC<PostCardProps> = ({
+  href,
+  title,
+  description,
+  user,
+  date,
+  imageUrl,
+}) => {
   return (
     <Link href={href}>
       <div className={styles.PostCard}>
@@ -20,7 +28,9 @@ const PostCard: React.FC<PostCardProps> = ({ href, title, description, user, dat
         </div>
         <div className={styles.content}>
           <h3 className={styles.title}>{title}</h3>
-          <p className={styles.description}>{description}</p>
+          <div className={styles.description}>
+            <MarkdownWithHtml markdownContent={description} />
+          </div>
           <div className={styles.textBox}>
             <span className={styles.user}>{user}</span>
             <span className={styles.date}>{date}</span>
@@ -30,6 +40,5 @@ const PostCard: React.FC<PostCardProps> = ({ href, title, description, user, dat
     </Link>
   );
 };
-
 
 export default PostCard;
