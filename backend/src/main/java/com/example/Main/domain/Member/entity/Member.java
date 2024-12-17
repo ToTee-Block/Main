@@ -1,5 +1,6 @@
 package com.example.Main.domain.Member.entity;
 
+import com.example.Main.domain.Chat.entity.ChatJoin;
 import com.example.Main.domain.Member.enums.MemberGender;
 import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.domain.Mentor.entity.Mentor;
@@ -14,6 +15,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.stereotype.Component;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,6 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Component
 public class Member extends BaseEntity {
     @Column(unique = true)
     @Email
@@ -62,4 +66,7 @@ public class Member extends BaseEntity {
     /*내가 작성한 멘토 리뷰들*/
     @OneToMany(mappedBy = "reviewer",cascade = CascadeType.ALL)
     private List<MentorReview> reviews;
+
+    @OneToMany(mappedBy = "chatJoiner")
+    private List<ChatJoin> chatRooms;
 }

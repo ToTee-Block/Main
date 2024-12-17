@@ -1,0 +1,47 @@
+@import "../../globals/font-mixin.scss";
+
+// styles/components/chatting/ChatList.module.scss
+.chatList {
+  padding: 0px;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  width: 159px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chatListTitle {
+  @include font-XXXXS-M;
+  padding: 23px 25px;
+}
+
+.chatRoom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* 흐릿한 선 추가 */
+  width: 100%;
+  &:hover {
+    background-color: #f1f1f1;
+  }
+
+  &.active {
+    background-color: #e0e0e0;
+    font-weight: bold;
+  }
+}
+
+.status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: red; /* 읽지 않은 메시지가 있을 때 빨간색 */
+  flex-shrink: 0;
+  margin-left: 10px;
+}
