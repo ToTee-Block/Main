@@ -61,4 +61,6 @@ public class Post extends BaseEntity {
     @OrderBy("createdDate DESC")
     @JsonManagedReference  // 순환 참조 방지를 위해 부모 객체에 적용
     private List<PostComment> comments;
+
+    private String thumbnail;
 }

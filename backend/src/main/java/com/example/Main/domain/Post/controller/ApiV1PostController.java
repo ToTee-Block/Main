@@ -17,12 +17,14 @@ import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
 import com.example.Main.global.Util.Markdown.MarkdownService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
+import com.example.Main.global.Util.Service.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.*;
@@ -34,6 +36,7 @@ public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
     private final MarkdownService markdownService;
+    private final ImageService imageService;
 
     // 다건조회 - ver.전체
     @GetMapping("")
@@ -92,7 +95,7 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("")
     public RsData<PostCreateResponse> create(@Valid @RequestBody PostCreateRequest postCreateRequest,
-                                             Principal principal) {
+                                             Principal principal, @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -101,11 +104,18 @@ public class ApiV1PostController {
 
         String htmlContent = markdownService.convertMarkdownToHtml(postCreateRequest.getContent());
 
+        // 썸네일 등록
+        String thumbnailPath = null;
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
+        }
+
         Post post = postService.write(
                 postCreateRequest.getSubject(),
                 htmlContent,
                 loggedInUser,  // 로그인한 사용자의 이메일을 작성자로 설정
-                postCreateRequest.getIsDraft()
+                postCreateRequest.getIsDraft(),
+                thumbnailPath
         );
 
         return RsData.of("200", "게시글 등록 성공", new PostCreateResponse(post));
@@ -115,7 +125,7 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}")
     public RsData<PostModifyResponse> modify(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
-                                             Principal principal) {
+                                             Principal principal, @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail ) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -133,7 +143,20 @@ public class ApiV1PostController {
 
         String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
 
-        post = this.postService.update(post, htmlContent, postModifyRequest.getSubject(), loggedInUser, postModifyRequest.getIsDraft());
+        // 썸네일 수정
+        String thumbnailPath = post.getThumbnail();
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
+        }
+
+        post = this.postService.update(
+                post
+                , htmlContent
+                , postModifyRequest.getSubject()
+                , loggedInUser
+                , postModifyRequest.getIsDraft()
+                , thumbnailPath
+        );
 
         return RsData.of("200", "게시글 수정 성공", new PostModifyResponse(post));
     }
@@ -195,7 +218,7 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/draft/{id}")
     public RsData<PostModifyResponse> continueDraft(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
-                                                    Principal principal) {
+                                                    Principal principal, @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail ){
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -213,12 +236,19 @@ public class ApiV1PostController {
 
         String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
 
+        // 썸네일 수정
+        String thumbnailPath = post.getThumbnail();
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
+        }
+
         post = this.postService.continueDraft(
                 id,
                 htmlContent,
                 postModifyRequest.getSubject(),
                 loggedInUser,
-                postModifyRequest.getIsDraft()
+                postModifyRequest.getIsDraft(),
+                thumbnailPath
         );
 
         return RsData.of("200", "임시 저장된 게시글 이어서 작성 성공", new PostModifyResponse(post));
