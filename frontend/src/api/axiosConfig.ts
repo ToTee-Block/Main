@@ -22,6 +22,14 @@ interface BirthDate {
   day: string;
 }
 
+// 알림 관련 타입 정의
+interface Notification {
+  id: number;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 // Join 메서드 추가
 export const join = async (formData: {
   email: string;
@@ -124,6 +132,44 @@ export const deleteProfileImage = async () => {
     handleForbiddenError(error); // 403 처리
     throw error.response?.data || error.message; // 다른 에러 처리
   }
+};
+
+// 알림 목록 조회 API 요청 메서드
+export const fetchNotifications = async () => {
+  try {
+    const response = await apiClient.get<Notification[]>(
+      "/api/v1/notifications"
+    );
+    return response.data;
+  } catch (error: any) {
+    handleForbiddenError(error);
+    throw error.response?.data || error.message;
+  }
+};
+
+// 알림 읽음 처리 API 요청 메서드
+export const markNotificationAsRead = async (notificationId: number) => {
+  try {
+    const response = await apiClient.post(
+      `/api/v1/notifications/${notificationId}/read`
+    );
+    return response.data;
+  } catch (error: any) {
+    handleForbiddenError(error);
+    throw error.response?.data || error.message;
+  }
+};
+
+// WebSocket 연결 설정 (예시)
+export const setupNotificationWebSocket = (onMessage: (data: any) => void) => {
+  const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/notifications`);
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    onMessage(data);
+  };
+
+  return ws;
 };
 
 export default apiClient;
