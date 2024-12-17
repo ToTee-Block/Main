@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import styles from "@/styles/components/chatting/ChatMessages.module.scss";
 
 // 메시지 타입 정의
@@ -18,6 +18,15 @@ interface ChatMessagesProps {
 }
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null); // 채팅 메시지 컨테이너 ref
+  
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      // 스크롤을 최하단으로 이동
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   // 날짜별 메시지 그룹화
   const groupedMessages = messages.reduce<Record<string, Message[]>>(
     (acc, message) => {
@@ -31,7 +40,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
   );
 
   return (
-    <div className={styles.chatMessages}>
+    <div ref={messagesContainerRef} className={styles.chatMessages}>
       {Object.keys(groupedMessages).map((date) => (
         <div key={date}>
           {/* 날짜 헤더 */}
@@ -41,9 +50,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
             <div
               key={index}
               className={`${styles.chatMessage} ${
-                message.type === "sent" // 메시지 타입에 따라 스타일 적용
-                  ? styles.sent // 보낸 메시지는 sent 스타일
-                  : styles.received // 받은 메시지는 received 스타일
+                message.type === "sent"
+                  ? styles.sent
+                  : styles.received
               }`}
             >
               {/* 수신 메시지의 프로필과 이름 */}
