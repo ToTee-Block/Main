@@ -24,11 +24,6 @@ public enum ReportStatus {
         throw new IllegalArgumentException("Invalid status code: " + code);
     }
 
-    // 상태 코드 반환
-    public int getCode() {
-        return code;
-    }
-
     // 상태 설명 반환
     public String getStatus() {
         return status;

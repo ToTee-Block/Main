@@ -1,0 +1,84 @@
+@import "../../globals/font-mixin.scss";
+
+.Modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 550px;
+  padding: 24px;
+  border: 1px solid var(--gray-color);
+  border-radius: 8px;
+  background-color: var(--background);
+
+  .topBox {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    & > span {
+      @include font-XS-M;
+    }
+  }
+
+  .select {
+    @include font-XS-M;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    li {
+      display: flex;
+      gap: 16px;
+    }
+  }
+
+  .actions {
+    display: flex;
+    justify-content: space-between;
+
+    & > button {
+      @include font-XXS-M;
+      display: block;
+      padding: 10px 16px;
+      border-radius: 6px;
+      color: var(--text-white);
+      background-color: #7f56d9;
+    }
+  }
+
+  input[type="checkbox"] {
+    display: none;
+  }
+
+  .custumCheckBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--gray-600);
+    border-radius: 50%;
+
+    .check {
+      display: none;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background-color: #24a0ed;
+    }
+  }
+
+  .custumCheckBox.active {
+    .check {
+      display: block;
+    }
+  }
+
+  .active {
+    border: 1px solid #24a0ed;
+  }
+}

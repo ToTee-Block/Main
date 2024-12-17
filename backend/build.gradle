@@ -51,6 +51,10 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 	// email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	// websocketconfig
+	implementation 'org.springframework:spring-messaging'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 	// flexmark 마크다운 라이브러리
 	implementation 'com.vladsch.flexmark:flexmark-all:0.62.2'
 	// Websocket 알림 기능

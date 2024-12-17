@@ -1,0 +1,22 @@
+.chatContainer {
+  display: flex;
+  flex-direction: row;
+  width: 631px;
+  height: 676px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+.chatContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.noRoomSelected {
+  margin: auto;
+  font-size: 16px;
+  color: #888;
+}

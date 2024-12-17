@@ -1,0 +1,127 @@
+@import "../../globals/font-mixin.scss";
+
+.container {
+  width: 1680px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-start;
+  width: 1680px;
+}
+
+.titleWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.title {
+  @include font-XXL-B;
+  color: var(--text-blue);
+  white-space: nowrap;
+}
+
+.titleLine {
+  width: 500px;
+  height: 6px;
+  background-color: var(--dark-blue-color);
+}
+
+.tagSection {
+  width: 1680px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.searchWrapper {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.content {
+  width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+.qnaItem {
+  width: 1200px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  border-bottom: 1px solid var(--gray-400);
+  padding: 24px 0 10px;
+  
+  &:hover {
+    background-color: var(--background);
+  }
+}
+
+.numberWrapper {
+  padding: 0 40px;
+  flex-shrink: 0;
+  width: 120px;
+}
+
+.number {
+  @include font-XL-B;
+  font-size: 50px;
+  color: var(--gray-400);
+}
+
+.questionWrapper {
+  flex-grow: 1;
+  padding-left: 24px;
+}
+
+.question {
+  @include font-S-M;
+  font-size: 28px;
+  color: var(--foreground);
+}
+
+.metaWrapper {
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.date {
+  @include font-XXXS-R;
+  color: var(--text-black);
+}
+
+.author {
+  @include font-XXS-B;
+  color: var(--text-black);
+}
+
+.paginationWrapper {
+  width: 1680px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  :global {
+    .pageCounter {
+      width: 1680px;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -32px;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+  }
+}
