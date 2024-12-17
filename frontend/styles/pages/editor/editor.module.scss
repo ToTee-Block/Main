@@ -2,7 +2,8 @@
 
 .editorContainer {
   display: flex;
-  width: 1680px;
+  width: 100%;
+  max-width: 1680px;
   margin: 0 auto;
   background-color: var(--background);
   padding-bottom: 32px;
@@ -166,8 +167,17 @@
     }
   }
 }
+
 .actionButtons {
   width: 816px;
   padding: 24px 0;
   margin-top: auto;
+}
+
+.markdownImage {
+  max-width: 100%;
+  height: auto;
+  margin: 16px 0;
+  border-radius: 4px;
+  object-fit: contain;
 }

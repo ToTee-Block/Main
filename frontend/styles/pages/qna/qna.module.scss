@@ -1,7 +1,8 @@
 @import "../../globals/font-mixin.scss";
 
 .container {
-    width: 1680px;
+  width: 100%;
+  max-width: 1680px;
     display: flex;
     flex-direction: column;
     gap: 24px;
