@@ -163,10 +163,6 @@ public class ApiV1PostCommentController {
             return RsData.of("403", ErrorMessages.FORBIDDEN, null);
         }
 
-        if (commentService.hasReplies(comment)) {
-            return RsData.of("400", ErrorMessages.COMMENT_HAS_REPLIES, null);
-        }
-
         commentService.deleteComment(commentId);
         return RsData.of("200", "%d 번 댓글 삭제 성공".formatted(commentId), null);
     }

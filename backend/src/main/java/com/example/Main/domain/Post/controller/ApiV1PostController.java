@@ -134,7 +134,7 @@ public class ApiV1PostController {
 
         String loggedInUser = principal.getName();
         if (!post.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.POST_NOT_YOUR_OWN, null);
+            return RsData.of("403", "본인만 게시글을 수정할 수 있습니다.", null);
         }
 
         String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
@@ -165,36 +165,6 @@ public class ApiV1PostController {
 
         this.postService.deletePost(id);
         return RsData.of("200", "%d 번 게시물 삭제 성공".formatted(id), null);
-    }
-
-    // 관리자용 게시글 삭제
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/admin/{id}")
-    public RsData<PostResponse> deletePostByAdmin(@PathVariable("id") Long id, @AuthenticationPrincipal SecurityMember loggedInUser) {
-        // 로그인 여부 확인
-        if (loggedInUser == null) {
-            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
-        }
-
-        // 권한 확인
-        String role = loggedInUser.getAuthorities().toString();
-        if (!role.contains("ROLE_ADMIN")) {
-            return RsData.of("403", ErrorMessages.ONLY_ADMIN, null);
-        }
-
-        // 게시글 정보 조회
-        Post post = this.postService.getPost(id);
-
-        if (post == null || post.getIsDraft()) {
-            return RsData.of("404", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
-        }
-
-        // 관리자 권한으로 게시글 삭제
-        this.postService.deletePostByAdmin(id);
-
-        // 삭제된 게시글에 대한 응답 객체 생성
-        PostDTO postDTO = new PostDTO(post);
-        return RsData.of("200", "%d 번 게시물 삭제 성공 (관리자 삭제)".formatted(id), new PostResponse(postDTO));
     }
 
     // 임시 저장된 게시물 목록 전체 조회

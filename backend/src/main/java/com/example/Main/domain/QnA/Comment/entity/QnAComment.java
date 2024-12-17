@@ -2,6 +2,7 @@ package com.example.Main.domain.QnA.Comment.entity;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.QnA.entity.QnA;
+import com.example.Main.domain.Report.entity.ReportQnAComment;
 import com.example.Main.global.Jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,6 +27,7 @@ public class QnAComment extends BaseEntity {
     private Member author;
 
     @ManyToOne
+    @JoinColumn(name = "qna_id")
     private QnA qnA;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -52,6 +54,10 @@ public class QnAComment extends BaseEntity {
     @JoinColumn(name = "parent_comment_id")
     private QnAComment parentComment;
 
-    @OneToMany(mappedBy = "parentComment")
+    @OneToMany(mappedBy = "qnAComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReportQnAComment> reportQnAComments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QnAComment> replies = new ArrayList<>();
+
 }

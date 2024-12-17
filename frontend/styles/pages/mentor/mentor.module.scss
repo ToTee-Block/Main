@@ -1,9 +1,8 @@
 @import "../../globals/font-mixin.scss";
 
 .container {
-  width: 100%;
-  max-width: 2500px;
-  margin: auto;
+  width: 1680px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -12,19 +11,21 @@
 .header {
   display: flex;
   justify-content: flex-start;
-  width: 100%;
+  width: 1680px;
 }
 
 .title {
   @include font-XXXL-B;
   color: var(--text-blue);
+  white-space: nowrap;
 }
 
 .tagSection {
+  width: 1680px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+
 }
 
 .searchWrapper {
@@ -32,7 +33,6 @@
   gap: 16px;
   align-items: center;
 }
-
 
 .mentorGrid {
   display: grid;

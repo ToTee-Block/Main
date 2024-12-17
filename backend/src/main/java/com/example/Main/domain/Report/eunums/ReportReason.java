@@ -24,10 +24,6 @@ public enum ReportReason {
         throw new IllegalArgumentException("Invalid code: " + code);
     }
 
-    public int getCode() {
-        return code;
-    }
-
     public String getDescription() {
         return description;
     }

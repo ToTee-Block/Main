@@ -15,9 +15,11 @@ import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
+import com.example.Main.global.Security.SecurityMember;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -25,7 +27,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/qna/{qnAId}/comments")
+@RequestMapping(value = "/api/v1/qnas/{qnAId}/comments")
 public class ApiV1QnACommentController {
 
     private final QnACommentService commentService;
@@ -89,9 +91,9 @@ public class ApiV1QnACommentController {
     // QnA 댓글 작성
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public RsData<QnACommentCreateResponse> postCommentCreate(@PathVariable("qnAId") Long qnAId,
-                                                              @Valid @RequestBody QnACommentCreateRequest commentCreateRequest,
-                                                              Principal principal) {
+    public RsData<QnACommentCreateResponse> QnACommentCreate(@PathVariable("qnAId") Long qnAId,
+                                                             @Valid @RequestBody QnACommentCreateRequest commentCreateRequest,
+                                                             Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -112,7 +114,7 @@ public class ApiV1QnACommentController {
     // QnA 댓글 수정
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{commentId}")
-    public RsData<QnACommentModifyResponse> postCommentModify(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId, @Valid @RequestBody QnACommentModifyRequest commentModifyRequest, Principal principal) {
+    public RsData<QnACommentModifyResponse> QnACommentModify(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId, @Valid @RequestBody QnACommentModifyRequest commentModifyRequest, Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -143,7 +145,6 @@ public class ApiV1QnACommentController {
     public RsData<String> deleteComment(@PathVariable("qnAId") Long qnAId,
                                         @PathVariable("commentId") Long commentId,
                                         Principal principal) {
-
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -157,10 +158,6 @@ public class ApiV1QnACommentController {
 
         if (!comment.getQnA().getId().equals(qnAId)) {
             return RsData.of("404", ErrorMessages.QNA_ID_MISMATCH, null);
-        }
-
-        if (commentService.hasReplies(comment)) {
-            return RsData.of("400", ErrorMessages.COMMENT_HAS_REPLIES, null);
         }
 
         if (!comment.getAuthor().getEmail().equals(loggedInUser)) {
