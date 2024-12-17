@@ -7,17 +7,14 @@ import com.example.Main.domain.Post.Comment.repository.PostCommentRepository;
 import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
-import com.example.Main.domain.Report.entity.Report;
-import com.example.Main.domain.Report.repository.ReportRepository;
-import com.example.Main.domain.Report.service.ReportService;
+import com.example.Main.domain.Report.entity.ReportPost;
+import com.example.Main.domain.Report.repository.ReportPostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +27,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final MemberService memberService;
     private final PostCommentRepository postCommentRepository;
-    private final ReportRepository reportRepository;
+    private final ReportPostRepository reportPostRepository;
 
 
     // 게시글 전체 조회
@@ -100,11 +97,15 @@ public class PostService {
     // 삭제
     @Transactional
     public void deletePost(Long postId) {
+        List<ReportPost> reportPosts = reportPostRepository.findByPostId(postId);
+        reportPostRepository.deleteAll(reportPosts);
+
         postCommentRepository.deleteByPostId(postId);
 
         Optional<Post> postOptional = postRepository.findById(postId);
         postOptional.ifPresent(postRepository::delete);
     }
+
 
     // 삭제 : 관리자용
     @Transactional
@@ -112,8 +113,8 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
 
-        List<Report> reports = reportRepository.findByPost(post);
-        reportRepository.deleteAll(reports);
+        List<ReportPost> reportPosts = reportPostRepository.findByPost(post);
+        reportPostRepository.deleteAll(reportPosts);
 
         postCommentRepository.deleteByPostId(postId);
 
@@ -174,22 +175,26 @@ public class PostService {
         }
     }
     //  좋아요 추가
-    public void likePost(Long postId, String memberEmail) {
+    public Post likePost(Long postId, String memberEmail) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
         Member member = memberRepository.findByEmail(memberEmail).orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
         // 좋아요 추가
         post.addLike(member);
         postRepository.save(post);
+
+        return post;
     }
 
     // 좋아요 취소
-    public void unlikePost(Long postId, String memberEmail) {
+    public Post unlikePost(Long postId, String memberEmail) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
         Member member = memberRepository.findByEmail(memberEmail).orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
         post.removeLike(member);
         postRepository.save(post);
+
+        return post;
     }
 
     // 검색기능

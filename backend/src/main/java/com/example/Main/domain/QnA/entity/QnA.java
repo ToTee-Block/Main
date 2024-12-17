@@ -1,8 +1,10 @@
 package com.example.Main.domain.QnA.entity;
 
 import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.QnA.Comment.entity.QnAComment;
 import com.example.Main.global.Jpa.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -31,7 +33,7 @@ public class QnA extends BaseEntity {
 
     private int likes;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
             name = "qna_likes",
             joinColumns = @JoinColumn(name = "qna_id"),
@@ -52,7 +54,8 @@ public class QnA extends BaseEntity {
     }
 
     // 댓글 목록
-    @OneToMany(mappedBy = "qnA", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "qnA")
     @OrderBy("createdDate DESC")
+    @JsonManagedReference  // 순환 참조 방지를 위해 부모 객체에 적용
     private List<QnAComment> comments;
 }

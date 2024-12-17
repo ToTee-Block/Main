@@ -8,6 +8,7 @@ public class ErrorMessages {
     public static final String POST_NOT_EXIST = "게시글이 존재하지 않습니다.";
     public static final String POST_IS_DRAFT = "게시글이 임시 저장 상태입니다.";
     public static final String POST_NOT_YOUR_OWN = "본인만 게시글을 수정/삭제할 수 있습니다.";
+    public static final String QNA_NOT_YOUR_OWN = "본인만 게시글을 수정/삭제할 수 있습니다.";
     public static final String SEARCH_KEYWORD_EMPTY = "검색어를 입력해 주세요.";
     public static final String SEARCH_NO_RESULTS = "검색 결과가 없습니다.";
     public static final String NO_OWN_POSTS = "본인이 작성한 게시물이 없습니다.";
@@ -41,6 +42,7 @@ public class ErrorMessages {
 
     // 게시물 신고 관련 오류 메시지
     public static final String POST_ALREADY_REPORTED = "이미 신고한 게시물입니다.";
+    public static final String QNA_ALREADY_REPORTED = "이미 신고한 게시물입니다.";
     public static final String REPORT_NOT_FOUND = "신고를 찾을 수 없습니다.";
     public static final String REPORT_PROCESS_FAILED = "신고 처리 실패";
     public static final String INVALID_REPORT_STATUS = "잘못된 신고 상태입니다.";
