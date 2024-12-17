@@ -126,6 +126,7 @@ const ChatContainer = () => {
         ...prev,
         [roomId]: messages.map((message: any) => ({
           text: message.message,
+          senderId: message.senderId,
           senderName: message.senderName,
           senderProfile: message.senderProfile, // senderProfile 추가
           type: message.type,
@@ -163,6 +164,7 @@ const ChatContainer = () => {
             ...(prev[roomId] || []),
             {
               text: data.message,
+              senderId: data.senderId,
               senderName: data.senderName,
               senderProfile: data.senderProfile, // senderProfile 추가
               type: data.type,
@@ -189,7 +191,6 @@ const ChatContainer = () => {
     const payload = {
       roomId: Number(activeRoom),
       message,
-      senderId: 1, // senderId를 직접 설정 (예시로 1 사용, 실제로는 로그인한 사용자 ID를 가져와서 설정)
     };
 
     stompClient.publish({
