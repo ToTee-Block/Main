@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/qna/{qnAId}/comments/{commentId}/replies")
+@RequestMapping(value = "/api/v1/qnas/{qnAId}/comments/{commentId}/replies")
 public class ApiV1QnAReplyController {
 
     private final QnACommentService commentService;

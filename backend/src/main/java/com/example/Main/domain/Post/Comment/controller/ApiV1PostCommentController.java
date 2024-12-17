@@ -24,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/post/{postId}/comments")
+@RequestMapping(value = "/api/v1/posts/{postId}/comments")
 public class ApiV1PostCommentController {
 
     private final PostCommentService commentService;
@@ -159,10 +159,6 @@ public class ApiV1PostCommentController {
 
         if (!comment.getAuthor().getEmail().equals(loggedInUser)) {
             return RsData.of("403", ErrorMessages.FORBIDDEN, null);
-        }
-
-        if (commentService.hasReplies(comment)) {
-            return RsData.of("400", ErrorMessages.COMMENT_HAS_REPLIES, null);
         }
 
         commentService.deleteComment(commentId);

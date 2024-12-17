@@ -8,10 +8,13 @@ import com.example.Main.domain.Post.Comment.repository.PostCommentRepository;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
 import com.example.Main.domain.Post.service.PostService;
+import com.example.Main.domain.Report.entity.ReportPostComment;
+import com.example.Main.domain.Report.repository.ReportPostCommentRepository;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +28,7 @@ public class PostCommentService {
     private final PostRepository postRepository;
     private final MemberService memberService;
     private final PostService postService;
+    private final ReportPostCommentRepository reportPostCommentRepository;
 
     // 댓글 목록 조회
     public List<PostCommentDTO> getCommentsByPostId(Long postId) {
@@ -118,17 +122,33 @@ public class PostCommentService {
     }
 
     // 댓글 삭제
+    @Transactional
     public boolean deleteComment(Long commentId) {
         PostComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
 
-        if (hasReplies(comment)) {
-            throw new IllegalArgumentException(ErrorMessages.COMMENT_HAS_REPLIES);
-        }
+        List<ReportPostComment> reportPostComments = comment.getReportPostComments();
+        reportPostCommentRepository.deleteAll(reportPostComments);
 
         commentRepository.delete(comment);
+
         return true;
     }
+
+    // 댓글 삭제 : 관리자
+    @Transactional
+    public boolean deleteCommentByAdmin(Long commentId) {
+        PostComment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
+
+        List<ReportPostComment> reportPostComments = comment.getReportPostComments();
+        reportPostCommentRepository.deleteAll(reportPostComments);
+
+        commentRepository.delete(comment);
+
+        return true;
+    }
+
 
     public boolean hasReplies(PostComment comment) {
         List<PostComment> replies = commentRepository.findByParentCommentId(comment.getId(), Sort.by(Sort.Order.desc("createdDate")));
