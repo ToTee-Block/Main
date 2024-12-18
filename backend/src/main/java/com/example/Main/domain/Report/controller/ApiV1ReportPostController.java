@@ -2,7 +2,7 @@ package com.example.Main.domain.Report.controller;
 
 import com.example.Main.domain.Report.dto.ReportPostDTO;
 import com.example.Main.domain.Report.entity.ReportPost;
-import com.example.Main.domain.Report.eunums.ReportReason;
+import com.example.Main.domain.Report.enums.ReportReason;
 import com.example.Main.domain.Report.service.ReportPostService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
@@ -38,7 +38,7 @@ public class ApiV1ReportPostController {
         }
 
         if (reportPostService.existsReport(postId, reporterEmail)) {
-            return RsData.of("400", ErrorMessages.POST_ALREADY_REPORTED, null);
+            return RsData.of("400", ErrorMessages.ALREADY_REPORTED, null);
         }
 
         ReportPost reportPost = reportPostService.reportPost(postId, reporterEmail, reportReason);

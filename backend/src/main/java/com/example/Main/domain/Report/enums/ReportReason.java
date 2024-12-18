@@ -1,4 +1,11 @@
-package com.example.Main.domain.Report.eunums;
+package com.example.Main.domain.Report.enums;
+
+import com.example.Main.domain.TechStack.enums.TechStacks;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public enum ReportReason {
     INAPPROPRIATE_CONTENT(1, "부적절한 내용"),
@@ -24,6 +31,17 @@ public enum ReportReason {
         throw new IllegalArgumentException("Invalid code: " + code);
     }
 
+    public static Map<Integer, String> toMap() {
+        Map<Integer, String> allReasons = new HashMap<>();
+        for (ReportReason reason : ReportReason.values()) {
+            allReasons.put(reason.getCode(), reason.getDescription());
+        }
+        return allReasons;
+    }
+
+    public int getCode() {
+        return code;
+    }
     public String getDescription() {
         return description;
     }

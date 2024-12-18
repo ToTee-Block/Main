@@ -2,8 +2,7 @@ package com.example.Main.domain.Report.controller.admin;
 
 import com.example.Main.domain.Report.dto.ReportPostDTO;
 import com.example.Main.domain.Report.entity.ReportPost;
-import com.example.Main.domain.Report.eunums.ReportReason;
-import com.example.Main.domain.Report.eunums.ReportStatus;
+import com.example.Main.domain.Report.enums.ReportStatus;
 import com.example.Main.domain.Report.service.ReportPostService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
@@ -15,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController

@@ -2,8 +2,8 @@ package com.example.Main.domain.Report.entity;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.QnA.Comment.entity.QnAComment;
-import com.example.Main.domain.Report.eunums.ReportReason;
-import com.example.Main.domain.Report.eunums.ReportStatus;
+import com.example.Main.domain.Report.enums.ReportReason;
+import com.example.Main.domain.Report.enums.ReportStatus;
 import com.example.Main.global.Jpa.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

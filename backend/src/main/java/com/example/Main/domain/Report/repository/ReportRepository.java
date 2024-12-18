@@ -15,5 +15,8 @@ public interface ReportRepository extends JpaRepository<Report,Long> {
     // 특정 게시물에 대한 중복 신고 여부를 확인하는 메서드
     List<Report> findByPostIdAndReporterEmail(Long postId, String reporterEmail);
 
+    // 특정 질문게시물에 대한 중복 신고 여부를 확인하는 메서드
+    List<Report> findByQnAIdAndReporterEmail(Long qnaId, String reporterEmail);
+
     List<Report> findByPost(Post post);
 }
