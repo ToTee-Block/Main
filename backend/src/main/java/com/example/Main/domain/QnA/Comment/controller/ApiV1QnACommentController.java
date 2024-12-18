@@ -99,7 +99,7 @@ public class ApiV1QnACommentController {
         }
 
         String userEmail = principal.getName();
-        Long parentCommentId = commentCreateRequest.getParentCommentId();
+        Long parentCommentId = commentCreateRequest.getParentId();
 
         QnAComment comment = commentService.addComment(qnAId, userEmail, commentCreateRequest.getContent(), parentCommentId);
 

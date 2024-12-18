@@ -10,14 +10,14 @@ import SubmitButton from "../button/SubmitButton";
 
 interface CommentCardProps {
   loginStatus: boolean;
-  postId: Number;
+  parentId: Number;
   comment: string;
   me: [] | undefined;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({
   loginStatus,
-  postId,
+  parentId,
   comment,
   me,
 }) => {
@@ -37,9 +37,14 @@ const CommentCard: React.FC<CommentCardProps> = ({
       return;
     }
 
+    let parentType = "posts";
+    if (location.href.indexOf("post") == -1) {
+      parentType = "qnas";
+    }
+
     try {
       const response = await apiClient.post(
-        `http://localhost:8081/api/v1/posts/${postId}/comments/${thisComment.id}/like`
+        `http://localhost:8081/api/v1/${parentType}/${parentId}/comments/${thisComment.id}/like`
       );
 
       const resultCode = response.data.resultCode;
@@ -66,12 +71,19 @@ const CommentCard: React.FC<CommentCardProps> = ({
       return;
     }
 
+    let parentType = "posts";
+    if (location.href.indexOf("post") == -1) {
+      parentType = "qnas";
+    }
+
     try {
       const response = await apiClient.delete(
-        `http://localhost:8081/api/v1/posts/${postId}/comments/${thisComment.id}`
+        `http://localhost:8081/api/v1/${parentType}/${parentId}/comments/${thisComment.id}`
       );
       const resultCode = response.data.resultCode;
       const msg = response.data.msg;
+
+      console.log(response);
 
       if (resultCode === "200") {
         setIsVisible(false); // 컴포넌트를 숨김
@@ -94,10 +106,15 @@ const CommentCard: React.FC<CommentCardProps> = ({
       return;
     }
 
+    let parentType = "posts";
+    if (location.href.indexOf("post") == -1) {
+      parentType = "qnas";
+    }
+
     console.log(replyComment);
     try {
       const response = await apiClient.post(
-        `http://localhost:8081/api/v1/posts/${postId}/comments/${thisComment.id}/replies`,
+        `http://localhost:8081/api/v1/${parentType}/${parentId}/comments/${thisComment.id}/replies`,
         {
           content: replyComment,
           parentId: thisComment.id,
@@ -134,10 +151,15 @@ const CommentCard: React.FC<CommentCardProps> = ({
       return;
     }
 
+    let parentType = "posts";
+    if (location.href.indexOf("post") == -1) {
+      parentType = "qnas";
+    }
+
     console.log(modifyComment);
     try {
       const response = await apiClient.patch(
-        `http://localhost:8081/api/v1/posts/${postId}/comments/${thisComment.id}`,
+        `http://localhost:8081/api/v1/${parentType}/${parentId}/comments/${thisComment.id}`,
         {
           content: modifyComment,
         },
@@ -150,9 +172,13 @@ const CommentCard: React.FC<CommentCardProps> = ({
 
       const resultCode = response.data.resultCode;
       const data = response.data.data;
-      console.log(data);
+      console.log(response.data);
       if (resultCode == "200") {
-        setThisComment(data.comment);
+        if (parentType == "posts") {
+          setThisComment(data.comment);
+        } else {
+          setThisComment(data.commentDTO);
+        }
         setIsModifying(false);
       } else if (resultCode == "404") {
         alert(response.data.msg);
@@ -163,7 +189,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
   };
 
   const setTimeGapOfComment = (comment) => {
-    const createdDate = new Date(comment.createDate);
+    const createdDate = new Date(comment.createdDate);
     const currentTime = new Date();
 
     const timeGapInMillis = currentTime - createdDate;
@@ -274,7 +300,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 <CommentCard
                   key={reply.id}
                   loginStatus={loginStatus}
-                  postId={postId}
+                  parentId={parentId}
                   comment={reply}
                   me={me}
                 ></CommentCard>

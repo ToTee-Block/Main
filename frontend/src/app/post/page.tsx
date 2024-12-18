@@ -5,10 +5,10 @@ import axios from "axios";
 import { fetchUserProfile } from "@/api/axiosConfig";
 import styles from "@/styles/pages/post/list.module.scss";
 import SearchBox from "@/components/search/SearchBox";
-import LinkButton from "@/components/button/LinkButton";
 import PostCard from "@/components/card/PostCard";
 import NoSearch from "@/components/exception/NoSearch";
 import Pagination from "@/components/pagination/custompagination";
+import MentorButton from "@/components/button/MentorButton";
 
 const Post: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("recent");
@@ -30,8 +30,14 @@ const Post: React.FC = () => {
     setLoginStatus(false);
   };
 
-  const pageHangler = async (page: Number) => {
-    location.href = `/post/my?page=${page}`;
+  const toMyPost = () => {
+    if (!loginStatus) {
+      alert("로그인이 필요합니다.");
+      location.href = "/members";
+      return;
+    }
+
+    location.href = "/blog";
   };
 
   useEffect(() => {
@@ -167,11 +173,7 @@ const Post: React.FC = () => {
               </li>
             </ul>
             <div className={styles.rightBox}>
-              {loginStatus ? (
-                <LinkButton to="/post/my">My Post</LinkButton>
-              ) : (
-                <></>
-              )}
+              <MentorButton onClick={toMyPost}>My Post</MentorButton>
               <SearchBox></SearchBox>
             </div>
           </div>
