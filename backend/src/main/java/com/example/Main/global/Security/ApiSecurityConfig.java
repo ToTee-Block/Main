@@ -61,6 +61,10 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/comments/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/comments/**").permitAll()
 
+                        // 알림 관련 API에 대한 권한 설정 추가
+                        .requestMatchers(HttpMethod.GET, "api/*/notifications/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "api/*/notifications/**").permitAll()
+
                         // 관리자만 접근 가능한 API
                         .requestMatchers(HttpMethod.GET, "/api/*/post/**/report/admin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/*/post/**/report/**").hasRole("ADMIN")

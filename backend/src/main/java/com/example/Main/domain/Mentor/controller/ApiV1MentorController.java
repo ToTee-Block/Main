@@ -12,6 +12,8 @@ import com.example.Main.domain.Mentor.service.MentorMenteeMatchingService;
 import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
+import com.example.Main.domain.notification.service.NotificationService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,16 +34,31 @@ public class ApiV1MentorController {
     private final JwtProvider jwtProvider;
     private final MemberService memberService;
     private final MentorMenteeMatchingService matchingService;
+    private final NotificationService notificationService;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/registration")
+    @Transactional
     public RsData<?> mentorRegistration(@Valid @RequestBody MentorRegistrationRequest mentorRegistrationRequest, Principal principal) {
         Member member = this.memberService.getMemberByEmail(principal.getName());
 
+        // 멘토 등록 처리
         MentorDTO mentorDTO = this.mentorService.mentorRegistration(
-                member, mentorRegistrationRequest.getOneLineBio(),
-                mentorRegistrationRequest.getBio(), mentorRegistrationRequest.getPortfolio()
+                member,
+                mentorRegistrationRequest.getOneLineBio(),
+                mentorRegistrationRequest.getBio(),
+                mentorRegistrationRequest.getPortfolio()
         );
+
+        // 관리자에게 새로운 멘토 등록 신청 알림 전송 (한 번만 호출)
+        notificationService.sendNotificationToAdmins(member.getName() + "님께서 멘토 등록 신청하셨습니다.");
+
+        // 신청자에게 확인 알림 전송
+        notificationService.sendNotification(
+                member.getId().toString(),
+                "멘토 신청이 성공적으로 접수되었습니다."
+        );
+
         return RsData.of("200", "멘토 등록 신청 성공", mentorDTO);
     }
 
@@ -101,11 +118,15 @@ public class ApiV1MentorController {
         if (amr.isApprove()) {
             this.matchingService.approveMatching(matching);
 
+            // 멘티에게 알림 전송
+            notificationService.sendNotification(matching.getMentee().getId().toString(),"멘토링 요청이 승인되었습니다.");
             return RsData.of("200", "멘토: 멘토링 승인 완료", new MemberDTO(matching.getMentee()));
         }
 
         this.matchingService.denyMatching(matching);
 
+        // 멘티에게 알림 전송
+        notificationService.sendNotification(matching.getMentee().getId().toString(),"멘토링 요청이 거절되었습니다.");
         return RsData.of("200", "멘토: 멘토링 거절 완료");
     }
 }
