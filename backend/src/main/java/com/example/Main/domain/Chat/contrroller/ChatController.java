@@ -16,8 +16,10 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -118,23 +120,23 @@ public class ChatController {
         // 메시지를 전송하는 방의 ID와 일치하는 채팅방에 메시지를 전송
         String destination = "/sub/chatroom/" + chatDTO.getRoomId();
 
-        // 받은 메시지에 타입 설정: "sent"는 보낸 사람의 메시지, "received"는 받는 사람의 메시지
+        // 메시지 타입 설정: 이미지인지 텍스트인지 확인
+        String contentType = chatDTO.getMessage().startsWith("/uploads/") ? "image" : "text";
         String messageType = "sent"; // 기본적으로 보낸 사람의 메시지는 "sent"
-
-        // 여기서는 메시지를 전송한 사람(로그인한 사람)의 ID와 비교하여 타입을 설정합니다
         if (!chatDTO.getSenderId().equals(member.getId())) {
-            messageType = "received"; // 만약 보내는 사람과 로그인한 사용자가 다르면 "received"
+            messageType = "received"; // 상대방 메시지는 "received"
         }
 
         // enrichedChatDTO 객체 생성 시, 타입 추가
         ChatDTO enrichedChatDTO = new ChatDTO(
                 chatDTO.getRoomId(),
                 member.getId(),
-                chatDTO.getMessage(),
+                chatDTO.getMessage(), // 메시지 내용 (URL 또는 텍스트)
                 LocalDateTime.now(),
                 member.getName(), // 보낸 사람의 이름 추가
-                null,
-                messageType // 타입 설정
+                null,             // senderProfile (추가할 경우 수정)
+                messageType,      // sent 또는 received
+                contentType       // 이미지 또는 텍스트 타입
         );
 
         templates.convertAndSend(destination, enrichedChatDTO); // 메시지 전송
@@ -191,6 +193,22 @@ public class ChatController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    @PostMapping("/chat/{roomId}/upload")
+    public ResponseEntity<?> uploadImage(@PathVariable("roomId") Long roomId, @RequestParam("image") MultipartFile file) {
+        try {
+            String uploadDir = "C:/Users/LENOVO/Desktop/project/uploads/";
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.]", "_");
+
+            File dest = new File(uploadDir + fileName);
+            file.transferTo(dest);
+
+            String imageUrl = "/uploads/" + fileName;
+            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to upload image");
+        }
+    }
+
 
 
 

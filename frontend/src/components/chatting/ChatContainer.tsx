@@ -7,11 +7,12 @@ import ChatHeader from "./ChatHeader";
 import { Client } from "@stomp/stompjs";
 
 interface Message {
-  text: string;
-  type: "sent" | "received"; // 메시지 타입
+  text: string; // 메시지 내용
+  type: "sent" | "received"; // 보낸 메시지인지, 받은 메시지인지
+  contentType: "image" | "text"; // 콘텐츠 타입: 이미지 또는 텍스트
   senderId?: number; // 발신자 ID
   senderName?: string; // 발신자 이름
-  senderProfile?: string; // 발신자 프로필 (옵션)
+  senderProfile?: string; // 발신자 프로필 이미지 URL
   time: string; // 메시지 전송 시간
   date: string; // 메시지 전송 날짜
 }
@@ -48,9 +49,9 @@ const ChatContainer = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰 추가
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          credentials: "include", // 쿠키를 사용하는 경우
+          credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to fetch chat rooms");
         const data = await res.json();
@@ -63,16 +64,16 @@ const ChatContainer = () => {
     fetchRooms();
   }, []);
 
-  // 현재 사용자 ID 가져오기 (예: localStorage에서)
+  // 현재 사용자 ID 가져오기
   useEffect(() => {
     const fetchUserId = async () => {
       try {
         const res = await fetch("http://localhost:8081/user/me", {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // 토큰 추가
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          credentials: "include", // 쿠키를 사용하는 경우
+          credentials: "include",
         });
         const userData = await res.json();
         setSenderId(userData.id);
@@ -113,7 +114,6 @@ const ChatContainer = () => {
   // 채팅방 세부 정보와 과거 메시지 가져오기
   const fetchRoomDetailsAndMessages = async (roomId: string) => {
     try {
-      // 채팅방 세부 정보 가져오기
       const roomRes = await fetch(`http://localhost:8081/chat/${roomId}`, {
         method: "GET",
         headers: {
@@ -127,7 +127,6 @@ const ChatContainer = () => {
       const roomData = await roomRes.json();
       setRoomDetails(roomData);
 
-      // 과거 메시지 가져오기
       const messageRes = await fetch(
         `http://localhost:8081/chat/${roomId}/messages`,
         {
@@ -143,14 +142,14 @@ const ChatContainer = () => {
       if (!messageRes.ok) throw new Error("Failed to fetch messages");
       const messages = await messageRes.json();
 
-      // 메시지 데이터를 chatHistory에 추가
       setChatHistory((prev) => ({
         ...prev,
         [roomId]: messages.map((message: any) => ({
           text: message.message,
           senderName: message.senderName,
-          senderProfile: message.senderProfile, // senderProfile 추가
+          senderProfile: message.senderProfile,
           type: message.type,
+          contentType: message.contentType, // 이미지 또는 텍스트
           time: new Date(message.sendTime).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -168,12 +167,10 @@ const ChatContainer = () => {
 
     setActiveRoom(roomId);
 
-    // 기존 구독 해제
     if (subscriptionRef.current) {
       stompClient.unsubscribe(subscriptionRef.current);
     }
 
-    // 새로운 방 구독
     const subscription = stompClient.subscribe(
       `/sub/chatroom/${roomId}`,
       (messageOutput) => {
@@ -186,8 +183,9 @@ const ChatContainer = () => {
             {
               text: data.message,
               senderName: data.senderName,
-              senderProfile: data.senderProfile, // senderProfile 추가
+              senderProfile: data.senderProfile,
               type: data.type,
+              contentType: data.contentType,
               time: new Date(data.sendTime).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -201,17 +199,17 @@ const ChatContainer = () => {
 
     subscriptionRef.current = subscription.id;
 
-    // 채팅방 세부 정보와 과거 메시지 가져오기
     fetchRoomDetailsAndMessages(roomId);
   };
 
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = (message: string, imageUrl?: string) => {
     if (!stompClient || !activeRoom || senderId === null) return;
 
     const payload = {
       roomId: Number(activeRoom),
-      message,
-      senderId, // 메시지에 senderId 추가
+      message: imageUrl || message,
+      senderId,
+      contentType: imageUrl ? "image" : "text",
     };
 
     stompClient.publish({

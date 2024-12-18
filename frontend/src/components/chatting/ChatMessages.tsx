@@ -3,18 +3,19 @@ import styles from "@/styles/components/chatting/ChatMessages.module.scss";
 
 // 메시지 타입 정의
 interface Message {
-  text: string;
-  type: "sent" | "received"; // 메시지 타입
-  senderId?: number; // 발신자 ID 추가
-  senderName?: string; // 발신자 이름 (옵션)
-  senderProfile?: string; // 발신자 프로필 이미지 URL (옵션)
+  text: string; // 메시지 내용 (텍스트 또는 이미지 URL)
+  type: "sent" | "received" | "image"; // 메시지 타입
+  contentType: "image" | "text"; // 콘텐츠 타입 (이미지, 텍스트)
+  senderId?: number; // 발신자 ID
+  senderName?: string; // 발신자 이름
+  senderProfile?: string; // 발신자 프로필 이미지 URL
   time: string; // 메시지 전송 시간
   date: string; // 메시지 전송 날짜
 }
 
 interface ChatMessagesProps {
   roomName: string; // 채팅방 이름
-  messages: Message[]; // 부모 컴포넌트에서 전달된 메시지
+  messages: Message[]; // 메시지 배열
   senderId: number | null; // 현재 사용자 ID
 }
 
@@ -46,13 +47,11 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
             <div
               key={index}
               className={`${styles.chatMessage} ${
-                message.type === "sent" // 메시지 타입에 따라 스타일 적용
-                  ? styles.sent // 보낸 메시지는 sent 스타일
-                  : styles.received // 받은 메시지는 received 스타일
+                message.type === "sent" ? styles.sent : styles.received
               }`}
             >
               {/* 수신 메시지의 프로필과 이름 */}
-              {message.type === "received" ? (
+              {message.type === "received" && (
                 <div className={styles.senderInfo}>
                   <img
                     src={message.senderProfile || "/icon/circle_user.svg"}
@@ -65,10 +64,18 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                     {message.senderName || "알 수 없는 사용자"}
                   </span>
                 </div>
-              ) : null}
+              )}
               {/* 메시지 내용 */}
               <div className={styles.message}>
-                {message.text}
+                {message.contentType === "image" ? (
+                  <img
+                    src={`http://localhost:8081${message.text}`} // 앞에 서버 주소 추가
+                    alt="전송된 이미지"
+                    className={styles.imageMessage}
+                  />
+                ) : (
+                  <span>{message.text}</span>
+                )}
                 <span className={styles.time}>{message.time}</span>
               </div>
             </div>

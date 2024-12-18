@@ -2,6 +2,7 @@ package com.example.Main.global.Security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -18,4 +19,12 @@ public class Webconfig implements WebMvcConfigurer {
                 .exposedHeaders("Authorization", "Set-Cookie") // 클라이언트가 접근 가능한 헤더
                 .allowCredentials(true); // 쿠키 허용
     }
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**") // 요청 URL 매핑
+                .addResourceLocations("file:C:/Users/LENOVO/Desktop/project/uploads/");
+    }
+
+
+
 }
