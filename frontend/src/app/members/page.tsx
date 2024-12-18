@@ -17,14 +17,22 @@ interface LoginResponse {
   };
 }
 
-export default function Login() {
-  const [email, setEmail] = useState<string>(""); // 이메일 상태
-  const [password, setPassword] = useState<string>(""); // 비밀번호 상태
-  const [error, setError] = useState<string | null>(null); // 에러 메시지 상태
-  const [loading, setLoading] = useState<boolean>(false); // 로딩 상태
-  const router = useRouter(); // Next.js useRouter 훅
+interface UserResponse {
+  resultCode: string;
+  msg: string;
+  data: {
+    email: string;
+    name: string;
+  };
+}
 
-  // 로그인 API 호출 함수
+export default function Login() {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+
   const login = async (
     email: string,
     password: string
@@ -38,7 +46,6 @@ export default function Login() {
       );
       console.log("로그인 성공:", response.data);
 
-      // 서버 응답 데이터 구조 확인
       if (!response.data.data.accessToken || !response.data.data.refreshToken) {
         throw new Error("토큰 정보가 서버 응답에 없습니다.");
       }
@@ -51,35 +58,65 @@ export default function Login() {
     }
   };
 
-  // 로그인 처리 함수
   const handleLogin = async () => {
     console.log("handleLogin 함수 실행 시작");
-    setError(null); // 이전 에러 초기화
-    setLoading(true); // 로딩 시작
+    setError(null);
+    setLoading(true);
 
     try {
-      const result = await login(email, password);
+      // 로그인 요청
+      const loginResult = await login(email, password);
+      const { accessToken, refreshToken } = loginResult.data;
 
-      // JWT 토큰 저장
-      const { accessToken, refreshToken } = result.data;
+      // 토큰 저장
       localStorage.setItem("token", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("userId", email);
 
-      console.log("JWT 토큰 저장 성공:", {
-        token: accessToken,
-        refreshToken: refreshToken,
-      });
+      try {
+        // 사용자 정보 요청
+        const userResponse = await apiClient.get<UserResponse>("/api/v1/members/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
 
-      // 로그인 성공 시 메인 페이지로 리다이렉트
+        if (userResponse.data.data.name) {
+          const { name } = userResponse.data.data;
+          localStorage.setItem("name", name);
+
+          // 로그인 이벤트 발생
+          const loginEvent = new CustomEvent('onLogin', {
+            detail: { 
+              userId: email,
+              name: name
+            }
+          });
+          window.dispatchEvent(loginEvent);
+        } else {
+          throw new Error("사용자 이름 정보가 없습니다.");
+        }
+      } catch (userError) {
+        console.error("사용자 정보 조회 실패:", userError);
+        // 사용자 정보 조회 실패 시에도 로그인은 유지
+        const loginEvent = new CustomEvent('onLogin', {
+          detail: { 
+            userId: email,
+            name: email.split('@')[0] // 이메일의 @ 앞부분을 이름으로 사용
+          }
+        });
+        window.dispatchEvent(loginEvent);
+      }
+
+      console.log("로그인 처리 완료");
       router.push("/");
     } catch (err) {
       console.error("로그인 중 오류 발생:", err);
     } finally {
-      setLoading(false); // 로딩 종료
+      setLoading(false);
     }
   };
 
-  // 입력 핸들러 (에러 초기화)
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
     setError(null);
@@ -118,13 +155,13 @@ export default function Login() {
         </div>
         {/* 로그인 버튼 */}
         <LoginButton
-          onClick={handleLogin} // 직접 전달
+          onClick={handleLogin}
           disabled={loading || !email || !password}
         >
           {loading ? "로그인 중..." : "로그인"}
         </LoginButton>
       </div>
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <p>{error}</p>}
     </div>
   );
 }

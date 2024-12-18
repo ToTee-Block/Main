@@ -43,18 +43,31 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/*/mentors/profile/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
-                        // post 관련 API에 대한 권한 설정 추가
-                        .requestMatchers(HttpMethod.GET, "/api/*/post/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/*/post/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/*/post/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/*/post/**").permitAll()
+                        // post 관련 API에 대한 권한 설정
+                        .requestMatchers(HttpMethod.GET, "/api/*/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/*/posts/**").authenticated()
 
-                        // QnA 관련 API에 대한 권한 설정 추가
-                        .requestMatchers(HttpMethod.GET, "/api/*/qna/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/*/qna/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/*/qna/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/*/qna/**").permitAll()
+                        // QnA 관련 API에 대한 권한 설정
+                        .requestMatchers(HttpMethod.GET, "/api/*/qnas/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/qnas/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/qnas/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/*/qnas/**").permitAll()
 
+                        // 댓글 관련 API에 대한 권한 설정
+                        .requestMatchers(HttpMethod.GET, "/api/*/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/*/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/*/comments/**").permitAll()
+
+                        // 알림 관련 API에 대한 권한 설정 추가
+                        .requestMatchers(HttpMethod.GET, "api/*/notifications/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "api/*/notifications/**").permitAll()
+
+                        // 관리자만 접근 가능한 API
+                        .requestMatchers(HttpMethod.GET, "/api/*/post/**/report/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/*/post/**/report/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())

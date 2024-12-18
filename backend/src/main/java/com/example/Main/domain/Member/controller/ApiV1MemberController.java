@@ -8,6 +8,8 @@ import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.domain.Member.request.AuthcodeRequest;
 import com.example.Main.domain.Member.request.MemberCreate;
 import com.example.Main.domain.Member.request.MemberRequest;
+import com.example.Main.domain.Member.request.PasswordChangeRequest;
+import com.example.Main.domain.Member.request.PasswordChangeRequest;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
@@ -23,7 +25,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,8 +36,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -186,7 +192,8 @@ public class ApiV1MemberController {
     @PreAuthorize("isAuthenticated")
     @PostMapping("/profileImg/{email}")
     public RsData modifyProfileImg(@PathVariable(value = "email")String email,
-                                   @RequestParam(value = "profileImg")MultipartFile image, Principal principal) {
+                                   @RequestParam(value = "profileImg")MultipartFile image,
+                                   Principal principal) {
         Member member = this.memberService.getMemberByEmail(email);
 
         RsData checkAuthUserRD = this.checkAuthUser(
@@ -199,6 +206,9 @@ public class ApiV1MemberController {
         String savedProfileImg = null;
         if (!image.isEmpty()) {
             savedProfileImg = this.imageService.saveImage("user", image);
+            // 멤버 엔티티 업데이트
+            member.setProfileImg(savedProfileImg);
+            memberService.save(member);  // 변경사항을 데이터베이스에 저장
         } else {
             savedProfileImg = member.getProfileImg();
         }
@@ -206,18 +216,21 @@ public class ApiV1MemberController {
         return RsData.of("200", "프로필 이미지 변경 성공", savedProfileImg);
     }
 
-    @PreAuthorize("isAuthenticated")
+
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/password")
-    private RsData modifyPassword(@Valid @RequestBody MemberRequest memberRequest, Principal principal) {
-        RsData checkAuthUserRD = this.checkAuthUser(
-                this.memberService.getMemberByEmail(memberRequest.getEmail()),
-                principal
-        );
-        if (checkAuthUserRD != null) return checkAuthUserRD;
+    public RsData<MemberDTO> modifyPassword(@Valid @RequestBody PasswordChangeRequest request, Principal principal) {
+        Member member = memberService.getMemberByEmail(principal.getName());
 
-        Member member = this.memberService.modifyPassword(memberRequest.getEmail(), memberRequest.getPassword());
+        // 현재 비밀번호 확인
+        if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
+            return RsData.of("400", "현재 비밀번호가 일치하지 않습니다.", null);
+        }
 
-        return RsData.of("200", "비밀번호 변경 성공", new MemberDTO(member));
+        // 비밀번호 변경 로직
+        Member updatedMember = memberService.modifyPassword(principal.getName(), request.getNewPassword());
+
+        return RsData.of("200", "비밀번호가 성공적으로 변경되었습니다.", new MemberDTO(updatedMember));
     }
 
     @PreAuthorize("isAuthenticated")
@@ -237,21 +250,55 @@ public class ApiV1MemberController {
     public RsData requestMentoring(@PathVariable("mentorId")Long mentorId, Principal principal) {
         Member mentee = this.memberService.getMemberByEmail(principal.getName());
         Mentor mentor = this.mentorService.getMentorById(mentorId);
+        boolean checkMatchingExist = this.matchingService.checkMatchingExist(mentee, mentor);    // 이미 신청했으면 true
 
         // 사용자 검증
         RsData checkAuthUserRD = this.checkAuthUser(
                 this.memberService.getMemberById(mentee.getId()),
                 principal
         );
-        if (checkAuthUserRD != null) return checkAuthUserRD;
-
-        if (mentor == null){
+        if (checkAuthUserRD != null) {
+            return checkAuthUserRD;
+        } else if (mentor == null) {
             return RsData.of("400", "존재하는 멘토가 아닙니다.");
+        } else if (checkMatchingExist) {
+            return RsData.of("400", "이미 신청 및 진행중인 멘토링입니다.");
         }
 
         MentorMenteeMatching matching = this.matchingService.requestMentoring(mentee, mentor);
 
         return RsData.of("200", "멘토링 신청 성공", new MentorDTO(mentor));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/myMentorings/request")    // 진행중인 멘토링 목록 + 내가 신청한 멘토링 목록
+    public RsData getMyMentorings(Principal principal) {
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+
+        List<MentorMenteeMatching> matchings = this.matchingService.getMyMatchings(member);
+        List<MentorDTO> mentors = matchings.stream()    // 멘토의 정보만 DTO의 형식으로 재구성하여 리스트 만들기
+                .map(matching -> new MentorDTO(matching))    // 진행중인 멘토링은 matchingStatus = true
+                .collect(Collectors.toList());
+
+        return RsData.of("200", "내 멘토링 목록", mentors);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/myMentorings/deny/{matchingId}")    // 매칭 끊기
+    public RsData denyMentoring(@PathVariable(value = "matchingId")Long matchingId, Principal principal) {
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+
+        MentorMenteeMatching matching = this.matchingService.getMatchingById(matchingId);
+
+        if (matching == null) {
+            return RsData.of("400", "존재하는 멘토링이 아닙니다.");
+        } else if (member != matching.getMentee()) {
+            return RsData.of("400", "권한이 없습니다.");
+        }
+
+        this.matchingService.denyMatching(matching);
+
+        return RsData.of("200", "멘토링 삭제 완료");
     }
 
     protected RsData delete(Long id) {

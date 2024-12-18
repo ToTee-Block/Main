@@ -22,6 +22,14 @@ interface BirthDate {
   day: string;
 }
 
+// 알림 관련 타입 정의
+interface Notification {
+  id: number;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 // Join 메서드 추가
 export const join = async (formData: {
   email: string;
@@ -76,6 +84,7 @@ export const fetchUserProfile = async () => {
 
 // 사용자 프로필 수정 API 요청 메서드 (403 처리 포함)
 export const updateProfile = async (profileData: {
+  email: string;
   name: string;
   birthDate: string; // YYYY-MM-DD 형식
   gender: string;
@@ -90,6 +99,81 @@ export const updateProfile = async (profileData: {
     handleForbiddenError(error); // 403 처리
     throw error.response?.data || error.message; // 다른 에러 처리
   }
+};
+
+// 프로필 이미지 업로드 API 요청 메서드 (403 처리 포함)
+export const uploadProfileImage = async (email: string, imageFile: File) => {
+  try {
+    const formData = new FormData();
+    formData.append("profileImg", imageFile);
+
+    const response = await apiClient.post(
+      `/api/v1/members/profileImg/${email}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    handleForbiddenError(error); // 403 처리
+    throw error.response?.data || error.message; // 다른 에러 처리
+  }
+};
+
+// 프로필 이미지 삭제 API 요청 메서드 (403 처리 포함)
+export const deleteProfileImage = async () => {
+  try {
+    const response = await apiClient.delete("/api/v1/members/profile-image");
+    return response.data;
+  } catch (error: any) {
+    handleForbiddenError(error); // 403 처리
+    throw error.response?.data || error.message; // 다른 에러 처리
+  }
+};
+
+// 알림 목록 조회 API 요청 메서드
+export const fetchNotifications = async () => {
+  try {
+    const response = await apiClient.get<Notification[]>(
+      "/api/v1/notifications"
+    );
+    return response.data;
+  } catch (error: any) {
+    handleForbiddenError(error);
+    throw error.response?.data || error.message;
+  }
+};
+
+// 알림 읽음 처리 API 요청 메서드
+export const markNotificationAsRead = async (notificationId: number) => {
+  try {
+    const response = await apiClient.post(
+      `/api/v1/notifications/${notificationId}/read`
+    );
+    return response.status === 200;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      console.error("알림을 찾을 수 없습니다:", error.response.data);
+    } else {
+      console.error("알림을 읽음으로 표시하는 데 실패했습니다:", error.message);
+    }
+    return false;
+  }
+};
+
+// WebSocket 연결 설정 (예시)
+export const setupNotificationWebSocket = (onMessage: (data: any) => void) => {
+  const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/notifications`);
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    onMessage(data);
+  };
+
+  return ws;
 };
 
 export default apiClient;

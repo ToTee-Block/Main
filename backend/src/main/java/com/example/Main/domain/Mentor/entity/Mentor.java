@@ -1,6 +1,7 @@
 package com.example.Main.domain.Mentor.entity;
 
 import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.Jpa.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -38,13 +39,12 @@ public class Mentor extends BaseEntity {
    private String portfolio;
 
    /*내 멘티들*/
-   @OneToMany(mappedBy = "mentor")
+   @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
    private List<MentorMenteeMatching> myMentees;
 
    /*나한테 달린 리뷰들*/
-   @OneToMany(mappedBy = "mentor")
+   @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL)
    private List<MentorReview> reviews;
 
-   @OneToMany(mappedBy = "mentor")
-   private List<MentorTechStack> techStacks;
+   private List<String> techStacks;
 }

@@ -1,0 +1,80 @@
+@import "../../globals/font-mixin.scss";
+
+.bodyContainer:first-child {
+  margin-top: 32px;
+}
+
+.bodyContainer:last-child {
+  margin-bottom: 32px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+
+  .titleSection {
+    width: 100%;
+    margin-bottom: 24px;
+
+    .title {
+      @include font-XXXL-B;
+      color: var(--text-blue);
+      height: 164px;
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 40px;
+    }
+
+    .utilBar {
+      display: flex;
+      justify-content: space-between;
+
+      ul.tabBox {
+        display: flex;
+        gap: 16px;
+
+        li {
+          padding: 12px 0;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          border-bottom: 2px solid var(--text-blue-gray);
+
+          svg {
+            width: 24px;
+            height: 24px;
+            color: var(--text-blue-gray);
+          }
+
+          span {
+            @include font-XXS-B;
+            color: var(--text-blue-gray);
+          }
+        }
+      }
+
+      .rightBox {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+    }
+  }
+}
+
+.container > .titleSection > .utilBar > .tabBox > .active > * {
+  color: var(--text-blue);
+}
+
+.container > .titleSection > .utilBar > .tabBox > .active {
+  border-bottom: 2px solid var(--text-blue);
+}
+
+.containerItemBox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: space-between;
+}

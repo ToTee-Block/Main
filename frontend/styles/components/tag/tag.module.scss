@@ -1,0 +1,30 @@
+.tagList {
+    display: flex;
+    gap: 16px;
+    flex-direction: row;
+    flex-wrap: wrap; 
+    width: 100%;  
+  }
+  
+  .tag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 66px;
+    height: 40px;
+    padding: 16px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--text-blue);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+  }
+  
+  .checkedTag {
+    background-color: var(--dark-blue-color);
+    color: var(--text-white);
+  }
+  
+  .hiddenCheckbox {
+    display: none;
+  }

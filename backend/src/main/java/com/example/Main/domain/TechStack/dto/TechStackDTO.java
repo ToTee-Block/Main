@@ -1,18 +1,17 @@
 package com.example.Main.domain.TechStack.dto;
 
-import com.example.Main.domain.TechStack.entity.TechStack;
+import com.example.Main.domain.TechStack.enums.TechStacks;
 import lombok.Getter;
 import lombok.ToString;
+
+import java.util.List;
 
 @ToString
 @Getter
 public class TechStackDTO {
-    private final Long id;
+    List<TechStacks> techStacks;
 
-    private final String name;
-
-    public TechStackDTO(TechStack techStack) {
-        this.id = techStack.getId();
-        this.name = techStack.getName();
+    public TechStackDTO(List<TechStacks> techStacks) {
+        this.techStacks = techStacks;
     }
 }

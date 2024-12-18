@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import apiClient from "@/api/axiosConfig";
+import Link from "next/link";
+import apiClient, { fetchUserProfile, updateProfile } from "@/api/axiosConfig";
 import Birthday from "@/components/birthday/Birthday";
 import TextInput from "@/components/input/TextInput";
 import GenderButton from "@/components/button/GenderButton";
@@ -28,21 +29,13 @@ export default function ProfileForm() {
     day: "",
   });
   const [gender, setGender] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const router = useRouter();
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    console.log(
-      "Uploading file:",
-      file.name,
-      "Size:",
-      file.size,
-      "Type:",
-      file.type
-    );
 
     try {
       const formData = new FormData();
@@ -61,10 +54,16 @@ export default function ProfileForm() {
       console.log("Image upload response:", response.data);
 
       if (response.data.resultCode === "200") {
-        setProfileImage(`http://localhost:8081/file/${response.data.data}`);
+        const memberResponse = await fetchUserProfile();
+        if (memberResponse.resultCode === "200") {
+          const { profileImg } = memberResponse.data;
+          setProfileImage(
+            profileImg ? `http://localhost:8081/file/${profileImg}` : null
+          );
+        }
         setError(null);
       } else {
-        throw new Error(response.data.message || "Image upload failed");
+        setError(response.data.msg || "Image upload failed");
       }
     } catch (err: any) {
       console.error("Image upload error:", err);
@@ -93,21 +92,27 @@ export default function ProfileForm() {
   const fetchMemberData = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get("/api/v1/members/me");
-      console.log("Fetch member data response:", response.data);
+      const response = await fetchUserProfile();
+      console.log("Fetch member data response:", response);
 
-      const { email, name, birthDate, gender, profileImg } = response.data.data;
-      setEmail(email);
-      setName(name);
-      setProfileImage(profileImg);
+      if (response.resultCode === "200") {
+        const { email, name, birthDate, gender, profileImg } = response.data;
+        setEmail(email);
+        setName(name);
+        setProfileImage(
+          profileImg ? `http://localhost:8081/file/${profileImg}` : null
+        );
 
-      if (birthDate) {
-        const [year, month, day] = birthDate.split("-");
-        setBirthdate({ year, month, day });
+        if (birthDate) {
+          const [year, month, day] = birthDate.split("-");
+          setBirthdate({ year, month, day });
+        }
+
+        setGender(gender);
+        setError(null);
+      } else {
+        throw new Error(response.msg || "Failed to fetch user data");
       }
-
-      setGender(gender);
-      setError(null);
     } catch (err: any) {
       console.error("Fetch member data error:", err);
       console.error("Error details:", err.response?.data);
@@ -124,7 +129,7 @@ export default function ProfileForm() {
 
   const handleUpdate = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       setError(null);
 
       if (!name) {
@@ -148,18 +153,22 @@ export default function ProfileForm() {
       };
 
       console.log("Updating profile with data:", updateData);
+      const response = await updateProfile(updateData);
+      console.log("Profile update response:", response);
 
-      const response = await apiClient.patch(
-        "/api/v1/members/profile",
-        updateData
-      );
-      console.log("Profile update response:", response.data);
+      if (response.resultCode === "200") {
+        const memberResponse = await fetchUserProfile();
+        if (memberResponse.resultCode === "200") {
+          const { profileImg } = memberResponse.data;
+          setProfileImage(
+            profileImg ? `http://localhost:8081/file/${profileImg}` : null
+          );
+        }
 
-      if (response.data.resultCode === "200") {
         alert("프로필이 성공적으로 업데이트되었습니다!");
-        router.push("/");
+        router.push("/members/me");
       } else {
-        throw new Error(response.data.message || "Profile update failed");
+        throw new Error(response.msg || "Profile update failed");
       }
     } catch (err: any) {
       console.error("Profile update error:", err);
@@ -171,7 +180,7 @@ export default function ProfileForm() {
         setError(`데이터 업데이트에 실패했습니다: ${err.message}`);
       }
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -179,6 +188,10 @@ export default function ProfileForm() {
     console.log("JWT token:", localStorage.getItem("token"));
     fetchMemberData();
   }, []);
+
+  const isFormValid = () => {
+    return name && birthdate.year && birthdate.month && birthdate.day && gender;
+  };
 
   if (loading) return <p>로딩 중...</p>;
   if (error)
@@ -191,8 +204,8 @@ export default function ProfileForm() {
   return (
     <div className={styles.container}>
       <p className={styles.formTitle}>프로필</p>
-      <div className={styles.formbox}>
-        <div className={styles.image}>
+      <div className={styles.formBox}>
+        <div>
           <ProfileImage
             profileImage={profileImage || "/icon/user.svg"}
             onImageUpload={handleImageUpload}
@@ -200,10 +213,14 @@ export default function ProfileForm() {
           />
         </div>
 
-        <TextInput value={email} isNotModify>
+        <TextInput value={email} isNotModify className={styles.widthInput}>
           이메일
         </TextInput>
-        <TextInput value={name} onChange={(e) => setName(e.target.value)}>
+        <TextInput
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className={styles.widthInput}
+        >
           이름
         </TextInput>
         <Birthday
@@ -215,7 +232,18 @@ export default function ProfileForm() {
           onGenderChange={(newGender) => setGender(newGender)}
         />
       </div>
-      <LoginButton onClick={handleUpdate}>수정</LoginButton>
+      <div className={styles.buttonBox}>
+        <Link href="/" className={styles.cancelButton}>
+          나가기
+        </Link>
+        <LoginButton
+          onClick={handleUpdate}
+          disabled={!isFormValid()}
+          className={styles.loginButton}
+        >
+          {isLoading ? "처리 중..." : "수정"}
+        </LoginButton>
+      </div>
     </div>
   );
 }

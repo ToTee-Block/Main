@@ -19,7 +19,7 @@ interface ChatMessagesProps {
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
   const messagesContainerRef = useRef<HTMLDivElement | null>(null); // 채팅 메시지 컨테이너 ref
-  
+
   useEffect(() => {
     if (messagesContainerRef.current) {
       // 스크롤을 최하단으로 이동

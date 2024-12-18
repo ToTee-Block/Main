@@ -9,15 +9,15 @@ import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
 import com.example.Main.domain.Mentor.repository.MentorMenteeMatchingRepository;
 import com.example.Main.domain.Mentor.repository.MentorRepository;
 import com.example.Main.domain.Mentor.repository.MentorReviewRepository;
+import com.example.Main.domain.Post.dto.PostDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +73,7 @@ public class MentorService {
     }
 
     public void denyMentor(Mentor mentor) {
-        this.mentorRepository.delete(mentor);
+        this.mentorRepository.deleteMentorById(mentor.getId());
     }
 
     public Mentor getMentorById(Long id) {

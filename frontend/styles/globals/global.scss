@@ -1,6 +1,6 @@
-@import 'color'; // color.scss 파일을 임포트
-@import 'font'; // font.scss 파일을 임포트
-@import 'font-mixin'; // font.scss 파일을 임포트
+@import "color"; // color.scss 파일을 임포트
+@import "font"; // font.scss 파일을 임포트
+@import "font-mixin"; // font.scss 파일을 임포트
 
 * {
   -moz-box-sizing: border-box;
@@ -134,6 +134,7 @@ body {
 
 .contentArea {
   flex-grow: 1;
+  padding: 32px 0;
 }
 
 ol,
@@ -152,7 +153,7 @@ blockquote:before,
 blockquote:after,
 q:before,
 q:after {
-  content: '';
+  content: "";
   content: none;
 }
 
@@ -170,10 +171,46 @@ a {
   text-decoration: none;
 }
 
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
 input:focus {
   outline: none;
 }
 
 select:focus {
   outline: none;
+}
+html,
+html > body {
+  font-family: var(--font-family);
+}
+
+//페이지 양쪽 여백
+.contentArea {
+  width: calc(100% - 240px);
+  margin: 0 auto;
+}
+
+//메인,상세페이지 여백적용x
+.contentAreaFull {
+  width: 100%;
+}
+
+// 스크롤바
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-button {
+  /* 스크롤바 버튼 */
+  display: none;
+}
+::-webkit-scrollbar-thumb {
+  /* 스크롤바 막대 */
+  background: var(--gray-color);
+  border-radius: 6px;
 }
