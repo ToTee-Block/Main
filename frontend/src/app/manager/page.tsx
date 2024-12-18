@@ -8,6 +8,15 @@ import Pagination from "@/src/components/manager/Pagination";
 import apiClient from "@/api/axiosConfig";
 import styles from "@/styles/pages/manager/manager.module.scss";
 
+interface TableItem {
+  id: number;
+  email: string;
+  name: string;
+  createdDate: string;
+  url?: string;
+  role?: string;
+}
+
 interface Member {
   id: number;
   createdDate: string;
@@ -33,10 +42,19 @@ interface Mentor {
 
 interface Post {
   id: number;
-  email: string;
-  name: string;
+  subject: string;
+  content: string;
+  authorEmail: string;
+  authorName: string;
   createdDate: string;
-  url: string;
+  modifiedDate: string;
+  techStacks: string[] | null;
+  isDraft: boolean;
+  likes: number;
+  likedByEmails: string[];
+  comments: any[];
+  thumbnail: string | null;
+  filePaths: string[];
 }
 
 interface SearchFilters {
@@ -60,8 +78,7 @@ interface ApiResponse<T> {
 
 export default function ManagerPage() {
   const [activeTab, setActiveTab] = useState("members");
-  const [data, setData] = useState<(Member | Mentor)[]>([]);
-  const [postData, setPostData] = useState<Post[]>([]);
+  const [data, setData] = useState<TableItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
@@ -83,7 +100,7 @@ export default function ManagerPage() {
           endpoint = "/api/v1/admin/mentors";
           break;
         case "posts":
-          endpoint = "/api/v1/post/admin";
+          endpoint = "/api/v1/admin/posts";
           break;
         case "reports":
           endpoint = "/api/v1/admin/reports";
@@ -92,6 +109,7 @@ export default function ManagerPage() {
 
       const params = new URLSearchParams({
         page: String(currentPage - 1),
+        size: String(itemsPerPage),
       });
 
       const response = await apiClient.get<ApiResponse<Member | Mentor | Post>>(
@@ -99,19 +117,26 @@ export default function ManagerPage() {
       );
 
       if (response.data.resultCode === "200") {
-        if (activeTab === "posts") {
-          const formattedData = response.data.data.content.map((item) => ({
-            ...item,
-            createdDate: formatDate((item as Post).createdDate),
-          }));
-          setPostData(formattedData as Post[]);
-        } else {
-          const formattedData = response.data.data.content.map((item) => ({
-            ...item,
-            createdDate: formatDate(item.createdDate),
-          }));
-          setData(formattedData as (Member | Mentor)[]);
-        }
+        const formattedData = response.data.data.content.map((item: any) => {
+          if (activeTab === "posts") {
+            return {
+              id: item.id,
+              email: item.authorEmail,
+              name: item.authorName,
+              createdDate: formatDate(item.createdDate),
+              url: item.subject,
+            } as TableItem;
+          } else {
+            return {
+              id: item.id,
+              email: item.email,
+              name: item.name,
+              createdDate: formatDate(item.createdDate),
+              role: item.role,
+            } as TableItem;
+          }
+        });
+        setData(formattedData);
         setTotalItems(response.data.data.totalElements);
       }
     } catch (error) {
@@ -119,21 +144,30 @@ export default function ManagerPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}-${String(date.getDate()).padStart(2, "0")}`;
+  const handleDelete = async (id: number) => {
+    const message =
+      activeTab === "posts"
+        ? "이 게시물을 삭제하시겠습니까?"
+        : "이 회원을 삭제하시겠습니까?";
+
+    const isConfirmed = window.confirm(message);
+    if (isConfirmed) {
+      try {
+        let endpoint =
+          activeTab === "posts"
+            ? `/api/v1/admin/posts/${id}`
+            : `/api/v1/admin/members/delete/${id}`;
+
+        const response = await apiClient.delete(endpoint);
+        if (response.data.resultCode === "200") {
+          console.log(`${activeTab === "posts" ? "게시물" : "회원"} 삭제 성공`);
+          fetchData();
+        }
+      } catch (error: any) {
+        console.error("삭제 실패:", error);
+      }
+    }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, [activeTab, currentPage]);
-
-  useEffect(() => {
-    setActiveTab("members");
-  }, []);
 
   const handleApprove = async (mentorId: number, memberId: number) => {
     const isConfirmed = window.confirm("승인하시겠습니까?");
@@ -174,27 +208,12 @@ export default function ManagerPage() {
     }
   };
 
-  const handleDelete = async (memberId: number) => {
-    const isConfirmed = window.confirm("정말로 이 회원을 삭제하시겠습니까?");
-    if (isConfirmed) {
-      try {
-        const response = await apiClient.delete(
-          `/api/v1/admin/members/delete/${memberId}`
-        );
-        if (response.data.resultCode === "200") {
-          console.log("회원 삭제 성공");
-          fetchData();
-        } else {
-          console.error("회원 삭제 실패:", response.data.msg);
-        }
-      } catch (error: any) {
-        console.error("삭제 실패:", error);
-        if (error.response) {
-          console.error("Error response:", error.response.data);
-          console.error("Error status:", error.response.status);
-        }
-      }
-    }
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
   };
 
   const handleFilterChange = (newFilters: SearchFilters) => {
@@ -211,6 +230,14 @@ export default function ManagerPage() {
     setCurrentPage(1);
   };
 
+  useEffect(() => {
+    fetchData();
+  }, [activeTab, currentPage]);
+
+  useEffect(() => {
+    setActiveTab("members");
+  }, []);
+
   return (
     <div className={styles.container}>
       <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
@@ -221,10 +248,10 @@ export default function ManagerPage() {
           onSearch={handleSearch}
         />
         <Table
-          data={activeTab === "posts" ? postData : data}
+          data={data}
           onApprove={activeTab === "mentors" ? handleApprove : undefined}
           onReject={activeTab === "mentors" ? handleReject : undefined}
-          onDelete={activeTab === "members" ? handleDelete : undefined}
+          onDelete={handleDelete}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           activeTab={activeTab}

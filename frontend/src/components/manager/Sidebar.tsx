@@ -28,9 +28,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
         </li>
         <li
           className={`${styles.menuItem} ${
-            activeTab === "post" ? styles.active : ""
+            activeTab === "posts" ? styles.active : ""
           }`}
-          onClick={() => onTabChange("post")}
+          onClick={() => onTabChange("posts")}
         >
           게시글 관리
         </li>
