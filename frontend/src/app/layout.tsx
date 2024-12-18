@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 // src/app/layout.js
-import '@/styles/globals/global.scss';
-import Header from '@/src/components/Header';
-import Footer from '@/src/components/Footer';
-
-
+import "@/styles/globals/global.scss";
+import Header from "@/src/components/Header";
+import Footer from "@/src/components/Footer";
+import ChatSection from "@/src/components/chatting/ChatSection";
 
 export const metadata: Metadata = {
   title: "Totee Block",
@@ -20,9 +19,8 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <Header />
-        <div className="contentArea">
-          {children}
-        </div>
+        <ChatSection />
+        <div className="contentArea">{children}</div>
         <Footer />
       </body>
     </html>

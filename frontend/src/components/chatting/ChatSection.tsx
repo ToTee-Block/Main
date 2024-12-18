@@ -4,7 +4,7 @@ import ChatButton from "@/components/chatting/ChatButton";
 import ChatContainer from "@/components/chatting/ChatContainer";
 import { useState } from "react";
 
-const ChatPage = () => {
+const ChatSection = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
@@ -15,4 +15,4 @@ const ChatPage = () => {
   );
 };
 
-export default ChatPage;
+export default ChatSection;
