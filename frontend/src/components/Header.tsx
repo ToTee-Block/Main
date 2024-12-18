@@ -1,20 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
+import apiClient, {
+  fetchNotifications,
+  markNotificationAsRead,
+} from "@/api/axiosConfig";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "@/styles/components/header.module.scss";
 import LinkButton from "./button/LinkButton";
 
-// 커스텀 이벤트 정의
 const LOGIN_EVENT = "onLogin";
 const LOGOUT_EVENT = "onLogout";
 
 interface Notification {
   id: number;
   message: string;
-  isRead: boolean;
+  read: boolean;
+  createdAt: string;
 }
 
 const Header: React.FC = () => {
@@ -25,63 +29,71 @@ const Header: React.FC = () => {
   const [userName, setUserName] = useState("");
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [hasNewNotification, setHasNewNotification] = useState(false);
+  const [expandedNotificationId, setExpandedNotificationId] = useState<
+    number | null
+  >(null);
 
-  // 초기 로그인 상태 체크
+  const checkNewNotifications = useCallback(async () => {
+    try {
+      const fetchedNotificationsData = await fetchNotifications();
+      const fetchedNotifications: Notification[] = fetchedNotificationsData.map(
+        (notif: any) => ({
+          id: notif.id,
+          message: notif.message,
+          read: notif.read,
+          createdAt: notif.createdAt,
+        })
+      );
+      setNotifications(fetchedNotifications);
+      setHasNewNotification(fetchedNotifications.some((notif) => !notif.read));
+    } catch (error) {
+      console.error("알림을 가져오는데 실패했습니다:", error);
+      setNotifications([]);
+      setHasNewNotification(false);
+    }
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedName = localStorage.getItem("name");
     if (token) {
       setIsLoggedIn(true);
       setUserName(storedName || "사용자");
+      checkNewNotifications();
     }
 
-    // 로그인 이벤트 리스너
     const handleLogin = (e: CustomEvent) => {
       const { name } = e.detail;
       setIsLoggedIn(true);
       setUserName(name || "사용자");
+      checkNewNotifications();
     };
 
-    // 이벤트 리스너 등록
     window.addEventListener(LOGIN_EVENT, handleLogin as EventListener);
-
-    // 알림 체크 (예시: 5초마다 새로운 알림 확인)
-    let notificationInterval: NodeJS.Timeout | null = null;
-
-    if (isLoggedIn) {
-      const checkNewNotifications = () => {
-        // 백엔드 연동 전까지는 빈 배열 사용
-        const mockNotifications: Notification[] = [];
-        setNotifications(mockNotifications);
-        setHasNewNotification(false);
-      };
-
-      notificationInterval = setInterval(checkNewNotifications, 5000);
-    }
-
     return () => {
       window.removeEventListener(LOGIN_EVENT, handleLogin as EventListener);
-      if (notificationInterval) {
-        clearInterval(notificationInterval);
-      }
     };
-  }, [isLoggedIn]);
+  }, [checkNewNotifications]);
 
-  // pathname이 변경될 때마다 드롭다운 메뉴 닫기
+  useEffect(() => {
+    if (isLoggedIn) {
+      checkNewNotifications();
+      const notificationInterval = setInterval(checkNewNotifications, 5000);
+      return () => clearInterval(notificationInterval);
+    }
+  }, [isLoggedIn, checkNewNotifications]);
+
   useEffect(() => {
     setShowProfileMenu(false);
     setShowNotifications(false);
   }, [pathname]);
 
-  // 페이지 새로고침 시 드롭다운 메뉴 닫기
   useEffect(() => {
     const handleBeforeUnload = () => {
       setShowProfileMenu(false);
       setShowNotifications(false);
     };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
-
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
@@ -92,12 +104,21 @@ const Header: React.FC = () => {
     return pathname === path;
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("name");
-    setIsLoggedIn(false);
-    setUserName("");
-    window.dispatchEvent(new Event(LOGOUT_EVENT));
+  const handleLogout = async () => {
+    try {
+      const response = await apiClient.get("/api/v1/members/logout");
+      if (response.data.resultCode === "200") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("name");
+        setIsLoggedIn(false);
+        setUserName("");
+        window.dispatchEvent(new Event(LOGOUT_EVENT));
+      } else {
+        console.error("로그아웃 실패:", response.data.msg);
+      }
+    } catch (error) {
+      console.error("로그아웃 중 오류 발생:", error);
+    }
   };
 
   const toggleProfileMenu = () => {
@@ -110,8 +131,22 @@ const Header: React.FC = () => {
     setShowProfileMenu(false);
     if (hasNewNotification) {
       setHasNewNotification(false);
-      // 여기에 알림 읽음 처리 API 호출 추가
+      notifications.forEach((notif) => {
+        if (!notif.read) {
+          markNotificationAsRead(notif.id).then(() => {
+            setNotifications((prevNotifications) =>
+              prevNotifications.map((n) =>
+                n.id === notif.id ? { ...n, read: true } : n
+              )
+            );
+          });
+        }
+      });
     }
+  };
+
+  const toggleNotificationContent = (id: number) => {
+    setExpandedNotificationId((prevId) => (prevId === id ? null : id));
   };
 
   return (
@@ -170,7 +205,7 @@ const Header: React.FC = () => {
                   >
                     Modify Password
                   </Link>
-                  <Link href="/post/my" className={styles.dropdownItem}>
+                  <Link href="/blog" className={styles.dropdownItem}>
                     My Blog
                   </Link>
                   <Link href="/qna" className={styles.dropdownItem}>
@@ -201,10 +236,21 @@ const Header: React.FC = () => {
                 )}
               </button>
               {showNotifications && notifications.length > 0 && (
-                <div className={styles.dropdown}>
+                <div className={styles.notificationDropdown}>
                   {notifications.map((notification) => (
-                    <div key={notification.id} className={styles.dropdownItem}>
+                    <div
+                      key={notification.id}
+                      className={`${styles.notificationItem} ${
+                        expandedNotificationId === notification.id
+                          ? styles.fullText
+                          : ""
+                      }`}
+                      onClick={() => toggleNotificationContent(notification.id)}
+                    >
                       {notification.message}
+                      {!notification.read && (
+                        <span className={styles.unreadDot} />
+                      )}
                     </div>
                   ))}
                 </div>
