@@ -224,12 +224,12 @@ const ChatContainer = () => {
     fetchRoomDetailsAndMessages(roomId);
   };
 
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = (message: string, imageUrl?: string) => {
     if (!stompClient || !activeRoom) return;
 
     const payload = {
       roomId: Number(activeRoom),
-      message: imageUrl || message,
+      message: imageUrl || message, // imageUrl 또는 message 사용
       contentType: imageUrl ? "image" : "text",
     };
 
