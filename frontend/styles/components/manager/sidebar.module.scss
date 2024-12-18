@@ -2,6 +2,7 @@
 
 .sidebar {
   width: 200px;
+  height: 50px;
   border-right: 1px solid var(--border-color);
   text-align: center;
 }
@@ -17,6 +18,9 @@
   padding: 12px;
   border-radius: 15px;
   cursor: pointer;
+  white-space: nowrap; // 텍스트를 한 줄로 유지
+  overflow: hidden; // 넘치는 텍스트 숨기기
+  text-overflow: ellipsis; // 넘치는 텍스트를 ...으로 표시
 
   &:hover {
     background-color: var(--gray-color);
