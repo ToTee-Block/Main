@@ -36,12 +36,12 @@ const Header: React.FC = () => {
             </span>
           </Link>
           <Link href="/mantor">
-            <span className={isActive("/mantor") ? styles.active : ""}>
+            <span className={isActive("/mentor") ? styles.active : ""}>
               멘토찾기
             </span>
           </Link>
           <Link href="/mantor/form">
-            <span className={isActive("/mantor/form") ? styles.active : ""}>
+            <span className={isActive("/mentor/form") ? styles.active : ""}>
               멘토신청
             </span>
           </Link>

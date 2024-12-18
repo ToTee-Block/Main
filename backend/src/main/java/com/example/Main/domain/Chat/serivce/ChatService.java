@@ -1,62 +1,103 @@
 package com.example.Main.domain.Chat.serivce;
 
 import com.example.Main.domain.Chat.dto.ChatDTO;
-import com.example.Main.domain.Chat.entity.Chat;
+import com.example.Main.domain.Chat.entity.ChatJoin;
+import com.example.Main.domain.Chat.entity.ChatMessage;
 import com.example.Main.domain.Chat.entity.ChatRoom;
-import com.example.Main.domain.Chat.repository.ChatRepository;
+import com.example.Main.domain.Chat.repository.ChatJoinRepository;
+import com.example.Main.domain.Chat.repository.ChatMessageRepository;
 import com.example.Main.domain.Chat.repository.ChatRoomRepository;
 import com.example.Main.domain.Member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.io.IOException;
+import java.io.File;
+
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ChatService {
-    private final ChatRepository chatRepository;
-    private  final ChatRoomRepository chatRoomRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatJoinRepository chatJoinRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     // 메시지 저장
-    public void saveMessage(ChatDTO chatDTO, Member member) {
-        Chat chat = toEntity(chatDTO, member);
-        chatRepository.save(chat);
+    public void saveMessage(ChatDTO chatDTO) {
+        ChatMessage chatMessage = toEntity(chatDTO);
+        chatMessageRepository.save(chatMessage);
     }
 
     // 채팅방 ID로 메시지 가져오기
-    public List<Chat> getMessagesByRoomId(Long roomId) {
+    public List<ChatMessage> getMessagesByRoomId(Long roomId) {
         if (roomId == null) {
             throw new IllegalArgumentException("Room ID cannot be null");
         }
-        return chatRepository.findByChatRoomId(roomId);
+        return chatMessageRepository.findMessagesByChatRoomId(roomId);
     }
 
     // ChatDTO -> Chat 엔티티 변환
-    private Chat toEntity(ChatDTO chatDTO, Member member) {
-        return new Chat(
-                chatDTO.getId(),
-                member.getName(),
-                chatDTO.getMessage(),
-                LocalDateTime.now()
-        );
+    private ChatMessage toEntity(ChatDTO chatDTO) {
+        ChatJoin chatJoin = this.chatJoinRepository.findByMemberIdAndRoomId(
+                chatDTO.getSenderId(), // ChatDTO에서 senderId를 가져옴
+                chatDTO.getRoomId()    // ChatDTO에서 roomId를 가져옴
+        ).orElseThrow(() -> new IllegalArgumentException("User not joined chat room"));
+        return ChatMessage.builder()
+                .chatSender(chatJoin)
+                .message(chatDTO.getMessage())
+                .build();
     }
 
     // Chat 엔티티 -> ChatDTO 변환
-    public ChatDTO toDTO(Chat chat) {
+    public ChatDTO toDTO(ChatMessage message) {
+        // contentType을 설정: 이미지 URL 여부를 확인
+        String contentType = message.getMessage().startsWith("/uploads/") ? "image" : "text";
+
         return new ChatDTO(
-                chat.getChatRoomId(),
-                chat.getSenderName(),
-                chat.getMessage(),
-                chat.getSendTime()
+                message.getChatSender().getChatRoom().getId(),       // 채팅방 ID
+                message.getChatSender().getChatJoiner().getId(),     // 발신자 ID
+                message.getMessage(),                                // 메시지 내용 (텍스트 또는 이미지 URL)
+                message.getCreatedDate(),                            // 전송 시간
+                message.getChatSender().getChatJoiner().getName(),   // 발신자 이름
+                null,                                               // senderProfile (추후 추가할 경우 수정)
+                "",                                                 // 메시지 타입 (sent 또는 received, 필요 시 설정)
+                contentType                                          // 콘텐츠 타입: image 또는 text
         );
     }
+    public String saveImage(MultipartFile imageFile) {
+        try {
+            // 저장 경로 설정 (resources/static/uploads/)
+            String uploadDir = "C:/Users/LENOVO/Desktop/project/uploads/";
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs(); // 디렉토리가 존재하지 않으면 생성
+            }
 
-    // 모든 채팅방 가져오기
-    public List<ChatRoom> getAllRooms(){
-        return chatRoomRepository.findAll();
+            // 고유한 파일명 생성
+            String originalFilename = imageFile.getOriginalFilename();
+            String fileName = System.currentTimeMillis() + "_" + originalFilename;
+            File destination = new File(uploadDir + fileName);
+
+            // 파일 저장
+            imageFile.transferTo(destination);
+
+            // 저장된 파일의 접근 가능한 URL 경로 반환
+            return "/uploads/" + fileName;
+        } catch (IOException e) {
+            throw new RuntimeException("Image file save failed", e);
+        }
     }
+
+    // 모든 채팅방 가져오기 -> 한 유저가 들어간 채팅방 가져오기
+    public List<ChatJoin> getAllRooms(Member chatJoiner) {
+        return this.chatJoinRepository.findByChatJoiner(chatJoiner);
+    }
+
     public ChatRoom createRoom(String name) {
-        ChatRoom newRoom = new ChatRoom(name);
+        ChatRoom newRoom = ChatRoom.builder()
+                .name(name).build();
         return chatRoomRepository.save(newRoom);
     }
 
@@ -72,30 +113,7 @@ public class ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
     }
 
-    // ChatService 클래스에 추가
-    public boolean deleteMessageById(Long messageId) {
-        try {
-            if (!chatRepository.existsById(messageId)) {
-                System.err.println("Message ID not found: " + messageId);
-                return false;
-            }
-
-            chatRepository.deleteById(messageId);
-            System.out.println("Message deleted from repository: " + messageId);
-            return true;
-        } catch (Exception e) {
-            System.err.println("Error deleting message from repository: " + e.getMessage());
-            return false;
-        }
+    public boolean isJoiner(Long memberId, Long roomId) {
+        return this.chatJoinRepository.findByMemberIdAndRoomId(memberId, roomId).isPresent();
     }
-
-    public Chat saveMessages(ChatDTO chatDTO, Member member) {
-        Chat chat = toEntity(chatDTO, member);
-        return chatRepository.save(chat);
-    }
-
-
-
-
-
 }

@@ -47,19 +47,6 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ roomDetails }) => {
     <div className={styles.chatHeader}>
       <div className={styles.roomInfo}>
         <h3>{roomDetails.name}</h3>
-        {/* 채팅방 프로필 이미지 */}
-        {/* 프로필 이미지가 없다면 기본 이미지를 보여줍니다 */}
-        <Image
-          src={"/icon/circle_user.svg"} // 기본 프로필 이미지 사용
-          alt={`${roomDetails.name}의 프로필`}
-          width={40}
-          height={40}
-          className={styles.profileImage}
-        />
-        {/* 마지막 활동 시간 표시 */}
-        <span className={styles.lastActive}>
-          {lastActive ? `Last active: ${lastActive}` : "No activity yet"}
-        </span>
       </div>
       <Image
         src={"/icon/ellipsis.svg"} // 동적 이미지 변경

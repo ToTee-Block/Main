@@ -45,4 +45,13 @@
     display: flex;
     gap: 10px; // 버튼 간 간격
   }
+
+  .errorMessage {
+    @include font-XXXXS-M;
+    color: var(--text-danger-light-color);
+
+    &.hidden {
+      opacity: 0; // 숨김 상태
+    }
+  }
 }

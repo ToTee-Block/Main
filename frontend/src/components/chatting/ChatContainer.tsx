@@ -6,16 +6,19 @@ import ChatFooter from "./ChatFooter";
 import ChatHeader from "./ChatHeader";
 import { Client } from "@stomp/stompjs";
 
-interface ChatMessage {
-  text: string;
-  type: "sent" | "received";
-  senderName?: string;
-  time: string;
-  date: string;
+interface Message {
+  text: string; // 메시지 내용
+  type: "sent" | "received"; // 보낸 메시지인지, 받은 메시지인지
+  contentType: "image" | "text"; // 콘텐츠 타입: 이미지 또는 텍스트
+  senderId?: number; // 발신자 ID
+  senderName?: string; // 발신자 이름
+  senderProfile?: string; // 발신자 프로필 이미지 URL
+  time: string; // 메시지 전송 시간
+  date: string; // 메시지 전송 날짜
 }
 
 type ChatHistory = {
-  [roomId: string]: ChatMessage[];
+  [roomId: string]: Message[];
 };
 
 interface RoomDetails {
@@ -31,6 +34,7 @@ const ChatContainer = () => {
   const [roomDetails, setRoomDetails] = useState<RoomDetails | null>(null);
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const subscriptionRef = useRef<string | null>(null);
+  const [senderId, setSenderId] = useState<number | null>(null);
 
   // 현재 시간/날짜 가져오기
   const getCurrentTime = (): string =>
@@ -41,7 +45,14 @@ const ChatContainer = () => {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await fetch("http://localhost:8081/chat/rooms");
+        const res = await fetch("http://localhost:8081/chat/rooms", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+        });
         if (!res.ok) throw new Error("Failed to fetch chat rooms");
         const data = await res.json();
         setRooms(data);
@@ -53,6 +64,27 @@ const ChatContainer = () => {
     fetchRooms();
   }, []);
 
+  // 현재 사용자 ID 가져오기
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        const res = await fetch("http://localhost:8081/user/me", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+        });
+        const userData = await res.json();
+        setSenderId(userData.id);
+      } catch (err) {
+        console.error("Error fetching user ID:", err);
+      }
+    };
+
+    fetchUserId();
+  }, []);
+
   // STOMP 클라이언트 초기화
   useEffect(() => {
     const initializeClient = () => {
@@ -60,9 +92,6 @@ const ChatContainer = () => {
         brokerURL: "ws://localhost:8081/ws",
         reconnectDelay: 5000,
         debug: (str) => console.log(str),
-        connectHeaders: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // JWT 토큰 추가
-        },
       });
 
       client.onConnect = () => {
@@ -82,15 +111,64 @@ const ChatContainer = () => {
     initializeClient();
   }, []);
 
-  // 채팅방 선택 및 구독
+  // 채팅방 세부 정보와 과거 메시지 가져오기
+  const fetchRoomDetailsAndMessages = async (roomId: string) => {
+    try {
+      const roomRes = await fetch(`http://localhost:8081/chat/${roomId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+      });
+
+      if (!roomRes.ok) throw new Error("Failed to fetch room details");
+      const roomData = await roomRes.json();
+      setRoomDetails(roomData);
+
+      const messageRes = await fetch(
+        `http://localhost:8081/chat/${roomId}/messages`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!messageRes.ok) throw new Error("Failed to fetch messages");
+      const messages = await messageRes.json();
+
+      setChatHistory((prev) => ({
+        ...prev,
+        [roomId]: messages.map((message: any) => ({
+          text: message.message,
+          senderName: message.senderName,
+          senderProfile: message.senderProfile,
+          type: message.type,
+          contentType: message.contentType, // 이미지 또는 텍스트
+          time: new Date(message.sendTime).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          date: new Date(message.sendTime).toISOString().split("T")[0],
+        })),
+      }));
+    } catch (err) {
+      console.error("Error fetching room details and messages:", err);
+    }
+  };
+
   const handleRoomSelect = (roomId: string) => {
     if (!stompClient) return;
 
     setActiveRoom(roomId);
 
-    // 기존 구독 해제
     if (subscriptionRef.current) {
-      stompClient.unsubscribe(subscriptionRef.current); // 이전 구독 ID 사용
+      stompClient.unsubscribe(subscriptionRef.current);
     }
 
     // 새로운 방 구독
@@ -98,15 +176,17 @@ const ChatContainer = () => {
       `/sub/chatroom/${roomId}`,
       (messageOutput) => {
         const data = JSON.parse(messageOutput.body);
-        console.log("Received message:", data);
+
         setChatHistory((prev) => ({
           ...prev,
           [roomId]: [
             ...(prev[roomId] || []),
             {
               text: data.message,
-              senderName: data.name,
-              type: data.name === "Me" ? "sent" : "received",
+              senderName: data.senderName,
+              senderProfile: data.senderProfile,
+              type: data.type,
+              contentType: data.contentType,
               time: new Date(data.sendTime).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -121,52 +201,23 @@ const ChatContainer = () => {
     // 새로운 구독 ID 저장
     subscriptionRef.current = subscription.id;
 
-    // 채팅방 세부 정보 가져오기
-    const fetchRoomDetails = async () => {
-      try {
-        const res = await fetch(`http://localhost:8081/chat/${roomId}`);
-        if (!res.ok) throw new Error("Failed to fetch room details");
-        const data = await res.json();
-        setRoomDetails(data);
-      } catch (err) {
-        console.error("Error fetching room details:", err);
-      }
-    };
-
-    fetchRoomDetails();
+    fetchRoomDetailsAndMessages(roomId);
   };
 
-  // 메시지 전송
-  const handleSendMessage = (message: string) => {
-    if (!stompClient || !activeRoom) return;
+  const handleSendMessage = (message: string, imageUrl?: string) => {
+    if (!stompClient || !activeRoom || senderId === null) return;
 
     const payload = {
-      roomId: activeRoom, // roomId로 맞춤
-      name: "Me", // name으로 맞춤
-      message,
-      sendTime: new Date().toISOString(), // ISO 8601 형식 보장
+      roomId: Number(activeRoom),
+      message: imageUrl || message,
+      senderId,
+      contentType: imageUrl ? "image" : "text",
     };
 
     stompClient.publish({
       destination: "/pub/message",
       body: JSON.stringify(payload),
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // 헤더에 JWT 추가
-      },
     });
-
-    setChatHistory((prev) => ({
-      ...prev,
-      [activeRoom]: [
-        ...(prev[activeRoom] || []),
-        {
-          text: message,
-          type: "sent",
-          time: getCurrentTime(),
-          date: getCurrentDate(),
-        },
-      ],
-    }));
   };
 
   return (
@@ -183,6 +234,7 @@ const ChatContainer = () => {
             <ChatMessages
               roomName={roomDetails?.name || ""}
               messages={chatHistory[activeRoom] || []}
+              senderId={senderId}
             />
             <ChatFooter onSend={handleSendMessage} activeRoom={activeRoom} />
           </>

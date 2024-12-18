@@ -1,29 +1,27 @@
 package com.example.Main.domain.Chat.entity;
 
-import jakarta.persistence.*;
+import com.example.Main.global.Jpa.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
-@Entity
 @Getter
+@Setter
+@SuperBuilder
+@AllArgsConstructor
 @NoArgsConstructor
-public class ChatRoom {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Entity
+public class ChatRoom extends BaseEntity {
+    @Column(nullable = false, unique = true)
+    private String name;  //채팅방 이름
 
-    @Column(nullable = false,unique = true)
-    private  String name;  //채팅방 이름
-
-    public ChatRoom(String name){
-        this.name=name;
-
-    }
-
-    @CreationTimestamp
-    @Column(updatable = false , nullable = false)
-    private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "chatRoom")
+    private List<ChatJoin> chatJoiners;
 }
