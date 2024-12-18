@@ -200,17 +200,57 @@ html > body {
 .contentAreaFull {
   width: 100%;
 }
-
-// 스크롤바
+// 전역 스크롤바 스타일
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 8px;
+  height: 8px; 
 }
-::-webkit-scrollbar-button {
-  /* 스크롤바 버튼 */
-  display: none;
-}
+
 ::-webkit-scrollbar-thumb {
-  /* 스크롤바 막대 */
-  background: var(--gray-color);
-  border-radius: 6px;
+  background-color: var(--gray-400);
+  border-radius: 4px;
+  margin: 8px 0; 
+}
+
+// 세로 스크롤바 버튼
+::-webkit-scrollbar-button:vertical:start:decrement,
+::-webkit-scrollbar-button:vertical:end:increment {
+  display: block;
+  height: 16px;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+}
+
+::-webkit-scrollbar-button:vertical:start:decrement {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none'%3E%3Cpath d='M6 0l6 6H0z' fill='%23495057'/%3E%3C/svg%3E");
+  margin-bottom: 4px;
+}
+
+::-webkit-scrollbar-button:vertical:end:increment {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' fill='none'%3E%3Cpath d='M6 6l6-6H0z' fill='%23495057'/%3E%3C/svg%3E");
+  margin-top: 4px;
+}
+
+// 가로 스크롤바 버튼
+::-webkit-scrollbar-button:horizontal:start:decrement,
+::-webkit-scrollbar-button:horizontal:end:increment {
+  display: block;
+  width: 16px;
+  height: 8px;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+}
+
+::-webkit-scrollbar-button:horizontal:start:decrement {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='12' fill='none'%3E%3Cpath d='M0 6l6 6V0z' fill='%23495057'/%3E%3C/svg%3E");
+  margin-right: 4px;
+}
+
+::-webkit-scrollbar-button:horizontal:end:increment {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='12' fill='none'%3E%3Cpath d='M6 6l-6 6V0z' fill='%23495057'/%3E%3C/svg%3E");
+  margin-left: 4px;
 }

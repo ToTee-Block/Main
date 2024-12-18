@@ -43,6 +43,7 @@ export default function Home() {
               imageUrl="/icon/card03.svg"></LinkCard>
           </div>
         </div>
+        <div className={styles.content_container}>
         <div className={styles.container}>
           <p>Post</p>
           <div className={styles.containerItemBox}>
@@ -64,6 +65,7 @@ export default function Home() {
           <div className={styles.containerItemBox}>
             <Tabs></Tabs>
           </div>
+        </div>
         </div>
       </main>
     </>

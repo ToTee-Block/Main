@@ -3,7 +3,6 @@
 import styles from '@/styles/pages/mentor/mentor-detail.module.scss';
 import Image from 'next/image';
 import MentorButton from '@/components/button/MentorButton';
-
 import EditButton from '@/components/button/EditButton';
 
 export default function MentorDetail() {
