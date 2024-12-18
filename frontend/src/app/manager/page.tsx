@@ -26,15 +26,9 @@ interface Mentor {
   id: number;
   createdDate: string;
   modifiedDate: string;
-  member: Member;
-  bio: string;
-  approved: boolean;
-  matchingStatus: boolean;
-  oneLineBio: string;
-  portfolio: string;
-  myMentees: any[];
-  reviews: any[];
-  techStacks: any[];
+  email: string;
+  name: string;
+  profileImg: string | null;
 }
 
 interface Post {
@@ -114,11 +108,7 @@ export default function ManagerPage() {
         } else {
           const formattedData = response.data.data.content.map((item) => ({
             ...item,
-            createdDate: formatDate(
-              activeTab === "mentors"
-                ? (item as Mentor).createdDate
-                : (item as Member).createdDate
-            ),
+            createdDate: formatDate(item.createdDate),
           }));
           setData(formattedData as (Member | Mentor)[]);
         }
@@ -145,19 +135,15 @@ export default function ManagerPage() {
     setActiveTab("members");
   }, []);
 
-  const handleApprove = async (mentorId: number) => {
+  const handleApprove = async (mentorId: number, memberId: number) => {
     const isConfirmed = window.confirm("승인하시겠습니까?");
     if (isConfirmed) {
       try {
-        const requestData = {
-          mentorId: mentorId,
-          approve: true,
-        };
-
-        const response = await apiClient.post(
-          "/api/v1/admin/mentors/approve",
-          requestData
-        );
+        const response = await apiClient.post("/api/v1/admin/mentors/approve", {
+          mentorId: mentorId.toString(),
+          memberId: memberId.toString(),
+          approve: "true",
+        });
 
         if (response.data.resultCode === "200") {
           console.log("멘토 승인 성공");
@@ -169,13 +155,14 @@ export default function ManagerPage() {
     }
   };
 
-  const handleReject = async (mentorId: number) => {
+  const handleReject = async (mentorId: number, memberId: number) => {
     const isConfirmed = window.confirm("거부하시겠습니까?");
     if (isConfirmed) {
       try {
         const response = await apiClient.post("/api/v1/admin/mentors/approve", {
-          mentorId: mentorId,
-          approve: false,
+          mentorId: mentorId.toString(),
+          memberId: memberId.toString(),
+          approve: "false",
         });
 
         if (response.data.resultCode === "200") {

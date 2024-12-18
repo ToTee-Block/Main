@@ -12,7 +12,9 @@ interface Member {
 interface Mentor {
   id: number;
   createdDate: string;
-  member: Member;
+  email: string;
+  name: string;
+  profileImg: string | null;
 }
 
 interface Post {
@@ -25,8 +27,8 @@ interface Post {
 
 interface TableProps {
   data: (Member | Mentor | Post)[];
-  onApprove?: (mentorId: number) => void;
-  onReject?: (mentorId: number) => void;
+  onApprove?: (mentorId: number, memberId: number) => void;
+  onReject?: (mentorId: number, memberId: number) => void;
   onDelete?: (id: number) => void;
   currentPage: number;
   itemsPerPage?: number;
@@ -89,16 +91,6 @@ const Table: React.FC<TableProps> = ({
     )}-${String(date.getDate()).padStart(2, "0")}`;
   };
 
-  const getMemberData = (item: Member | Mentor | Post) => {
-    if ("member" in item) {
-      return (item as Mentor).member;
-    }
-    if ("url" in item) {
-      return item as Post;
-    }
-    return item as Member;
-  };
-
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table} data-tab={activeTab}>
@@ -115,19 +107,14 @@ const Table: React.FC<TableProps> = ({
         </thead>
         <tbody>
           {data.map((item, index) => {
-            const itemData = getMemberData(item);
-            if (!itemData) return null;
-
             return (
               <tr key={item.id}>
                 <td>{getItemNumber(index)}</td>
-                <td>{itemData.email}</td>
-                <td>{itemData.name}</td>
+                <td>{item.email}</td>
+                <td>{item.name}</td>
                 <td>{formatDate(item.createdDate)}</td>
-                {activeTab === "members" && (
-                  <td>{(itemData as Member).role}</td>
-                )}
-                {activeTab === "posts" && <td>{(itemData as Post).url}</td>}
+                {activeTab === "members" && <td>{(item as Member).role}</td>}
+                {activeTab === "posts" && <td>{(item as Post).url}</td>}
                 <td>
                   <div className={styles.statusCell}>
                     {activeTab === "posts" ? (
@@ -141,13 +128,13 @@ const Table: React.FC<TableProps> = ({
                       <>
                         <button
                           className={styles.approveStatus}
-                          onClick={() => onApprove?.(item.id)}
+                          onClick={() => onApprove?.(item.id, item.id)}
                         >
                           승인
                         </button>
                         <button
                           className={styles.rejectStatus}
-                          onClick={() => onReject?.(item.id)}
+                          onClick={() => onReject?.(item.id, item.id)}
                         >
                           거부
                         </button>
