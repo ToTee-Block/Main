@@ -6,17 +6,13 @@ import com.example.Main.domain.Report.dto.ReportDTO;
 import com.example.Main.domain.Report.dto.request.ReportRequest;
 import com.example.Main.domain.Report.entity.Report;
 import com.example.Main.domain.Report.enums.ReportReason;
-import com.example.Main.domain.Report.enums.ReportStatus;
 import com.example.Main.domain.Report.service.ReportService;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
-import com.example.Main.global.Security.SecurityMember;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -31,6 +27,7 @@ public class ApiV1ReportController {
     private final ReportService reportService;
     private final PostService postService;
     private final QnAService qnAService;
+    private final NotificationService notificationService;
 
     // 신고 선택지 출력
     @GetMapping("")
@@ -42,7 +39,7 @@ public class ApiV1ReportController {
     // 게시물에 신고
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{targetType}/{targetId}")
-    public RsData reportPost(@PathVariable("targetType") String targetType,
+    public RsData report (@PathVariable("targetType") String targetType,
                                         @PathVariable("targetId") Long targetId,
                                         @Valid @RequestBody ReportRequest reportRequest,
                                         Principal principal) {
@@ -78,6 +75,17 @@ public class ApiV1ReportController {
         if (report == null) {
             return RsData.of("400", ErrorMessages.REPORT_PROCESS_FAILED, null);
         }
+
+        // 신고자에게 알림 전송
+        notificationService.sendNotification(
+                String.valueOf(report.getReporter().getId()),
+                "신고가 되었습니다."
+        );
+
+        // 관리자에게 신고 알림 전송
+        notificationService.sendNotificationToAdmins(
+                "신고가 되었습니다. 관리자 확인이 필요합니다."
+        );
 
         return RsData.of("201", "게시물 신고 성공", new ReportDTO(report));
     }
