@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import apiClient, { fetchUserProfile } from "@/api/axiosConfig";
 import styles from "@/styles/components/modal/report-modal.module.scss";
 import TextInput from "../input/TextInput";
 
@@ -8,6 +10,8 @@ interface YesNoModalProps {
   onClose: () => void;
   setReportActiveNum: (index: Number) => void;
   reportActiveNum: Number;
+  setReportTextInput: (value: string) => void;
+  reportTextInput: string;
 }
 
 const YesNoModal: React.FC<YesNoModalProps> = ({
@@ -16,12 +20,50 @@ const YesNoModal: React.FC<YesNoModalProps> = ({
   onClose,
   setReportActiveNum,
   reportActiveNum,
+  setReportTextInput,
+  reportTextInput,
 }) => {
-  const [reportSelects, setReportSelects] = useState<string[]>([
-    "예시1",
-    "예시2",
-  ]);
-  const [reportInput, setReportInput] = useState<string>();
+  const [reportSelects, setReportSelects] = useState<string[]>();
+  const [loginStatus, setLoginStatus] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>();
+
+  const checkLogin = async () => {
+    const response = await fetchUserProfile();
+    console.log(response);
+    if (response.resultCode == "200") {
+      setLoginStatus(true);
+      return;
+    }
+    setLoginStatus(false);
+  };
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      checkLogin();
+
+      try {
+        const response = await axios.get(
+          `http://localhost:8081/api/v1/reports`
+        );
+
+        const resultCode = response.data.resultCode;
+        const data = response.data.data;
+        if (resultCode == "200") {
+          setReportSelects(data);
+          console.log(data);
+        } else {
+          alert("정보를 가져오지 못했습니다.");
+        }
+        setLoading(false);
+      } catch (error) {
+        setError("Failed to fetch recent posts.");
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
 
   if (!visible) return null;
 
@@ -34,27 +76,28 @@ const YesNoModal: React.FC<YesNoModalProps> = ({
         </button>
       </div>
       <ul className={styles.select}>
-        {reportSelects.map((content, index) => (
-          <li key={index}>
+        {Object.entries(reportSelects).map(([key, selection]) => (
+          <li key={key}>
             <div
               className={`${styles.custumCheckBox} ${
-                reportActiveNum === index ? styles.active : ""
+                reportActiveNum === Number(key) ? styles.active : ""
               }`}
               onClick={() => {
-                setReportActiveNum(index);
-                console.log(reportSelects[reportActiveNum]);
+                setReportActiveNum(Number(key));
+                console.log(`${key}, ${selection}`);
               }}
             >
               <div className={styles.check}></div>
             </div>
-            <span>{content}</span>
+            <span>{selection}</span>
           </li>
         ))}
       </ul>
       <div className={styles.actions}>
         <TextInput
+          value={reportTextInput}
           onChange={(e) => {
-            setReportInput(e.target.value);
+            setReportTextInput(e.target.value);
           }}
           placeholder="기타 내용을 입력해주세요.."
         ></TextInput>

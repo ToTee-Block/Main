@@ -1,0 +1,75 @@
+@import "../../globals/font-mixin.scss";
+
+.bodyContainer:first-child {
+  margin-top: 32px;
+}
+
+.bodyContainer:last-child {
+  margin-bottom: 32px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+
+  .postSection {
+    width: 100%;
+    margin-bottom: 40px;
+
+    .titleBox {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+
+      .title {
+        @include font-XXL-B;
+        color: var(--text-blue);
+        height: 76px;
+        display: flex;
+        align-items: flex-end;
+      }
+    }
+
+    .contentBox {
+      padding: 0 10px;
+
+      & > .content {
+        max-height: 880px;
+        min-height: 100px;
+        overflow-y: scroll;
+
+        & > span {
+          @include font-XS-B;
+        }
+      }
+    }
+  }
+
+  .utilBar {
+    display: flex;
+    gap: 8px;
+    height: 40px;
+
+    .airBox {
+      flex-grow: 1;
+    }
+  }
+
+  .commentSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 1380px;
+    width: 100%;
+    margin: 0 auto;
+
+    & > span {
+      font-size: 13px;
+    }
+  }
+}

@@ -1,13 +1,17 @@
 package com.example.Main.domain.Report.controller;
 
+import com.example.Main.domain.Post.service.PostService;
+import com.example.Main.domain.QnA.service.QnAService;
 import com.example.Main.domain.Report.dto.ReportDTO;
+import com.example.Main.domain.Report.dto.request.ReportRequest;
 import com.example.Main.domain.Report.entity.Report;
-import com.example.Main.domain.Report.eunums.ReportReason;
-import com.example.Main.domain.Report.eunums.ReportStatus;
+import com.example.Main.domain.Report.enums.ReportReason;
+import com.example.Main.domain.Report.enums.ReportStatus;
 import com.example.Main.domain.Report.service.ReportService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,38 +21,60 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/post")
+@RequestMapping("/api/v1/reports")
 public class ApiV1ReportController {
 
     private final ReportService reportService;
+    private final PostService postService;
+    private final QnAService qnAService;
+
+    // 신고 선택지 출력
+    @GetMapping("")
+    public RsData getRepostSelections() {
+        Map<Integer, String> reasons = ReportReason.toMap();
+        return RsData.of("200", "신고 선택지 목록 성공", reasons);
+    }
 
     // 게시물에 신고
-    // 예시 : api/v1/post/1/report?reason=1
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/{postId}/report")
-    public RsData<ReportDTO> reportPost(@PathVariable("postId") Long postId,
-                                        @RequestParam("reason") int reason,
+    @PostMapping("/{targetType}/{targetId}")
+    public RsData reportPost(@PathVariable("targetType") String targetType,
+                                        @PathVariable("targetId") Long targetId,
+                                        @Valid @RequestBody ReportRequest reportRequest,
                                         Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
 
         String reporterEmail = principal.getName();
-        ReportReason reportReason = ReportReason.fromCode(reason);
+        ReportReason reportReason = ReportReason.fromCode(reportRequest.getReportCode());
 
-        if (!reportService.existsPost(postId)) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+        if (targetType.equals("post")) {
+            if (this.postService.getPost(targetId) == null) {
+                return RsData.of("404", ErrorMessages.POST_NOT_FOUND);
+            }
+        } else if (targetType.equals("qna")) {
+            if (this.qnAService.getQnA(targetId) == null) {
+                return RsData.of("404", ErrorMessages.QNA_NOT_FOUND);
+            }
+        } else {
+            return RsData.of("404", String.format("잘못된 url 요청입니다: %s", targetType));
         }
 
-        if (reportService.existsReport(postId, reporterEmail)) {
-            return RsData.of("400", ErrorMessages.POST_ALREADY_REPORTED, null);
+        if (reportService.existsReport(targetType, targetId, reporterEmail)) {
+            return RsData.of("400", ErrorMessages.ALREADY_REPORTED);
         }
 
-        Report report = reportService.reportPost(postId, reporterEmail, reportReason);
-
+        Report report = null;
+        if (targetType.equals("post")) {
+            report = reportService.reportPost(targetId, reporterEmail, reportReason);
+        } else if (targetType.equals("qna")) {
+            report = reportService.reportQnA(targetId, reporterEmail, reportReason);
+        }
         if (report == null) {
             return RsData.of("400", ErrorMessages.REPORT_PROCESS_FAILED, null);
         }
@@ -72,66 +98,5 @@ public class ApiV1ReportController {
         }
 
         return RsData.of("200", "본인 신고 내역 조회 성공", reportDTOList);
-    }
-
-    // 전체 게시물의 신고 내역 > 관리자 권한으로 변경
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/report/admin")
-    public ResponseEntity<RsData<List<ReportDTO>>> getAllReports(@AuthenticationPrincipal SecurityMember loggedInUser) {
-        if (loggedInUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(RsData.of("401", ErrorMessages.UNAUTHORIZED, null));
-        }
-
-        // 권한 체크
-        String role = loggedInUser.getAuthorities().toString();
-        if (!role.contains("ROLE_ADMIN")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(RsData.of("403", ErrorMessages.ONLY_ADMIN, null));
-        }
-
-        List<ReportDTO> reportDTOList = reportService.getAllReports();
-
-        if (reportDTOList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(RsData.of("404", ErrorMessages.USER_REPORT_NOT_FOUND, null));
-        }
-
-        return ResponseEntity.ok(RsData.of("200", "전체 신고 내역 조회 성공", reportDTOList));
-    }
-
-    // 특정 게시물의 신고상태 변경 > 관리자 권한으로 변경
-    // 예시 : api/v1/post/1/report/3?status=1
-    @PreAuthorize("isAuthenticated()")
-    @PatchMapping("/{postId}/report/{reportId}")
-    public ResponseEntity<RsData<ReportDTO>> updateReportStatus(@PathVariable("reportId") Long reportId,
-                                                                @RequestParam("status") int status,
-                                                                @AuthenticationPrincipal SecurityMember loggedInUser) {
-        if (loggedInUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(RsData.of("401", ErrorMessages.UNAUTHORIZED, null));
-        }
-
-        // 권한 체크
-        String role = loggedInUser.getAuthorities().toString();
-        if (!role.contains("ROLE_ADMIN")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(RsData.of("403", ErrorMessages.ONLY_ADMIN, null));
-        }
-
-        Report report = reportService.getReportById(reportId);
-        if (report == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(RsData.of("404", ErrorMessages.REPORT_NOT_FOUND, null));
-        }
-
-        ReportStatus reportStatus = ReportStatus.fromCode(status);
-        if (reportStatus == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(RsData.of("400", ErrorMessages.INVALID_REPORT_STATUS, null));
-        }
-
-        report = reportService.updateReportStatus(reportId, reportStatus);
-        return ResponseEntity.ok(RsData.of("200", "신고 상태 업데이트 성공", new ReportDTO(report)));
     }
 }

@@ -20,7 +20,7 @@ public class PostCommentDTO {
     private final String authorName;
     private final String profileImg;
     private final int likes;
-    private final LocalDateTime createDate;   // 열람 시간과 작성 시간의 차이
+    private final LocalDateTime createdDate;   // 열람 시간과 작성 시간의 차이
     private final List<String> likedByEmails;
     private final Long postId;
     private final Long parentCommentId;
@@ -32,7 +32,7 @@ public class PostCommentDTO {
         this.authorEmail = comment.getAuthor().getEmail();
         this.authorName = comment.getAuthor().getName();
         this.profileImg = comment.getAuthor().getProfileImg();
-        this.createDate = comment.getCreatedDate();
+        this.createdDate = comment.getCreatedDate();
 
         // 좋아요
         this.likes = comment.getLikes();

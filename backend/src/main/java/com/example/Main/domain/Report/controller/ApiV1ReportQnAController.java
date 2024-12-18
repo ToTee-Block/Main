@@ -2,7 +2,7 @@ package com.example.Main.domain.Report.controller;
 
 import com.example.Main.domain.Report.dto.ReportQnADTO;
 import com.example.Main.domain.Report.entity.ReportQnA;
-import com.example.Main.domain.Report.eunums.ReportReason;
+import com.example.Main.domain.Report.enums.ReportReason;
 import com.example.Main.domain.Report.service.ReportQnAService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
@@ -38,7 +38,7 @@ public class ApiV1ReportQnAController {
         }
 
         if (reportQnAService.existsReport(qnAId, reporterEmail)) {
-            return RsData.of("400", ErrorMessages.QNA_ALREADY_REPORTED, null);
+            return RsData.of("400", ErrorMessages.ALREADY_REPORTED, null);
         }
 
         ReportQnA reportQnA = reportQnAService.reportQnA(qnAId, reporterEmail, reportReason);
