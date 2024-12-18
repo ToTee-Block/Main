@@ -56,7 +56,7 @@ public class ApiV1MentorController {
         // 신청자에게 확인 알림 전송
         notificationService.sendNotification(
                 member.getId().toString(),
-                "멘토 등록 신청이 성공적으로 접수되었습니다. 검토 후 연락 드리겠습니다."
+                "멘토 신청이 성공적으로 접수되었습니다."
         );
 
         return RsData.of("200", "멘토 등록 신청 성공", mentorDTO);

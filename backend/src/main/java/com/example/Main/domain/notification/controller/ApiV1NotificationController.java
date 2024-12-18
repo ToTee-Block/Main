@@ -1,6 +1,6 @@
 package com.example.Main.domain.notification.controller;
 
-import com.example.Main.domain.notification.entity.Notification;
+import com.example.Main.domain.notification.dto.NotificationDTO;
 import com.example.Main.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +17,8 @@ public class ApiV1NotificationController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("")
-    public ResponseEntity<List<Notification>> getNotifications() {
-        List<Notification> notifications = notificationService.getNotificationsForCurrentUser();
+    public ResponseEntity<List<NotificationDTO>> getNotifications() {
+        List<NotificationDTO> notifications = notificationService.getNotificationsForCurrentUser();
         return ResponseEntity.ok(notifications);
     }
 

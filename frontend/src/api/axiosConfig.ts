@@ -153,10 +153,14 @@ export const markNotificationAsRead = async (notificationId: number) => {
     const response = await apiClient.post(
       `/api/v1/notifications/${notificationId}/read`
     );
-    return response.data;
+    return response.status === 200;
   } catch (error: any) {
-    handleForbiddenError(error);
-    throw error.response?.data || error.message;
+    if (error.response?.status === 404) {
+      console.error("알림을 찾을 수 없습니다:", error.response.data);
+    } else {
+      console.error("알림을 읽음으로 표시하는 데 실패했습니다:", error.message);
+    }
+    return false;
   }
 };
 
