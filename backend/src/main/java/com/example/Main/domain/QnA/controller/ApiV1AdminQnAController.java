@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/admin/qnasㄹ")
+@RequestMapping(value = "/api/v1/admin/qnas")
 public class ApiV1AdminQnAController {
     private final QnAService qnAService;
 
