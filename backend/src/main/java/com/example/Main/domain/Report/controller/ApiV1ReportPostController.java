@@ -1,5 +1,8 @@
 package com.example.Main.domain.Report.controller;
 
+import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.Member.repository.MemberRepository;
+import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Report.dto.ReportPostDTO;
 import com.example.Main.domain.Report.entity.ReportPost;
 import com.example.Main.domain.Report.eunums.ReportReason;
@@ -21,6 +24,7 @@ public class ApiV1ReportPostController {
 
     private final ReportPostService reportPostService;
     private final NotificationService notificationService;
+    private final MemberRepository memberRepository;
 
     // 게시글 신고
     @PreAuthorize("isAuthenticated()")
@@ -49,9 +53,12 @@ public class ApiV1ReportPostController {
             return RsData.of("400", ErrorMessages.REPORT_PROCESS_FAILED, null);
         }
 
+        Member reporter = memberRepository.findByEmail(reporterEmail)
+                .orElseThrow(() -> new IllegalArgumentException("신고자 정보가 없습니다."));
+
         // 신고자에게 신고 접수 알림 전송
         notificationService.sendNotification(
-                reporterEmail,
+                String.valueOf(reporter.getId()),
                 "'%s'가 신고되었습니다. 관리자 검토 후 처리할 예정입니다.".formatted(reportPost.getPost().getSubject())
         );
 
@@ -59,7 +66,6 @@ public class ApiV1ReportPostController {
         notificationService.sendNotificationToAdmins(
                 "'%s'가 신고되었습니다. 관리자 확인이 필요합니다.".formatted(reportPost.getPost().getSubject())
         );
-
 
         return RsData.of("201", "게시물 신고 성공", new ReportPostDTO(reportPost));
     }
