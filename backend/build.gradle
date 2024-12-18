@@ -57,8 +57,6 @@ dependencies {
 
 	// flexmark 마크다운 라이브러리
 	implementation 'com.vladsch.flexmark:flexmark-all:0.62.2'
-	// Websocket 알림 기능
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 tasks.named('test') {
