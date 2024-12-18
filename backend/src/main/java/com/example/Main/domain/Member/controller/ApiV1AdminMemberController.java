@@ -1,5 +1,6 @@
 package com.example.Main.domain.Member.controller;
 
+import com.example.Main.domain.Member.dto.MemberDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.global.RsData.RsData;
@@ -23,9 +24,11 @@ public class ApiV1AdminMemberController {
 
     @PreAuthorize("isAuthecticated()")
     @GetMapping("")
-    private RsData getMemberList(@RequestParam(value = "page", defaultValue = "0") int page) {
-        Page<Member> members = this.memberService.getList(page);
+//    private RsData getMemberList(@RequestParam(value = "page", defaultValue = "0") int page) {
+//        Page<Member> members = this.memberService.getList(page);
 
+    public RsData<Page<MemberDTO>> getMemberList(@RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<MemberDTO> members = this.memberService.getMemberList(page);
         return RsData.of("200", "회원 리스트", members);
     }
 

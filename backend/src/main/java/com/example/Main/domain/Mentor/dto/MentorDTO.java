@@ -15,6 +15,8 @@ import java.util.List;
 public class MentorDTO {
     private final Long id;
 
+    private final String email;
+
     private final String name;
 
     private final String profileImg;
@@ -40,7 +42,7 @@ public class MentorDTO {
         Member member = mentor.getMember();
         this.name = member.getName();
         this.profileImg = member.getProfileImg();
-
+        this.email = member.getEmail();
         this.id = mentor.getId();
         this.createdDate = mentor.getCreatedDate();
         this.modifiedDate = mentor.getModifiedDate();
@@ -57,7 +59,7 @@ public class MentorDTO {
         Member member = mentor.getMember();
         this.name = member.getName();
         this.profileImg = member.getProfileImg();
-
+        this.email = member.getEmail();
         this.id = mentor.getId();
         this.createdDate = mentor.getCreatedDate();
         this.modifiedDate = mentor.getModifiedDate();

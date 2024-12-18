@@ -131,4 +131,15 @@ public class MemberService {
         }
         return memberRepository.save(member);
     }
+
+    public Page<MemberDTO> getMemberList(int page) {
+        if (page < 0) {
+            throw new IllegalArgumentException("페이지 수는 0 이상의 값이 필요합니다.");
+        }
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createdDate")));
+        Page<Member> members = this.memberRepository.findAll(pageable);
+
+        return members.map(MemberDTO::new);
+    }
 }

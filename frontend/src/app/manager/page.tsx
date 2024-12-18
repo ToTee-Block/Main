@@ -65,7 +65,12 @@ interface ApiResponse<T> {
 }
 
 export default function ManagerPage() {
-  const [activeTab, setActiveTab] = useState("members");
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("activeTab") || "mentors";
+    }
+    return "mentors";
+  });
   const [data, setData] = useState<(Member | Mentor)[]>([]);
   const [postData, setPostData] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -97,12 +102,6 @@ export default function ManagerPage() {
       }
 
       const params = new URLSearchParams();
-      if (searchFilters.id) params.append("email", searchFilters.id);
-      if (searchFilters.name) params.append("name", searchFilters.name);
-      if (searchFilters.startDate)
-        params.append("createdDate", searchFilters.startDate);
-      if (searchFilters.endDate)
-        params.append("endDate", searchFilters.endDate);
       params.append("page", String(currentPage - 1));
 
       const response = await apiClient.get<ApiResponse<Member | Mentor | Post>>(
@@ -146,23 +145,23 @@ export default function ManagerPage() {
     fetchData();
   }, [activeTab, currentPage]);
 
-  const handleApprove = async (mentorId: number, memberId: number) => {
+  useEffect(() => {
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
+
+  const handleApprove = async (mentorId: number) => {
     const isConfirmed = window.confirm("승인하시겠습니까?");
     if (isConfirmed) {
       try {
         const requestData = {
           mentorId: mentorId,
-          memberId: memberId,
           approve: true,
         };
-
-        console.log("멘토 승인 요청 데이터:", requestData);
 
         const response = await apiClient.post(
           "/api/v1/admin/mentors/approve",
           requestData
         );
-        console.log("멘토 승인 응답:", response.data);
 
         if (response.data.resultCode === "200") {
           console.log("멘토 승인 성공");
@@ -174,13 +173,12 @@ export default function ManagerPage() {
     }
   };
 
-  const handleReject = async (mentorId: number, memberId: number) => {
+  const handleReject = async (mentorId: number) => {
     const isConfirmed = window.confirm("거부하시겠습니까?");
     if (isConfirmed) {
       try {
         const response = await apiClient.post("/api/v1/admin/mentors/approve", {
           mentorId: mentorId,
-          memberId: memberId,
           approve: false,
         });
 
@@ -189,36 +187,6 @@ export default function ManagerPage() {
         }
       } catch (error) {
         console.error("거부 실패:", error);
-      }
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = window.confirm("삭제하시겠습니까?");
-    if (isConfirmed) {
-      try {
-        const response = await apiClient.delete(
-          `/api/v1/admin/members/delete/${id}`
-        );
-        if (response.data.resultCode === "200") {
-          fetchData();
-        }
-      } catch (error) {
-        console.error("삭제 실패:", error);
-      }
-    }
-  };
-
-  const handlePostDelete = async (id: number) => {
-    const isConfirmed = window.confirm("게시글을 삭제하시겠습니까?");
-    if (isConfirmed) {
-      try {
-        const response = await apiClient.delete(`/api/v1/post/admin/${id}`);
-        if (response.data.resultCode === "200") {
-          fetchData();
-        }
-      } catch (error) {
-        console.error("게시글 삭제 실패:", error);
       }
     }
   };
@@ -232,9 +200,14 @@ export default function ManagerPage() {
     fetchData();
   };
 
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    setCurrentPage(1);
+  };
+
   return (
     <div className={styles.container}>
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
       <div className={styles.content}>
         <SerchFilter
           searchFilters={searchFilters}
@@ -245,19 +218,12 @@ export default function ManagerPage() {
           data={activeTab === "posts" ? postData : data}
           onApprove={
             activeTab === "mentors"
-              ? (mentorId, memberId) => handleApprove(mentorId, memberId)
+              ? (mentorId) => handleApprove(mentorId)
               : undefined
           }
           onReject={
             activeTab === "mentors"
-              ? (mentorId, memberId) => handleReject(mentorId, memberId)
-              : undefined
-          }
-          onDelete={
-            activeTab === "posts"
-              ? handlePostDelete
-              : activeTab === "members"
-              ? handleDelete
+              ? (mentorId) => handleReject(mentorId)
               : undefined
           }
           currentPage={currentPage}
