@@ -9,8 +9,6 @@ public class Webconfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/**") // 요청 URL 매핑
-                .addResourceLocations("file:C:/Users/LENOVO/Desktop/project/uploads/");
+                .addResourceLocations("file:C:/work/IdeaProjects/ToTeeBlock/uploads/");
     }
-
-
 }

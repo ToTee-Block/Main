@@ -45,6 +45,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
         if (!res.ok) throw new Error("Failed to upload image");
 
         const result = await res.json();
+        console.log("서버 반환 이미지 URL:", result.imageUrl);
         imageUrl = result.imageUrl; // 서버에서 반환된 이미지 URL
       } catch (err) {
         console.error("Image upload error:", err);
@@ -73,9 +74,13 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
           className={styles.iconButton}
           onClick={() => setShowEmojiPicker((prev) => !prev)}
         >
-          😊
+          <img
+            src={"/icon/face_smile.svg"} // 이모티콘 아이콘
+            alt={"이모티콘 버튼"}
+            className={styles.iconImage}
+          />
         </button>
-
+  
         {/* 이모티콘 선택창 */}
         {showEmojiPicker && (
           <div className={styles.emojiPicker}>
@@ -86,10 +91,14 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
             <span onClick={() => addEmoji("🥰")}>🥰</span>
           </div>
         )}
-
+  
         {/* 파일 선택 버튼 */}
         <label className={styles.iconButton}>
-          @
+          <img
+            src={"/icon/at_sign.svg"} // 파일 첨부 아이콘
+            alt={"파일 첨부 버튼"}
+            className={styles.iconImage}
+          />
           <input
             type="file"
             accept="image/*"
@@ -97,7 +106,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
             className={styles.fileInput}
           />
         </label>
-
+  
         {/* 이미지 썸네일 또는 이름 표시 */}
         {image && (
           <div className={styles.filePreview}>
@@ -108,21 +117,28 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
             />
           </div>
         )}
-
+  
         {/* 메시지 입력창 */}
         <input
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Start typing..."
+          placeholder="메시지를 입력하세요..."
+          className={styles.input}
         />
+  
         {/* 전송 버튼 */}
-        <button type="submit" className={styles.sendButton}>
-          ✈️
+        <button type="submit" className={styles.iconButton}>
+          <img
+            src={"/icon/location_arrow.svg"} // 전송 아이콘
+            alt={"전송 버튼"}
+            className={styles.iconImage}
+          />
         </button>
       </form>
     </div>
   );
+  
 };
 
 export default ChatFooter;
