@@ -38,7 +38,7 @@ public class ApiV1ReportQnAController {
         }
 
         if (reportQnAService.existsReport(qnAId, reporterEmail)) {
-            return RsData.of("400", ErrorMessages.QNA_ALREADY_REPORTED, null);
+            return RsData.of("400", ErrorMessages.ALREADY_REPORTED, null);
         }
 
         ReportQnA reportQnA = reportQnAService.reportQnA(qnAId, reporterEmail, reportReason);

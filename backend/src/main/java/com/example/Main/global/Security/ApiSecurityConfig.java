@@ -61,6 +61,9 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/comments/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/comments/**").authenticated()
 
+                        // 신고 관련 API에 대한 권한 설정
+                        .requestMatchers(HttpMethod.GET, "/api/*/reports/**").permitAll()
+
                         // 관리자만 접근 가능한 API
                         .requestMatchers(HttpMethod.GET, "/api/*/post/**/report/admin").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/*/post/**/report/**").hasRole("ADMIN")

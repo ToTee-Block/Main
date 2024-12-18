@@ -38,7 +38,7 @@ public class ApiV1ReportPostController {
         }
 
         if (reportPostService.existsReport(postId, reporterEmail)) {
-            return RsData.of("400", ErrorMessages.POST_ALREADY_REPORTED, null);
+            return RsData.of("400", ErrorMessages.ALREADY_REPORTED, null);
         }
 
         ReportPost reportPost = reportPostService.reportPost(postId, reporterEmail, reportReason);

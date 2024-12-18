@@ -112,8 +112,6 @@ export default function QnA() {
         onPageChange={handlePageChange}
         totalPages={Math.ceil(qnAs.length / itemsPerPage)}
       />
-
-      <YesNoModal></YesNoModal>
     </div>
   );
 }

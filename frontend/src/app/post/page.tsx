@@ -37,7 +37,7 @@ const Post: React.FC = () => {
       return;
     }
 
-    location.href = "/post/my";
+    location.href = "/blog";
   };
 
   useEffect(() => {
