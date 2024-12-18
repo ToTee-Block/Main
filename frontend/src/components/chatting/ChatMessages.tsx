@@ -15,14 +15,9 @@ interface Message {
 interface ChatMessagesProps {
   roomName: string; // 채팅방 이름
   messages: Message[]; // 부모 컴포넌트에서 전달된 메시지
-  senderId: number | null; // 현재 사용자 ID
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({
-  roomName,
-  messages,
-  senderId,
-}) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
   // 날짜별 메시지 그룹화
   const groupedMessages = messages.reduce<Record<string, Message[]>>(
     (acc, message) => {
