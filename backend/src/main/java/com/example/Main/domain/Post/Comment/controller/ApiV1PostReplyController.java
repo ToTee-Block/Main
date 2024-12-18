@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/post/{postId}/comments/{commentId}/replies")
+@RequestMapping(value = "/api/v1/posts/{postId}/comments/{commentId}/replies")
 public class ApiV1PostReplyController {
 
     private final PostCommentService commentService;

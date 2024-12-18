@@ -21,15 +21,16 @@ const SearchBox: React.FC<SearchBoxProps> = ({
       onClick={onClick}
       className={`${styles.searchBox} ${disabled ? styles.disabled : ""}`}
     >
-      <input 
-        type="text" 
-        placeholder="Search" 
+      <input
+        type="text"
+        placeholder="Search"
         onChange={(e) => {
           setSearchUrl(`?kw=${e.target.value}`);
-          console.log(searchUrl);
         }}
       />
-      <a href={searchUrl}><img src="/icon/search.svg" alt="검색 아이콘" /></a>
+      <a href={searchUrl}>
+        <img src="/icon/search.svg" alt="검색 아이콘" />
+      </a>
     </div>
   );
 };

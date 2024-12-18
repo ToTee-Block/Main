@@ -35,13 +35,13 @@ public class ApiV1AdminMentorController {
     @PostMapping("/approve")    // 멘토 허가
     public RsData mentorPermit(@Valid @RequestBody MentoringRequest mentoringRequest) {
         // 멤버와 멘토로서 검증
-        Member member = this.memberService.getMemberById(mentoringRequest.getMemberId());
-        if (member == null) {
-            return RsData.of("400", "존재하는 멤버가 아닙니다.");
-        }
         Mentor mentor = this.mentorService.getMentorById(mentoringRequest.getMentorId());
         if (mentor == null) {
-            return RsData.of("400", "존재하는 멘토가 아닙니다.", new MemberDTO(member));
+            return RsData.of("400", "존재하는 멘토가 아닙니다.");
+        }
+        Member member = this.memberService.getMemberById(mentor.getMember().getId());
+        if (member == null) {
+            return RsData.of("400", "존재하는 멤버가 아닙니다.");
         }
 
         // approve가 true일 때

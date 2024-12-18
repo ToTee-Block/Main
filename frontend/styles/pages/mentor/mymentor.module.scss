@@ -1,0 +1,120 @@
+@import "../../globals/font-mixin.scss";
+
+.container {
+  width: 1680px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-start;
+  width: 1680px;
+}
+
+.titleWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.title {
+  @include font-XXL-B;
+  color: var(--text-blue);
+  width: 500px;
+  white-space: nowrap;
+}
+
+.titleLine {
+  width: 500px;
+  height: 6px;
+  background-color: var(--dark-blue-color);
+}
+
+.tagSection {
+  width: 1680px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.searchWrapper {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.mentorGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  column-gap: 95px;
+  row-gap: 24px;
+}
+  
+.mentorCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.profileImage {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background-color: var(--gray-200);
+}
+
+.mentorInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.nameWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nameText {
+  @include font-XXXS-B;
+}
+
+.mentorText {
+  @include font-XXXXS-R;
+  color: var(--gray-600);
+}
+
+.infoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.company {
+  @include font-XXS-M;
+}
+
+.position {
+  @include font-XXS-R;
+  color: var(--gray-600);
+}
+
+.description {
+  @include font-XXXS-M;
+  color: var(--text-black);
+}
+
+.linkWrapper {
+  text-decoration: none;
+  color: inherit;
+  
+  &:hover {
+    text-decoration: none;
+  }
+}
+
