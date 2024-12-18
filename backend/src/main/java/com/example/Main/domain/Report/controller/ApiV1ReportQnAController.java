@@ -4,6 +4,7 @@ import com.example.Main.domain.Report.dto.ReportQnADTO;
 import com.example.Main.domain.Report.entity.ReportQnA;
 import com.example.Main.domain.Report.eunums.ReportReason;
 import com.example.Main.domain.Report.service.ReportQnAService;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.List;
 public class ApiV1ReportQnAController {
 
     private final ReportQnAService reportQnAService;
+    private final NotificationService notificationService;
 
     // QnA 신고
     @PreAuthorize("isAuthenticated()")
@@ -46,6 +48,17 @@ public class ApiV1ReportQnAController {
         if (reportQnA == null) {
             return RsData.of("400", ErrorMessages.REPORT_PROCESS_FAILED, null);
         }
+
+        // 신고자에게 신고 접수 알림 전송
+        notificationService.sendNotification(
+                reporterEmail,
+                "'%s'가 신고되었습니다. 관리자 검토 후 처리할 예정입니다.".formatted(reportQnA.getQnA().getSubject())
+        );
+
+        // 관리자에게 게시물 신고 알림 전송
+        notificationService.sendNotificationToAdmins(
+                "'%s'가 신고되었습니다. 관리자 확인이 필요합니다.".formatted(reportQnA.getQnA().getSubject())
+        );
 
         return RsData.of("201", "QnA 게시물 신고 성공", new ReportQnADTO(reportQnA));
     }
