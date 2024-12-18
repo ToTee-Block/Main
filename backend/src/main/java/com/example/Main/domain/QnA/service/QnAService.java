@@ -58,14 +58,6 @@ public class QnAService {
 
         return new PageImpl<>(recentQnAs, pageable, searchedPosts.getTotalElements());
     }
-//    public List<QnADTO> getList() {
-//        List<QnA> qnAList = this.qnARepository.findAllByIsDraftFalse(Sort.by(Sort.Order.desc("createdDate")));
-//
-//        List<QnADTO> qnADTOList = qnAList.stream()
-//                .map(qnA -> new QnADTO(qnA))
-//                .collect(Collectors.toList());
-//        return qnADTOList;
-//    }
 
     // QnA 게시글 단건 조회
     public QnA getQnA(Long id) {

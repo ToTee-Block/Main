@@ -59,12 +59,6 @@ public class ApiV1QnAController {
         return RsData.of("200", "게시글 다건 조회 성공", qnAs);
     }
 
-//    @GetMapping("")
-//    public RsData<QnAsResponse> list() {
-//        List<QnADTO> qnADTOs = this.qnAService.getList();
-//        return RsData.of("200", "QnA 게시글 다건 조회 성공", new QnAsResponse(qnADTOs));
-//    }
-
     // 단건 조회
     @GetMapping("/{id}")
     public RsData<QnAResponse> getQnA(@PathVariable("id") Long id) {
