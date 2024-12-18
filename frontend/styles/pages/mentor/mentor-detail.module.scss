@@ -1,7 +1,8 @@
 @import "../../globals/font-mixin.scss";
 
 .mentorDetail {
-  width: 1000px;
+  width: 100%;
+  max-width: 1680px;
   margin: auto;
   display: flex;
   flex-direction: column;
