@@ -25,9 +25,8 @@ interface Post {
 
 interface TableProps {
   data: (Member | Mentor | Post)[];
-  onApprove?: (mentorId: number, memberId: number) => void;
-  onReject?: (mentorId: number, memberId: number) => void;
-  onWarning?: (id: number) => void;
+  onApprove?: (mentorId: number) => void;
+  onReject?: (mentorId: number) => void;
   onDelete?: (id: number) => void;
   currentPage: number;
   itemsPerPage?: number;
@@ -142,17 +141,13 @@ const Table: React.FC<TableProps> = ({
                       <>
                         <button
                           className={styles.approveStatus}
-                          onClick={() =>
-                            onApprove?.(item.id, (itemData as Member).id)
-                          }
+                          onClick={() => onApprove?.(item.id)}
                         >
                           승인
                         </button>
                         <button
                           className={styles.rejectStatus}
-                          onClick={() =>
-                            onReject?.(item.id, (itemData as Member).id)
-                          }
+                          onClick={() => onReject?.(item.id)}
                         >
                           거부
                         </button>

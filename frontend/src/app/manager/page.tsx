@@ -65,12 +65,7 @@ interface ApiResponse<T> {
 }
 
 export default function ManagerPage() {
-  const [activeTab, setActiveTab] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("activeTab") || "mentors";
-    }
-    return "mentors";
-  });
+  const [activeTab, setActiveTab] = useState("members");
   const [data, setData] = useState<(Member | Mentor)[]>([]);
   const [postData, setPostData] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -101,8 +96,9 @@ export default function ManagerPage() {
           break;
       }
 
-      const params = new URLSearchParams();
-      params.append("page", String(currentPage - 1));
+      const params = new URLSearchParams({
+        page: String(currentPage - 1),
+      });
 
       const response = await apiClient.get<ApiResponse<Member | Mentor | Post>>(
         `${endpoint}?${params.toString()}`
@@ -146,8 +142,8 @@ export default function ManagerPage() {
   }, [activeTab, currentPage]);
 
   useEffect(() => {
-    localStorage.setItem("activeTab", activeTab);
-  }, [activeTab]);
+    setActiveTab("members");
+  }, []);
 
   const handleApprove = async (mentorId: number) => {
     const isConfirmed = window.confirm("승인하시겠습니까?");
@@ -191,6 +187,29 @@ export default function ManagerPage() {
     }
   };
 
+  const handleDelete = async (memberId: number) => {
+    const isConfirmed = window.confirm("정말로 이 회원을 삭제하시겠습니까?");
+    if (isConfirmed) {
+      try {
+        const response = await apiClient.delete(
+          `/api/v1/admin/members/delete/${memberId}`
+        );
+        if (response.data.resultCode === "200") {
+          console.log("회원 삭제 성공");
+          fetchData();
+        } else {
+          console.error("회원 삭제 실패:", response.data.msg);
+        }
+      } catch (error: any) {
+        console.error("삭제 실패:", error);
+        if (error.response) {
+          console.error("Error response:", error.response.data);
+          console.error("Error status:", error.response.status);
+        }
+      }
+    }
+  };
+
   const handleFilterChange = (newFilters: SearchFilters) => {
     setSearchFilters(newFilters);
   };
@@ -216,16 +235,9 @@ export default function ManagerPage() {
         />
         <Table
           data={activeTab === "posts" ? postData : data}
-          onApprove={
-            activeTab === "mentors"
-              ? (mentorId) => handleApprove(mentorId)
-              : undefined
-          }
-          onReject={
-            activeTab === "mentors"
-              ? (mentorId) => handleReject(mentorId)
-              : undefined
-          }
+          onApprove={activeTab === "mentors" ? handleApprove : undefined}
+          onReject={activeTab === "mentors" ? handleReject : undefined}
+          onDelete={activeTab === "members" ? handleDelete : undefined}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           activeTab={activeTab}
@@ -234,7 +246,7 @@ export default function ManagerPage() {
           currentPage={currentPage}
           totalItems={totalItems}
           itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
+          onPageChange={(page) => setCurrentPage(page)}
         />
       </div>
     </div>

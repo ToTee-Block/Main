@@ -1,5 +1,6 @@
 package com.example.Main.domain.Member.service;
 
+import com.example.Main.domain.Chat.serivce.ChatService;
 import com.example.Main.domain.Member.dto.MemberDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.enums.MemberGender;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -75,6 +77,7 @@ public class MemberService {
         return member;
     }
 
+    @Transactional
     public void deleteMember(Member member) {
         this.memberRepository.delete(member);
     }
