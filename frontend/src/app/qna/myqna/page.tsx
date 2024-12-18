@@ -9,6 +9,7 @@ import SearchBox from '@/components/search/SearchBox';
 import Pagination from '@/components/pagination/custompagination';
 import Tag from '@/components/tag/tag';
 
+
 export default function QnA() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,7 +111,7 @@ export default function QnA() {
           onTagToggle={handleTagToggle}
         />
         <div className={styles.searchWrapper}>
-          <Link href="/qna/write" className={styles.linkWrapper}>
+          <Link href="/qna/detail" className={styles.linkWrapper}>
             <MentorButton>질문하기</MentorButton>
           </Link>
           <SearchBox />

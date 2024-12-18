@@ -1,4 +1,4 @@
-package com.example.Main.domain.Chat.contrroller;
+package com.example.Main.domain.Chat.controller;
 
 import com.example.Main.domain.Chat.dto.ChatDTO;
 import com.example.Main.domain.Chat.entity.ChatMessage;
