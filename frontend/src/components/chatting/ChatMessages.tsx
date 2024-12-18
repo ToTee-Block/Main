@@ -3,11 +3,12 @@ import styles from "@/styles/components/chatting/ChatMessages.module.scss";
 
 // 메시지 타입 정의
 interface Message {
-  text: string;
-  type: "sent" | "received"; // 메시지 타입
-  senderId?: number; // 발신자 ID 추가
-  senderName?: string; // 발신자 이름 (옵션)
-  senderProfile?: string; // 발신자 프로필 이미지 URL (옵션)
+  text: string; // 메시지 내용 (텍스트 또는 이미지 URL)
+  type: "sent" | "received" | "image"; // 메시지 타입
+  contentType: "image" | "text"; // 콘텐츠 타입 (이미지, 텍스트)
+  senderId?: number; // 발신자 ID
+  senderName?: string; // 발신자 이름
+  senderProfile?: string; // 발신자 프로필 이미지 URL
   time: string; // 메시지 전송 시간
   date: string; // 메시지 전송 날짜
 }
@@ -72,7 +73,15 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
               ) : null}
               {/* 메시지 내용 */}
               <div className={styles.message}>
-                {message.text}
+                {message.contentType === "image" ? (
+                  <img
+                    src={`http://localhost:8081${message.text}`} // 앞에 서버 주소 추가
+                    alt="전송된 이미지"
+                    className={styles.imageMessage}
+                  />
+                ) : (
+                  <span>{message.text}</span>
+                )}
                 <span className={styles.time}>{message.time}</span>
               </div>
             </div>

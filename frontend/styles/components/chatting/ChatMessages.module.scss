@@ -21,11 +21,18 @@
 
     .message {
       background-color: #007bff;
-      color: #fff;
+      color: #fff !important; // 폰트 하얀색 적용
+      font-weight: 400;
 
       .time {
         color: #ddd;
       }
+    }
+
+    .imageMessage {
+      max-width: 70%;
+      border-radius: 10px;
+      margin-top: 5px;
     }
   }
 
@@ -59,6 +66,13 @@
         color: #555;
       }
     }
+
+    .imageMessage {
+      max-width: 70%;
+      max-height: 300px;
+      border-radius: 10px;
+      margin-top: 5px;
+    }
   }
 
   .message {
@@ -81,5 +95,16 @@
       bottom: 4px;
       right: 8px;
     }
+  }
+
+  // 이미지 메시지 스타일
+  .imageMessage {
+    max-width: 70%;
+    max-height: 300px;
+    border-radius: 10px;
+    margin-top: 5px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
