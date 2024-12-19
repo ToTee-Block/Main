@@ -61,6 +61,9 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/comments/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/comments/**").authenticated()
 
+                        // 기술스택 관련 API에 대한 권한 설정
+                        .requestMatchers(HttpMethod.GET, "/api/*/techStacks/**").permitAll()
+
                         // 신고 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.GET, "/api/*/reports/**").permitAll()
 

@@ -75,7 +75,7 @@ export const handleForbiddenError = (error: any): void => {
   if (error.response?.status === 403) {
     console.error("권한이 없습니다. 다시 로그인하세요.");
     alert("권한이 없습니다. 다시 로그인해주세요.");
-    window.location.href = "/login";
+    window.location.href = "/members";
   } else {
     throw error;
   }

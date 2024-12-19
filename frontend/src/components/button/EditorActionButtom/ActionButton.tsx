@@ -1,29 +1,48 @@
-'use client';
+"use client";
 
-import React from 'react';
-import styles from '@/styles/components/button/editor/editoraction-button.module.scss';
-import Image from 'next/image';
+import React from "react";
+import styles from "@/styles/components/button/editor/editoraction-button.module.scss";
+import Image from "next/image";
 
-export default function ActionButtons() {
+interface ActionButtonProps {
+  postingType: string;
+  onClose: () => void;
+  onDraft: () => void;
+  onWrite: () => void;
+}
+
+const ActionButton: React.FC<ActionButtonProps> = ({
+  postingType,
+  onClose,
+  onDraft,
+  onWrite,
+}) => {
   return (
     <div className={styles.actionButtonsContainer}>
-      <button className={styles.exitButton}>
-        <Image 
-          src="icon/arrow.svg" 
-          alt="뒤로가기 화살표" 
+      <button className={styles.exitButton} onClick={onClose}>
+        <Image
+          src="icon/arrow.svg"
+          alt="뒤로가기 화살표"
           width={12}
           height={12}
         />
         나가기
       </button>
       <div className={styles.rightButtons}>
-        <button className={styles.draftButton}>
-          임시저장
-        </button>
-        <button className={styles.submitButton}>
+        {postingType === "qnas" ? (
+          <></>
+        ) : (
+          <>
+            <button className={styles.draftButton} onClick={onDraft}>
+              임시저장
+            </button>
+          </>
+        )}
+        <button className={styles.submitButton} onClick={onWrite}>
           작성완료
         </button>
       </div>
     </div>
   );
-}
+};
+export default ActionButton;

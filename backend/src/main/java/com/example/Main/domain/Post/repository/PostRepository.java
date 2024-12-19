@@ -17,7 +17,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 본인이 작성한 게시글 조회
     List<Post> findByAuthor_EmailAndIsDraftFalse(String authorEmail, Sort createdDate);
-    // 본인이 작성한 게시글 조회
+
+    // 작성자별 게시글 조회
     @Query("SELECT p FROM Post p JOIN p.author a WHERE " +
             "(LOWER(p.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
