@@ -200,7 +200,6 @@ const MentorView: React.FC<{
       });
       if (response.data.resultCode === "200") {
         alert("채팅방이 생성되었습니다. 채팅을 시작합니다.");
-        // 여기에 채팅 인터페이스로 이동하는 로직을 추가할 수 있습니다.
       } else {
         throw new Error(response.data.msg || "채팅방 생성에 실패했습니다.");
       }
@@ -210,14 +209,15 @@ const MentorView: React.FC<{
     }
   };
 
+  const pendingRequests = requests.filter((request) => !request.approve);
+
   return (
     <div className={styles.mentoringContent}>
-      <div className={styles.mentorSection}>
-        <h4>멘토링 신청 목록</h4>
-        <div className={styles.requestList}>
-          {requests
-            .filter((request) => !request.approve)
-            .map((request) => (
+      {pendingRequests.length > 0 && (
+        <div className={styles.mentorSection}>
+          <h4>멘토링 신청 목록</h4>
+          <div className={styles.requestList}>
+            {pendingRequests.map((request) => (
               <div key={request.matchingId} className={styles.requestItem}>
                 <span>{request.name}</span>
                 <div className={styles.buttonGroup}>
@@ -236,34 +236,37 @@ const MentorView: React.FC<{
                 </div>
               </div>
             ))}
+          </div>
         </div>
-      </div>
-      <div className={styles.mentorSection}>
-        <h4>진행 중인 멘토링</h4>
-        <div className={styles.requestList}>
-          {inProgress.map((mentee) => (
-            <div key={mentee.matchingId} className={styles.requestItem}>
-              <span>{mentee.name}</span>
-              <div className={styles.buttonGroup}>
-                <button
-                  className={styles.chatButton}
-                  onClick={() => handleChatRequest(mentee)}
-                >
-                  채팅신청
-                </button>
-                <button
-                  className={styles.disconnectButton}
-                  onClick={() =>
-                    handleDisconnect(mentee.mentorId, mentee.menteeId)
-                  }
-                >
-                  연결 끊기
-                </button>
+      )}
+      {inProgress.length > 0 && (
+        <div className={styles.mentorSection}>
+          <h4>진행 중인 멘토링</h4>
+          <div className={styles.requestList}>
+            {inProgress.map((mentee) => (
+              <div key={mentee.matchingId} className={styles.requestItem}>
+                <span>{mentee.name}</span>
+                <div className={styles.buttonGroup}>
+                  <button
+                    className={styles.chatButton}
+                    onClick={() => handleChatRequest(mentee)}
+                  >
+                    채팅신청
+                  </button>
+                  <button
+                    className={styles.disconnectButton}
+                    onClick={() =>
+                      handleDisconnect(mentee.mentorId, mentee.menteeId)
+                    }
+                  >
+                    연결 끊기
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -282,7 +285,6 @@ const MenteeView: React.FC<{
       });
       if (response.data.resultCode === "200") {
         alert("채팅방이 생성되었습니다. 채팅을 시작합니다.");
-        // 여기에 채팅 인터페이스로 이동하는 로직을 추가할 수 있습니다.
       } else {
         throw new Error(response.data.msg || "채팅방 생성에 실패했습니다.");
       }
@@ -320,32 +322,34 @@ const MenteeView: React.FC<{
 
   return (
     <div className={styles.mentoringContent}>
-      <div className={styles.menteeSection}>
-        <h4>멘토 목록</h4>
-        <div className={styles.requestList}>
-          {data.map((mentor) => (
-            <div key={mentor.matchingId} className={styles.requestItem}>
-              <span>{mentor.name}</span>
-              <div className={styles.buttonGroup}>
-                <button
-                  className={styles.chatButton}
-                  onClick={() => handleChatRequest(mentor)}
-                >
-                  채팅신청
-                </button>
-                <button
-                  className={styles.disconnectButton}
-                  onClick={() =>
-                    handleDisconnect(mentor.mentorId, mentor.menteeId)
-                  }
-                >
-                  연결 끊기
-                </button>
+      {data.length > 0 && (
+        <div className={styles.menteeSection}>
+          <h4>멘토 목록</h4>
+          <div className={styles.requestList}>
+            {data.map((mentor) => (
+              <div key={mentor.matchingId} className={styles.requestItem}>
+                <span>{mentor.name}</span>
+                <div className={styles.buttonGroup}>
+                  <button
+                    className={styles.chatButton}
+                    onClick={() => handleChatRequest(mentor)}
+                  >
+                    채팅신청
+                  </button>
+                  <button
+                    className={styles.disconnectButton}
+                    onClick={() =>
+                      handleDisconnect(mentor.mentorId, mentor.menteeId)
+                    }
+                  >
+                    연결 끊기
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
