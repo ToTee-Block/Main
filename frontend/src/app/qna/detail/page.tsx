@@ -195,12 +195,12 @@ const Detail: React.FC = () => {
       setLoginStatus(await getMe());
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/v1/qnas/${id}`
+          `http://localhost:8081/api/v1/qnas/detail/${id}`
         );
 
         const resultCode = response.data.resultCode;
         const data = response.data.data;
-        console.log(data);
+        console.log(response);
         if (resultCode == "200") {
           setValues(data.qnADTO);
           console.log(data.qnADTO);

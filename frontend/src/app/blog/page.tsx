@@ -7,7 +7,7 @@ import styles from "@/styles/pages/blog/blog.module.scss";
 import SearchBox from "@/components/search/SearchBox";
 import LinkButton from "@/components/button/LinkButton";
 import PostCard from "@/components/card/PostCard";
-import StackCTGY from "@/components/category/StackCTGY";
+import Tag from "@/components/tag/tag";
 import DivideBar from "@/components/divideBar";
 import NoSearch from "@/components/exception/NoSearch";
 import Pagination from "@/components/pagination/custompagination";
@@ -26,9 +26,12 @@ interface Me {
 
 const Post: React.FC = () => {
   const [me, setMe] = useState<Me>();
-  const [activeTab, setActiveTab] = useState<string>("All");
+  const [activeTab, setActiveTab] = useState<string>("전체");
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [stacks, setStacks] = useState<string[]>();
+  const [selectedStacks, setSelectedStacks] = useState<Array<boolean>>(
+    Array(stacks?.length).fill(false)
+  );
   const [entirePosts, setEntirePosts] = useState<any[]>([]); // 타입을 배열로 지정
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,14 +46,6 @@ const Post: React.FC = () => {
     alert("로그인이 필요합니다.");
     location.href = "/members";
     return false;
-  };
-
-  const addToStacks = (newData: string[]) => {
-    setStacks((prevStacks) => {
-      const newStacks = [...prevStacks]; // 기존 배열 복사
-      newStacks.splice(1, 0, ...newData); // 인덱스 1에 새로운 배열을 펼쳐서 삽입
-      return newStacks;
-    });
   };
 
   useEffect(() => {
@@ -73,7 +68,7 @@ const Post: React.FC = () => {
           const resultCode = response.data.resultCode;
           const data = response.data.data;
           if (resultCode === "200") {
-            setStacks(["All", ...data.stacks, "Draft"]);
+            setStacks(["전체", ...data.stacks, "임시저장"]);
             setEntirePosts(data.posts.content);
           } else if (resultCode === "401") {
             setError("로그인이 필요합니다.");
@@ -99,7 +94,7 @@ const Post: React.FC = () => {
   }
 
   const posts = stacks.reduce((acc, stack) => {
-    if (stack === "All") {
+    if (stack === "전체") {
       acc[stack] =
         entirePosts.length > 0
           ? entirePosts
@@ -114,7 +109,7 @@ const Post: React.FC = () => {
                 imageUrl: "/images/Rectangle.png",
               }))
           : [];
-    } else if (stack === "Draft") {
+    } else if (stack === "임시저장") {
       acc[stack] =
         entirePosts.length > 0
           ? entirePosts
@@ -154,6 +149,22 @@ const Post: React.FC = () => {
     return acc;
   }, {});
 
+  const handleTagToggle = (index: number): void => {
+    setSelectedStacks((prev) => {
+      const newState = [...prev];
+      if (index === 0) {
+        if (prev[0]) {
+          return prev.map(() => false);
+        }
+        return prev.map((_, i) => i === 0);
+      } else {
+        newState[0] = false;
+        newState[index] = !newState[index];
+        return newState;
+      }
+    });
+  };
+
   return (
     <div className={styles.bodyContainer}>
       <div className={styles.container}>
@@ -161,12 +172,13 @@ const Post: React.FC = () => {
           <h1 className={styles.title}>{me?.name}의 Totee Blocks</h1>
           <DivideBar width={500}></DivideBar>
           <div className={styles.utilBar}>
-            <StackCTGY
-              stacks={stacks}
-              disabled={false}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-            ></StackCTGY>
+            <div className={styles.tagBox}>
+              <Tag
+                tags={stacks}
+                selectedTags={selectedStacks}
+                onTagToggle={handleTagToggle}
+              />
+            </div>
             <div className={styles.rightBox}>
               <LinkButton to="/post/form">글쓰기</LinkButton>
               <SearchBox></SearchBox>

@@ -56,7 +56,7 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    // 본인이 작성한 게시글 조회
+    // 작성자별 게시글 조회
     public Page<PostDTO> searchPostsByAuthor(int page, int size, String keyword, Member author) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Post> searchedPosts = this.postRepository.searchPostsByAuthor(keyword, pageable, author);
