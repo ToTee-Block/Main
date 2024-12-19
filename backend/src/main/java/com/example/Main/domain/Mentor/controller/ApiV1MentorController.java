@@ -62,6 +62,23 @@ public class ApiV1MentorController {
         return RsData.of("200", "멘토 등록 신청 성공", mentorDTO);
     }
 
+    @GetMapping
+    public ResponseEntity<RsData<List<MentorDTO>>> getAllMentors() {
+        List<MentorDTO> mentors = mentorService.getAllMentors();
+        return ResponseEntity.ok(RsData.of("200", "모든 멘토 정보 조회 성공", mentors));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<RsData<MentorDTO>> getMentorById(@PathVariable Long id) {
+        MentorDTO mentor = mentorService.getMentorDTOById(id);
+        if (mentor == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(RsData.of("404", "해당 ID의 멘토를 찾을 수 없습니다.", null));
+        }
+        return ResponseEntity.ok(RsData.of("200", "멘토 정보 조회 성공", mentor));
+    }
+
     @GetMapping("/profile/{id}")
     public ResponseEntity<?> getMentorProfile(@PathVariable(value = "id") Long id) {
         Member member = memberService.getMemberById(id);

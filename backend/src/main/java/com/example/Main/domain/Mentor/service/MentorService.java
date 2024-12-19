@@ -94,4 +94,16 @@ public class MentorService {
         Page<Mentor> mentors = mentorRepository.findByApprovedFalse(pageRequest);
         return mentors.map(mentor -> new MentorDTO(mentor));
     }
+
+    public List<MentorDTO> getAllMentors() {
+        return mentorRepository.findAll().stream()
+                .map(MentorDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public MentorDTO getMentorDTOById(Long id) {
+        return mentorRepository.findById(id)
+                .map(MentorDTO::new)
+                .orElse(null);
+    }
 }
