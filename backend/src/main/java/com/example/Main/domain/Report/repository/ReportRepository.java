@@ -1,6 +1,7 @@
 package com.example.Main.domain.Report.repository;
 
 import com.example.Main.domain.Post.entity.Post;
+import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.Report.entity.Report;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -19,4 +20,6 @@ public interface ReportRepository extends JpaRepository<Report,Long> {
     List<Report> findByQnAIdAndReporterEmail(Long qnaId, String reporterEmail);
 
     List<Report> findByPost(Post post);
+
+    List<Report> findByQnA(QnA qnA);
 }

@@ -9,9 +9,11 @@ import com.example.Main.domain.QnA.Comment.repository.QnACommentRepository;
 import com.example.Main.domain.QnA.dto.QnADTO;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.repository.QnARepository;
+import com.example.Main.domain.Report.entity.Report;
 import com.example.Main.domain.Report.entity.ReportPost;
 import com.example.Main.domain.Report.entity.ReportQnA;
 import com.example.Main.domain.Report.repository.ReportQnARepository;
+import com.example.Main.domain.Report.repository.ReportRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
@@ -31,6 +33,7 @@ public class QnAService {
     private final MemberService memberService;
     private final ReportQnARepository reportQnARepository;
     private final QnACommentRepository qnACommentRepository;
+    private final ReportRepository reportRepository;
 
     // 검색 기능
     public List<QnADTO> searchPosts(String keyword) {
@@ -121,8 +124,8 @@ public class QnAService {
         QnA qnA = qnARepository.findById(qnAId)
                 .orElseThrow(() -> new EntityNotFoundException("QnA not found"));
 
-        List<ReportQnA> reportQnAs = reportQnARepository.findByQnA(qnA);
-        reportQnARepository.deleteAll(reportQnAs);
+        List<Report> reports = reportRepository.findByQnA(qnA);
+        reportRepository.deleteAll(reports);
 
         qnACommentRepository.deleteByQnAId(qnAId);
 

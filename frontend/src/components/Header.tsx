@@ -4,106 +4,104 @@ import React, { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import apiClient, {
   fetchNotifications,
-  markNotificationAsRead,
+markNotificationAsRead,
 } from "@/api/axiosConfig";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "@/styles/components/header.module.scss";
 import LinkButton from "./button/LinkButton";
+import { fetchUserProfile } from "@/api/axiosConfig";
 
 const LOGIN_EVENT = "onLogin";
 const LOGOUT_EVENT = "onLogout";
 
 interface Notification {
-  id: number;
-  message: string;
-  read: boolean;
-  createdAt: string;
+ id: number;
+ message: string;
+ isRead: boolean;
 }
 
 const Header: React.FC = () => {
-  const pathname = usePathname();
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [hasNewNotification, setHasNewNotification] = useState(false);
-  const [expandedNotificationId, setExpandedNotificationId] = useState<
-    number | null
-  >(null);
+ const pathname = usePathname();
+ const [showProfileMenu, setShowProfileMenu] = useState(false);
+ const [showNotifications, setShowNotifications] = useState(false);
+ const [isLoggedIn, setIsLoggedIn] = useState(false);
+ const [userName, setUserName] = useState("");
+ const [notifications, setNotifications] = useState<Notification[]>([]);
+ const [hasNewNotification, setHasNewNotification] = useState(false);
+ const [profileImageUrl, setProfileImageUrl] = useState("/icon/user.svg");
+ const [isAdmin, setIsAdmin] = useState(false);
 
-  const checkNewNotifications = useCallback(async () => {
-    try {
-      const fetchedNotificationsData = await fetchNotifications();
-      const fetchedNotifications: Notification[] = fetchedNotificationsData.map(
-        (notif: any) => ({
-          id: notif.id,
-          message: notif.message,
-          read: notif.read,
-          createdAt: notif.createdAt,
-        })
-      );
-      setNotifications(fetchedNotifications);
-      setHasNewNotification(fetchedNotifications.some((notif) => !notif.read));
-    } catch (error) {
-      console.error("알림을 가져오는데 실패했습니다:", error);
-      setNotifications([]);
-      setHasNewNotification(false);
-    }
-  }, []);
+ useEffect(() => {
+   const token = localStorage.getItem("token");
+   const storedName = localStorage.getItem("name");
+   const userRole = localStorage.getItem("role");
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const storedName = localStorage.getItem("name");
-    if (token) {
-      setIsLoggedIn(true);
-      setUserName(storedName || "사용자");
-      checkNewNotifications();
-    }
+   if (token) {
+     setIsLoggedIn(true);
+     setUserName(storedName || "사용자");
+     setIsAdmin(userRole === "ADMIN");
 
-    const handleLogin = (e: CustomEvent) => {
-      const { name } = e.detail;
-      setIsLoggedIn(true);
-      setUserName(name || "사용자");
-      checkNewNotifications();
-    };
+     if (userRole !== "ADMIN") {
+       const fetchProfile = async () => {
+         try {
+           const response = await fetchUserProfile();
+           if (response.resultCode === "200" && response.data.profileImg) {
+             setProfileImageUrl(`http://localhost:8081/file/${response.data.profileImg}`);
+           }
+         } catch (error) {
+           console.error("Failed to fetch profile image:", error);
+         }
+       };
+       fetchProfile();
+     }
 
-    window.addEventListener(LOGIN_EVENT, handleLogin as EventListener);
-    return () => {
-      window.removeEventListener(LOGIN_EVENT, handleLogin as EventListener);
-    };
-  }, [checkNewNotifications]);
+     const handleLogin = (e: CustomEvent) => {
+       const { name } = e.detail;
+       setIsLoggedIn(true);
+       setUserName(name || "사용자");
+     };
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      checkNewNotifications();
-      const notificationInterval = setInterval(checkNewNotifications, 5000);
-      return () => clearInterval(notificationInterval);
-    }
-  }, [isLoggedIn, checkNewNotifications]);
+     window.addEventListener(LOGIN_EVENT, handleLogin as EventListener);
 
-  useEffect(() => {
-    setShowProfileMenu(false);
-    setShowNotifications(false);
-  }, [pathname]);
+     let notificationInterval: NodeJS.Timeout | null = null;
 
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      setShowProfileMenu(false);
-      setShowNotifications(false);
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
+     if (isLoggedIn) {
+       const checkNewNotifications = () => {
+         const mockNotifications: Notification[] = [];
+         setNotifications(mockNotifications);
+         setHasNewNotification(false);
+       };
 
-  const isActive = (path: string): boolean => {
-    if (!pathname) return false;
-    return pathname === path;
-  };
+       notificationInterval = setInterval(checkNewNotifications, 5000);
+     }
 
+     return () => {
+       window.removeEventListener(LOGIN_EVENT, handleLogin as EventListener);
+       if (notificationInterval) {
+         clearInterval(notificationInterval);
+       }
+     };
+   }
+ }, [isLoggedIn]);
+
+ useEffect(() => {
+   setShowProfileMenu(false);
+   setShowNotifications(false);
+ }, [pathname]);
+
+ useEffect(() => {
+   const handleBeforeUnload = () => {
+     setShowProfileMenu(false);
+     setShowNotifications(false);
+   };
+
+   window.addEventListener("beforeunload", handleBeforeUnload);
+
+   return () => {
+     window.removeEventListener("beforeunload", handleBeforeUnload);
+   };
+ }, []);
   const handleLogout = async () => {
     try {
       const response = await apiClient.get("/api/v1/members/logout");
@@ -121,10 +119,16 @@ const Header: React.FC = () => {
     }
   };
 
-  const toggleProfileMenu = () => {
-    setShowProfileMenu(!showProfileMenu);
-    setShowNotifications(false);
-  };
+ const isActive = (path: string): boolean => {
+   if (!pathname) return false;
+   return pathname === path;
+ };
+
+ const toggleProfileMenu = () => {
+  setShowProfileMenu(!showProfileMenu);
+  setShowNotifications(false);
+};
+
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);

@@ -58,7 +58,6 @@ export default function EditorPage() {
         const imageMarkdown = `![](${imageKey})\n`;
         const newContent =
           content.substring(0, start) + imageMarkdown + content.substring(end);
-
         setContent(newContent);
       }
     } catch (error) {

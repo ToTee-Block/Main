@@ -6,6 +6,7 @@ import Image from 'next/image';
 interface EditorToolbarProps {
   onContentChange: (newContent: string) => void;
   content: string;
+  onSelect?: (range: { start: number; end: number }) => void;
 }
 
 interface ToolbarItem {
@@ -25,7 +26,7 @@ export default function EditorToolbar(props: EditorToolbarProps) {
 
   const textTools: ToolbarItem[] = [
     { icon: '/icon/bold.svg', alt: 'Bold' },
-    { icon: '/icon/textline.svg', alt: 'Strike Through' },  // alt 텍스트 변경
+    { icon: '/icon/textline.svg', alt: 'Strike Through' },
   ];
 
   const utilTools: ToolbarItem[] = [
@@ -34,28 +35,61 @@ export default function EditorToolbar(props: EditorToolbarProps) {
     { icon: '/icon/syntax.svg', alt: 'Syntax' },
   ];
 
+  const getTextAreaInfo = () => {
+    const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
+    if (!textarea) return null;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+
+    return { textarea, start, end, selectedText };
+  };
+
+  const insertMarkdown = (prefix: string, suffix: string = '', placeholder: string = '') => {
+    const info = getTextAreaInfo();
+    if (!info) return;
+
+    const { textarea, start, end, selectedText } = info;
+    const newText = `${prefix}${selectedText || placeholder}${suffix}`;
+    const newContent = 
+      content.substring(0, start) + 
+      newText +
+      content.substring(end);
+
+    onContentChange(newContent);
+
+    // 커서 위치 조정
+    setTimeout(() => {
+      textarea.focus();
+      const cursorPos = start + prefix.length;
+      const selectionLength = selectedText ? selectedText.length : placeholder.length;
+      textarea.setSelectionRange(cursorPos, cursorPos + selectionLength);
+    }, 0);
+  };
+
   const handleHeadingClick = (level: number) => {
-    onContentChange(content + `\n${'#'.repeat(level)} `);
+    insertMarkdown('#'.repeat(level) + ' ', '', '제목');
   };
 
   const handleBoldClick = () => {
-    onContentChange(content + '**강조할 텍스트**');
+    insertMarkdown('**', '**', '강조할 텍스트');
   };
 
   const handleLineClick = () => {
-    onContentChange(content + '~~취소선 텍스트~~');  // 취소선 문법으로 변경
+    insertMarkdown('~~', '~~', '취소선 텍스트');
   };
 
   const handleLinkClick = () => {
-    onContentChange(content + '[링크텍스트](URL)');
+    insertMarkdown('[', ']()', '링크 텍스트');
   };
 
   const handleImageClick = () => {
-    onContentChange(content + '![이미지설명](이미지URL)');
+    insertMarkdown('![', ']()', '이미지 설명');
   };
 
   const handleSyntaxClick = () => {
-    onContentChange(content + '\n```\n코드를 입력하세요\n```');
+    insertMarkdown('\n```\n', '\n```\n', '코드를 입력하세요');
   };
 
   return (
