@@ -1,19 +1,24 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import styles from '@/styles/pages/qna/myqna.module.scss';
-import MentorButton from '@/components/button/MentorButton';
-import SearchBox from '@/components/search/SearchBox';
-import Pagination from '@/components/pagination/custompagination';
-import Tag from '@/components/tag/tag';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import styles from "@/styles/pages/qna/myqna.module.scss";
+import MentorButton from "@/components/button/MentorButton";
+import SearchBox from "@/components/search/SearchBox";
+import Pagination from "@/components/pagination/custompagination";
+import Tag from "@/components/tag/tag";
+import DivideBar from "@/components/divideBar";
+
+
 
 export default function QnA() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const [userName, setUserName] = useState('');
-  const [selectedTags, setSelectedTags] = useState<Array<boolean>>(Array(8).fill(false));
+  const [userName, setUserName] = useState("");
+  const [selectedTags, setSelectedTags] = useState<Array<boolean>>(
+    Array(8).fill(false)
+  );
   const [isLoading, setIsLoading] = useState(true);
   const totalPages = 78;
   const itemsPerPage = 5;
@@ -21,10 +26,10 @@ export default function QnA() {
   useEffect(() => {
     // 초기 인증 체크
     const checkAuth = () => {
-      const storedName = localStorage.getItem('name');
+      const storedName = localStorage.getItem("name");
       if (!storedName) {
-        alert('로그인이 필요한 서비스입니다.');
-        router.push('/members');
+        alert("로그인이 필요한 서비스입니다.");
+        router.push("/members");
         return;
       }
       setUserName(storedName);
@@ -35,17 +40,17 @@ export default function QnA() {
 
     // storage 이벤트 리스너
     const handleStorageChange = () => {
-      const storedName = localStorage.getItem('name');
+      const storedName = localStorage.getItem("name");
       if (!storedName) {
-        alert('로그인이 필요한 서비스입니다.');
-        router.push('/members');
+        alert("로그인이 필요한 서비스입니다.");
+        router.push("/members");
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, [router]);
 
@@ -55,20 +60,25 @@ export default function QnA() {
 
   const getCurrentDate = () => {
     const date = new Date();
-    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}.${String(date.getDate()).padStart(2, "0")}`;
   };
 
   const generateQnaItems = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return Array(itemsPerPage).fill(null).map((_, index) => {
-      const itemNumber = startIndex + index + 1;
-      return {
-        id: itemNumber,
-        question: 'ToTee에서 이런 질문을 남겨요.',
-        date: getCurrentDate(),
-        author: userName || '사용자'
-      };
-    });
+    return Array(itemsPerPage)
+      .fill(null)
+      .map((_, index) => {
+        const itemNumber = startIndex + index + 1;
+        return {
+          id: itemNumber,
+          question: "ToTee에서 이런 질문을 남겨요.",
+          date: getCurrentDate(),
+          author: userName || "사용자",
+        };
+      });
   };
 
   const handlePageChange = (page: number) => {
@@ -77,7 +87,7 @@ export default function QnA() {
   };
 
   const handleTagToggle = (index: number): void => {
-    setSelectedTags(prev => {
+    setSelectedTags((prev) => {
       const newState = [...prev];
       if (index === 0) {
         if (prev[0]) {
@@ -92,14 +102,25 @@ export default function QnA() {
     });
   };
 
-  const tags = ['전체', 'React', 'React', 'React', 'React', 'React', 'React', '임시저장'];
+  const tags = [
+    "전체",
+    "React",
+    "React",
+    "React",
+    "React",
+    "React",
+    "React",
+    "임시저장",
+  ];
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.titleWrapper}>
-          <h1 className={styles.title}>{userName ? `${userName}의 QnA` : '사용자의 QnA'}</h1>
-          <div className={styles.titleLine}></div>
+          <h1 className={styles.title}>
+            {userName ? `${userName}의 QnA` : "사용자의 QnA"}
+          </h1>
+          <DivideBar width={500}></DivideBar>
         </div>
       </div>
 
@@ -110,7 +131,7 @@ export default function QnA() {
           onTagToggle={handleTagToggle}
         />
         <div className={styles.searchWrapper}>
-          <Link href="/qna/write" className={styles.linkWrapper}>
+          <Link href="/qna/detail" className={styles.linkWrapper}>
             <MentorButton>질문하기</MentorButton>
           </Link>
           <SearchBox />
@@ -119,9 +140,15 @@ export default function QnA() {
 
       <div className={styles.content}>
         {generateQnaItems().map((item) => (
-          <Link href={`/qna/${item.id}`} key={item.id} className={styles.qnaItem}>
+          <Link
+            href={`/qna/${item.id}`}
+            key={item.id}
+            className={styles.qnaItem}
+          >
             <div className={styles.numberWrapper}>
-              <span className={styles.number}>{String(item.id).padStart(2, '0')}.</span>
+              <span className={styles.number}>
+                {String(item.id).padStart(2, "0")}.
+              </span>
             </div>
             <div className={styles.questionWrapper}>
               <span className={styles.question}>{item.question}</span>

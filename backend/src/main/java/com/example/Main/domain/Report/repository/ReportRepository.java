@@ -1,6 +1,7 @@
 package com.example.Main.domain.Report.repository;
 
 import com.example.Main.domain.Post.entity.Post;
+import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.Report.entity.Report;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,5 +16,10 @@ public interface ReportRepository extends JpaRepository<Report,Long> {
     // 특정 게시물에 대한 중복 신고 여부를 확인하는 메서드
     List<Report> findByPostIdAndReporterEmail(Long postId, String reporterEmail);
 
+    // 특정 질문게시물에 대한 중복 신고 여부를 확인하는 메서드
+    List<Report> findByQnAIdAndReporterEmail(Long qnaId, String reporterEmail);
+
     List<Report> findByPost(Post post);
+
+    List<Report> findByQnA(QnA qnA);
 }

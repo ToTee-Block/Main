@@ -3,17 +3,21 @@ package com.example.Main.domain.QnA.service;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.repository.MemberRepository;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Post.dto.PostDTO;
+import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.QnA.Comment.repository.QnACommentRepository;
 import com.example.Main.domain.QnA.dto.QnADTO;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.repository.QnARepository;
+import com.example.Main.domain.Report.entity.Report;
 import com.example.Main.domain.Report.entity.ReportPost;
 import com.example.Main.domain.Report.entity.ReportQnA;
 import com.example.Main.domain.Report.repository.ReportQnARepository;
+import com.example.Main.domain.Report.repository.ReportRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +33,7 @@ public class QnAService {
     private final MemberService memberService;
     private final ReportQnARepository reportQnARepository;
     private final QnACommentRepository qnACommentRepository;
+    private final ReportRepository reportRepository;
 
     // 검색 기능
     public List<QnADTO> searchPosts(String keyword) {
@@ -45,13 +50,16 @@ public class QnAService {
     }
 
     // QnA 게시글 전체 조회
-    public List<QnADTO> getList() {
-        List<QnA> qnAList = this.qnARepository.findAllByIsDraftFalse(Sort.by(Sort.Order.desc("createdDate")));
+    public Page<QnADTO> searchRecentQnAs(int page, int size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<QnA> searchedPosts = this.qnARepository.searchRecentQnAs(keyword, pageable);
 
-        List<QnADTO> qnADTOList = qnAList.stream()
-                .map(qnA -> new QnADTO(qnA))
+        // Post 엔티티를 PostDTO로 변환
+        List<QnADTO> recentQnAs = searchedPosts.getContent().stream()
+                .map(QnADTO::new)  // Post 객체를 PostDTO로 변환
                 .collect(Collectors.toList());
-        return qnADTOList;
+
+        return new PageImpl<>(recentQnAs, pageable, searchedPosts.getTotalElements());
     }
 
     // QnA 게시글 단건 조회
@@ -111,8 +119,8 @@ public class QnAService {
         QnA qnA = qnARepository.findById(qnAId)
                 .orElseThrow(() -> new EntityNotFoundException("QnA not found"));
 
-        List<ReportQnA> reportQnAs = reportQnARepository.findByQnA(qnA);
-        reportQnARepository.deleteAll(reportQnAs);
+        List<Report> reports = reportRepository.findByQnA(qnA);
+        reportRepository.deleteAll(reports);
 
         qnACommentRepository.deleteByQnAId(qnAId);
 

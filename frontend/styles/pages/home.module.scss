@@ -3,12 +3,15 @@
 .main {
   width: 100%;
   height: 100%;
+  background-color: #fff0f5;
 }
 
 .container {
   width: 100%;
   height: auto;
   padding: 40px 100px;
+  display: flex;
+  margin: auto;
 
   & > p {
     @include font-XS-B;
@@ -21,30 +24,129 @@
 }
 
 .background_container {
+  max-width: 1920px;
   background-image: url(../../public/images/background-img.png);
-  background-size: 100%;
+  background-size: contain;
   background-repeat: no-repeat;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-width: 1024px;
 
   .banner_card {
     width: 500px;
     height: 500px;
     background-image: url(../../public/images/card.jpg);
     margin-right: 14px;
+    flex-shrink: 0;
   }
 
   .link_cardBox {
+    min-width: 600px;
     height: 450px;
     display: flex;
     gap: 10px;
+    flex: 1;
+
+    & > div {
+      flex: 1;
+      min-width: 260px;
+      max-width: 450px;
+      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--background);
+      border-radius: 8px;
+      padding: 20px;
+
+      img {
+        max-width: 500px;
+        height: 500px;
+        object-fit: contain;
+      }
+    }
+  }
+}
+
+.content_container {
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 60px;
+  width: 100%;
+  max-width: 1720px;
+  margin: auto;
+}
+
+.section_container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--background);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+
+  & > p {
+    @include font-XS-B;
   }
 }
 
 .containerItemBox {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
-  justify-content: space-between;
+
+  & > div {
+    background: var(--background);
+    border-radius: 8px;
+    height: 352px;
+  }
+}
+
+.moreButtonContainer {
+  width: 100%;
+  height: 23px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-50);
+  border-radius: 4px;
+}
+
+.moreButton {
+  max-width: 200px;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+  @include font-XXS-B;
+  color: var(--gray-500);  
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  span {
+    color: var(--gray-600);
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+  }
+
+  svg {
+    width: 28px;
+    height: 28px;
+    transform: translateY(4px);
+    transition: transform 0.2s ease;
+  }
+
+  &:hover svg {
+    transform: translateY(4px) translateX(4px);
+  }
+
+  &:hover {
+    color: var(--gray-700); 
+  }
 }

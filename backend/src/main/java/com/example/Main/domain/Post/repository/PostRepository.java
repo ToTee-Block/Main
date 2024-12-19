@@ -51,4 +51,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // 본인이 임시저장한 게시글 조회
     List<Post> findByAuthor_EmailAndIsDraftTrue(String authorEmail, Sort sort);
 
+    // 관리자용 게시글 전체 조회 (임시저장 게시글 제외)
+    Page<Post> findAllByIsDraftFalseOrderByCreatedDateDesc(Pageable pageable);
 }

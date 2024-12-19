@@ -1,5 +1,6 @@
 package com.example.Main.domain.QnA.Comment.controller;
 
+import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.QnA.Comment.dto.QnACommentDTO;
 import com.example.Main.domain.QnA.Comment.dto.request.QnACommentCreateRequest;
 import com.example.Main.domain.QnA.Comment.dto.request.QnACommentModifyRequest;
@@ -7,6 +8,7 @@ import com.example.Main.domain.QnA.Comment.entity.QnAComment;
 import com.example.Main.domain.QnA.Comment.service.QnACommentService;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import jakarta.validation.Valid;
@@ -24,6 +26,7 @@ public class ApiV1QnAReplyController {
 
     private final QnACommentService commentService;
     private final QnAService qnAService;
+    private final NotificationService notificationService;
 
     // 대댓글 조회
     @GetMapping
@@ -132,6 +135,16 @@ public class ApiV1QnAReplyController {
 
         if (replyComment == null || !replyComment.getQnA().getId().equals(qnAId)) {
             return RsData.of("404", ErrorMessages.INVALID_COMMENT_OPERATION, null);
+        }
+
+        // 부모 댓글 작성자에게 알림 전송
+        Member replyAuthor = parentComment.getAuthor();
+        if (replyAuthor != null && !replyAuthor.getEmail().equals(userEmail)) {
+
+            notificationService.sendNotification(
+                    replyAuthor.getId().toString(),
+                    "대댓글이 달렸습니다. "
+            );
         }
 
         return RsData.of("201", "대댓글 작성 성공", new QnACommentDTO(replyComment));

@@ -16,6 +16,12 @@ const SearchBox: React.FC<SearchBoxProps> = ({
 }) => {
   const [searchUrl, setSearchUrl] = useState<string>("");
 
+  const movePage = async () => {
+    const movedPage = searchUrl;
+    setSearchUrl("");
+    location.href = `?kw=${movedPage}`;
+  };
+
   return (
     <div
       onClick={onClick}
@@ -28,9 +34,9 @@ const SearchBox: React.FC<SearchBoxProps> = ({
           setSearchUrl(`?kw=${e.target.value}`);
         }}
       />
-      <a href={searchUrl}>
+      <button onClick={movePage}>
         <img src="/icon/search.svg" alt="검색 아이콘" />
-      </a>
+      </button>
     </div>
   );
 };

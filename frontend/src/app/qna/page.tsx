@@ -1,42 +1,67 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import styles from '@/styles/pages/qna/qna.module.scss';
-import MentorButton from '@/components/button/MentorButton';
-import SearchBox from '@/components/search/SearchBox';
-import Pagination from '@/components/pagination/custompagination';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { fetchUserProfile } from "@/api/axiosConfig";
+import Link from "next/link";
+import styles from "@/styles/pages/qna/qna.module.scss";
+import MentorButton from "@/components/button/MentorButton";
+import SearchBox from "@/components/search/SearchBox";
+import Pagination from "@/components/pagination/custompagination";
+import YesNoModal from "@/components/modal/YesNoModal";
 
 export default function QnA() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [userName, setUserName] = useState('');
-  const totalPages = 78;
+  const [qnAs, setQnAs] = useState([]);
+  const [loginStatus, setLoginStatus] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const itemsPerPage = 10;
 
-  useEffect(() => {
-    const storedName = localStorage.getItem('name');
-    if (storedName) {
-      setUserName(storedName);
+  const checkLogin = async () => {
+    const response = await fetchUserProfile();
+    console.log(response);
+    if (response.resultCode == "200") {
+      setLoginStatus(true);
+      return;
     }
+    setLoginStatus(false);
+  };
+
+  const toMyQnA = () => {
+    if (!loginStatus) {
+      alert("로그인이 필요합니다.");
+      location.href = "/members";
+      return;
+    }
+
+    location.href = "/qna/my";
+  };
+
+  useEffect(() => {
+    checkLogin();
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const page = Number(queryParams.get("page")) || 0;
+    const kw = queryParams.get("kw") || "";
+
+    const fetchRecentPosts = async () => {
+      try {
+        const response = await axios.get("http://localhost:8081/api/v1/qnas", {
+          params: { page, size: 16, kw },
+        });
+        const data = response.data.data;
+        console.log(data);
+        setQnAs(data.content);
+        setLoading(false);
+      } catch (error) {
+        setError("Failed to fetch recent posts.");
+        setLoading(false);
+      }
+    };
+
+    fetchRecentPosts(); // 페이지가 로드될 때 데이터 호출
   }, []);
-
-  const getCurrentDate = () => {
-    const date = new Date();
-    return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
-  };
-
-  const generateQnaItems = () => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return Array(itemsPerPage).fill(null).map((_, index) => {
-      const itemNumber = startIndex + index + 1;
-      return {
-        id: itemNumber,
-        question: 'ToTee에서 이런 질문을 남겨요.',
-        date: getCurrentDate(),
-        author: userName || '사용자'
-      };
-    });
-  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -52,36 +77,40 @@ export default function QnA() {
       <div className={styles.tagSection}>
         <div></div>
         <div className={styles.searchWrapper}>
-          <Link href="/qna/myqna" className={styles.linkWrapper}>
-            <MentorButton>My Q&A</MentorButton>
-          </Link>
+          <MentorButton onClick={toMyQnA}>My QnA</MentorButton>
           <SearchBox />
         </div>
       </div>
 
       <div className={styles.content}>
-        {generateQnaItems().map((item) => (
-          <Link href={`/qna/${item.id}`} key={item.id} className={styles.qnaItem}>
+        {qnAs.map((item, index) => (
+          <Link
+            href={`/qna/detail?id=${item.id}`}
+            key={item.id}
+            className={styles.qnaItem}
+          >
             <div className={styles.numberWrapper}>
-              <span className={styles.number}>{String(item.id).padStart(2, '0')}.</span>
+              <span className={styles.number}>
+                {String(index + 1).padStart(2, "0")}.
+              </span>
             </div>
             <div className={styles.questionWrapper}>
-              <span className={styles.question}>{item.question}</span>
+              <span className={styles.question}>{item.subject}</span>
             </div>
             <div className={styles.metaWrapper}>
-              <span className={styles.date}>{item.date}</span>
-              <span className={styles.author}>{item.author}</span>
+              <span className={styles.date}>
+                {new Date(item.createdDate).toISOString().split("T")[0]}
+              </span>
+              <span className={styles.author}>{item.authorName}</span>
             </div>
           </Link>
         ))}
       </div>
 
-      
-
       <Pagination
         currentPage={currentPage}
         onPageChange={handlePageChange}
-        totalPages={totalPages}
+        totalPages={Math.ceil(qnAs.length / itemsPerPage)}
       />
     </div>
   );
