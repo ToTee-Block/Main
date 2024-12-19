@@ -45,7 +45,6 @@ public class ApiV1PostController {
                        @RequestParam(value = "kw", defaultValue = "") String keyword) {
         Page<PostDTO> recentPosts = this.postService.searchRecentPosts(page, size, keyword);
         Page<PostDTO> hotPosts = this.postService.searchHotPosts(page, size, keyword);
-        Page<PostDTO> feedPosts = this.postService.searchHotPosts(page, size, keyword);
 
         List<Page> postPackage = new ArrayList<>();
         postPackage.add(recentPosts);

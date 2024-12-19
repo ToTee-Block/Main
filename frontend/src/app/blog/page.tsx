@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchUserProfile } from "@/api/axiosConfig";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import styles from "@/styles/pages/blog/blog.module.scss";
 import SearchBox from "@/components/search/SearchBox";
 import LinkButton from "@/components/button/LinkButton";
@@ -11,6 +12,7 @@ import Tag from "@/components/tag/tag";
 import DivideBar from "@/components/divideBar";
 import NoSearch from "@/components/exception/NoSearch";
 import Pagination from "@/components/pagination/custompagination";
+import MentorButton from "@/components/button/MentorButton";
 
 interface Me {
   birthDate: string;
@@ -35,6 +37,15 @@ const Post: React.FC = () => {
   const [entirePosts, setEntirePosts] = useState<any[]>([]); // 타입을 배열로 지정
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleSubmit = () => {
+    // sessionStorage에 데이터를 저장
+    sessionStorage.setItem("postingType", "posts");
+
+    // 페이지 이동
+    router.push("/editor");
+  };
 
   const getMe = async () => {
     const response = await fetchUserProfile();
@@ -180,7 +191,7 @@ const Post: React.FC = () => {
               />
             </div>
             <div className={styles.rightBox}>
-              <LinkButton to="/post/form">글쓰기</LinkButton>
+              <MentorButton onClick={handleSubmit}>글쓰기</MentorButton>
               <SearchBox></SearchBox>
             </div>
           </div>

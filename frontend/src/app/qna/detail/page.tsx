@@ -4,6 +4,7 @@ import React, { useState, useEffect, use } from "react";
 import axios from "axios";
 import apiClient, { fetchUserProfile } from "@/api/axiosConfig";
 import styles from "@/styles/pages/qna/detail.module.scss";
+import classNames from "classnames";
 import DivideBar from "@/components/divideBar";
 import LikeButton from "@/components/button/LikeButton";
 import ReportButton from "@/components/button/ReportButton";
@@ -236,7 +237,7 @@ const Detail: React.FC = () => {
             <DivideBar width={300}></DivideBar>
           </div>
           <div className={styles.contentBox}>
-            <div className={styles.content}>
+            <div className={classNames(styles.content, styles.markdownContent)}>
               <MarkdownWithHtml markdownContent={qna?.content} />
             </div>
           </div>

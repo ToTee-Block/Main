@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { fetchUserProfile } from "@/api/axiosConfig";
 import axios from "axios";
 import Link from "next/link";
@@ -32,8 +33,16 @@ export default function QnA() {
   const [entireQnAs, setEntireQnAs] = useState<string[]>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const totalPages = 78;
   const itemsPerPage = 10;
+  const router = useRouter();
+
+  const handleSubmit = () => {
+    // sessionStorage에 데이터를 저장
+    sessionStorage.setItem("postingType", "qnas");
+
+    // 페이지 이동
+    router.push("/editor");
+  };
 
   const getMe = async () => {
     const response = await fetchUserProfile();
@@ -134,9 +143,7 @@ export default function QnA() {
       <div className={styles.utilSection}>
         <div className={styles.airBox}></div>
         <div className={styles.searchWrapper}>
-          <Link href="/qna/detail" className={styles.linkWrapper}>
-            <MentorButton>질문하기</MentorButton>
-          </Link>
+          <MentorButton onClick={handleSubmit}>질문하기</MentorButton>
           <SearchBox />
         </div>
       </div>

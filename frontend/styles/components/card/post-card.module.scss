@@ -40,6 +40,10 @@
   @include font-XS-B;
   height: 100%;
   padding: 10px 0px;
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .textBox {
