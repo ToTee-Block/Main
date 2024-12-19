@@ -7,7 +7,7 @@
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
   overflow: hidden;
-  position: absolute; // 드래그 가능하게 설정
+  position: fixed; // 드래그 가능하게 설정
   bottom: 100px; // 초기 위치
   right: 20px;
   z-index: 1000;
