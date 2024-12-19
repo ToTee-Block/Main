@@ -40,9 +40,17 @@ public class ChatController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat/rooms")
     public ResponseEntity<List<Map<String, Object>>> getChatRooms(Principal principal) {
-        Member chatJoiner = this.memberService.getMemberByEmail(principal.getName());
-        if (chatJoiner == null) {
+        // Principal에서 직접 ID를 얻을 수 없으므로, 먼저 이메일을 통해 Member를 찾습니다.
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+        if (member == null) {
             System.out.println("Unauthorized message received");
+            return ResponseEntity.badRequest().build();
+        }
+
+        // 찾은 Member의 ID를 사용하여 chatJoiner를 가져옵니다.
+        Member chatJoiner = this.memberService.getMemberById(member.getId());
+        if (chatJoiner == null) {
+            System.out.println("Chat joiner not found");
             return ResponseEntity.badRequest().build();
         }
 
@@ -57,15 +65,44 @@ public class ChatController {
         return ResponseEntity.ok(chatRooms);
     }
 
+
     /* create 타이밍 : 나중에 멘토등록 승인되면 그 멘토의 방이 만들어지게 하기 */
+//    @PostMapping("/chat/rooms")
+//    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody, Principal principal) {
+//        String roomName = requestBody.get("name");
+//        if (roomName == null || roomName.isBlank()) {
+//            return ResponseEntity.badRequest().body(Map.of("message", "Room name cannot be empty"));
+//        }
+//        Member creator = memberService.getMemberByEmail(principal.getName());
+//        var newRoom = chatService.createRoom(roomName, creator);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+//                "id", newRoom.getId(),
+//                "name", newRoom.getName()
+//        ));
+//    }
+
     @PostMapping("/chat/rooms")
-    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody, Principal principal) {
         String roomName = requestBody.get("name");
+        Long menteeId = Long.parseLong(requestBody.get("menteeId"));
+        Long mentorId = Long.parseLong(requestBody.get("mentorId"));
+
         if (roomName == null || roomName.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Room name cannot be empty"));
         }
-        var newRoom = chatService.createRoom(roomName);
+
+        Member creator = memberService.getMemberByEmail(principal.getName());
+        Member mentee = memberService.getMemberById(menteeId);
+        Member mentor = memberService.getMemberById(mentorId);
+
+        if (mentee == null || mentor == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid user ID"));
+        }
+
+        var newRoom = chatService.createRoomWithUsers(roomName, mentee, mentor);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "resultCode", "200",
                 "id", newRoom.getId(),
                 "name", newRoom.getName()
         ));

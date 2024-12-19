@@ -67,7 +67,7 @@ public class ApiSecurityConfig {
                         // 신고 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.GET, "/api/*/reports/**").permitAll()
 
-                        // 알림 관련 API에 대한 권한 설정 추가
+                        // 알림 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.GET, "api/*/notifications/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/*/notifications/**").permitAll()
 

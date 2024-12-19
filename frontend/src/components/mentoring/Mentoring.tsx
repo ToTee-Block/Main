@@ -100,9 +100,14 @@ const Mentoring: React.FC = () => {
           inProgress={inProgressMentorings}
           refreshData={fetchMentorData}
           refreshInProgress={fetchInProgressMentorings}
+          userName={user.name}
         />
       ) : (
-        <MenteeView data={mentorData} refreshData={fetchMenteeData} />
+        <MenteeView
+          data={mentorData}
+          refreshData={fetchMenteeData}
+          userName={user.name}
+        />
       )}
     </div>
   );
@@ -113,7 +118,8 @@ const MentorView: React.FC<{
   inProgress: MatchingDTO[];
   refreshData: () => void;
   refreshInProgress: () => void;
-}> = ({ requests, inProgress, refreshData, refreshInProgress }) => {
+  userName: string;
+}> = ({ requests, inProgress, refreshData, refreshInProgress, userName }) => {
   const handleApprove = async (matchingId: number) => {
     try {
       const response = await apiClient.post(
@@ -185,16 +191,22 @@ const MentorView: React.FC<{
     }
   };
 
-  const handleChatRequest = async (menteeId: number) => {
+  const handleChatRequest = async (mentee: MatchingDTO) => {
     try {
-      const response = await apiClient.post("/api/v1/chat/request", {
-        targetUserId: menteeId,
+      const response = await apiClient.post("/chat/rooms", {
+        name: `Mentoring Chat: ${userName} with ${mentee.name}`,
+        menteeId: mentee.menteeId,
+        mentorId: mentee.mentorId,
       });
       if (response.data.resultCode === "200") {
-        alert("채팅 신청이 완료되었습니다.");
+        alert("채팅방이 생성되었습니다. 채팅을 시작합니다.");
+        // 여기에 채팅 인터페이스로 이동하는 로직을 추가할 수 있습니다.
+      } else {
+        throw new Error(response.data.msg || "채팅방 생성에 실패했습니다.");
       }
     } catch (error) {
-      console.error("채팅 신청 실패:", error);
+      console.error("채팅방 생성 실패:", error);
+      alert("채팅방 생성 중 오류가 발생했습니다.");
     }
   };
 
@@ -235,7 +247,7 @@ const MentorView: React.FC<{
               <div className={styles.buttonGroup}>
                 <button
                   className={styles.chatButton}
-                  onClick={() => handleChatRequest(mentee.menteeId)}
+                  onClick={() => handleChatRequest(mentee)}
                 >
                   채팅신청
                 </button>
@@ -259,17 +271,24 @@ const MentorView: React.FC<{
 const MenteeView: React.FC<{
   data: MatchingDTO[];
   refreshData: () => void;
-}> = ({ data, refreshData }) => {
-  const handleChatRequest = async (mentorId: number) => {
+  userName: string;
+}> = ({ data, refreshData, userName }) => {
+  const handleChatRequest = async (mentor: MatchingDTO) => {
     try {
-      const response = await apiClient.post("/api/v1/chat/request", {
-        targetUserId: mentorId,
+      const response = await apiClient.post("/chat/rooms", {
+        name: `${mentor.name} with ${userName}`,
+        menteeId: mentor.menteeId,
+        mentorId: mentor.mentorId,
       });
       if (response.data.resultCode === "200") {
-        alert("채팅 신청이 완료되었습니다.");
+        alert("채팅방이 생성되었습니다. 채팅을 시작합니다.");
+        // 여기에 채팅 인터페이스로 이동하는 로직을 추가할 수 있습니다.
+      } else {
+        throw new Error(response.data.msg || "채팅방 생성에 실패했습니다.");
       }
     } catch (error) {
-      console.error("채팅 신청 실패:", error);
+      console.error("채팅방 생성 실패:", error);
+      alert("채팅방 생성 중 오류가 발생했습니다.");
     }
   };
 
@@ -310,7 +329,7 @@ const MenteeView: React.FC<{
               <div className={styles.buttonGroup}>
                 <button
                   className={styles.chatButton}
-                  onClick={() => handleChatRequest(mentor.mentorId)}
+                  onClick={() => handleChatRequest(mentor)}
                 >
                   채팅신청
                 </button>
