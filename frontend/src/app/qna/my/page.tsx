@@ -11,6 +11,7 @@ import Tag from "@/components/tag/tag";
 import DivideBar from "@/components/divideBar";
 
 
+
 export default function QnA() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
