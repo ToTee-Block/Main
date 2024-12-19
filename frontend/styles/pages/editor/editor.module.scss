@@ -79,14 +79,48 @@
   display: block; 
 
 
-  &:focus {
-    outline: none;
+ // 마크다운 구문 스타일링
+ &[data-has-placeholder="true"] {
+  // 헤딩
+  &[value*="# "], 
+  &[value*="## "],
+  &[value*="### "],
+  &[value*="#### "] {
+    & + .placeholder-text {
+      color: var(--gray-400);
+      background-color: var(--gray-50);
+      padding: 0 4px;
+      margin: 0 2px;
+      border-radius: 2px;
+    }
   }
 
-  &::placeholder {
-    color: var(--text-gray);
+  // 굵게
+  &[value*="**"] {
+    & + .placeholder-text {
+      color: var(--gray-400);
+      background-color: var(--gray-50);
+    }
+  }
+
+  // 취소선
+  &[value*="~~"] {
+    & + .placeholder-text {
+      color: var(--gray-400);
+      background-color: var(--gray-50);
+    }
   }
 }
+
+&:focus {
+  outline: none;
+}
+
+&::placeholder {
+  color: var(--text-gray);
+}
+}
+
 
 .previewSection {
   width: 830px;
@@ -181,3 +215,4 @@
   border-radius: 4px;
   object-fit: contain;
 }
+
