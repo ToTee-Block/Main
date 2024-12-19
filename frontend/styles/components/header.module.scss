@@ -61,6 +61,11 @@
   }
 }
 
+.isAdmin .userName {
+  @include font-XXXS-B;
+  color: var(--text-black);
+}
+
 .userName {
   @include font-XXXS-B;
   color: var(--text-black);
@@ -69,6 +74,9 @@
 .userImage {
   width: 40px;
   height: 40px;
+  border-radius: 50%; 
+  object-fit: cover; 
+  overflow: hidden;
 }
 
 .iconButton {

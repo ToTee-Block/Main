@@ -8,7 +8,7 @@ interface MentorCardProps {
   name: string;
   type: string;
   description: string;
-  // imageUrl: string;
+  imageUrl: string;
 }
 
 const MentorCard: React.FC<MentorCardProps> = ({ href, name, type, description }) => {
