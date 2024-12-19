@@ -116,12 +116,10 @@ public class ApiV1MentorController {
             return RsData.of("400", "존재하지 않는 멘토링 매치입니다.");
         }
 
-        // 요청자가 멘토 또는 멘티인지 확인
         if (!matching.getMentor().getMember().equals(member) && !matching.getMentee().equals(member)) {
             return RsData.of("403", "이 멘토링 관계를 끊을 권한이 없습니다.");
         }
 
-        // 매칭 데이터를 데이터베이스에서 삭제
         this.matchingService.deleteMatching(matching);
 
         return RsData.of("200", "멘토링 관계가 성공적으로 삭제되었습니다.");

@@ -15,13 +15,6 @@ interface User {
   modifiedDate: string;
 }
 
-interface MentorInfo {
-  id: number;
-  mentorId: number;
-  name: string;
-  matchingStatus: boolean;
-}
-
 interface MatchingDTO {
   matchingId: number;
   approve: boolean;
@@ -30,7 +23,7 @@ interface MatchingDTO {
 
 const Mentoring: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [mentorData, setMentorData] = useState<MentorInfo[]>([]);
+  const [mentorData, setMentorData] = useState<MatchingDTO[]>([]);
   const [menteeRequests, setMenteeRequests] = useState<MatchingDTO[]>([]);
   const [inProgressMentorings, setInProgressMentorings] = useState<
     MatchingDTO[]
@@ -164,12 +157,6 @@ const MentorView: React.FC<{
   };
 
   const handleDisconnect = async (matchingId: number) => {
-    if (!matchingId) {
-      console.error("matchingId is undefined");
-      alert("연결을 끊을 수 없습니다. 유효하지 않은 매칭 ID입니다.");
-      return;
-    }
-
     try {
       const response = await apiClient.delete(
         `/api/v1/mentors/myMentoring/disconnect/${matchingId}`
@@ -262,10 +249,10 @@ const MentorView: React.FC<{
   );
 };
 
-const MenteeView: React.FC<{ data: MentorInfo[]; refreshData: () => void }> = ({
-  data,
-  refreshData,
-}) => {
+const MenteeView: React.FC<{
+  data: MatchingDTO[];
+  refreshData: () => void;
+}> = ({ data, refreshData }) => {
   const handleChatRequest = async (mentorId: number) => {
     try {
       const response = await apiClient.post("/api/v1/chat/request", {
@@ -280,12 +267,6 @@ const MenteeView: React.FC<{ data: MentorInfo[]; refreshData: () => void }> = ({
   };
 
   const handleDisconnect = async (matchingId: number) => {
-    if (!matchingId) {
-      console.error("matchingId is undefined");
-      alert("연결을 끊을 수 없습니다. 유효하지 않은 매칭 ID입니다.");
-      return;
-    }
-
     try {
       const response = await apiClient.delete(
         `/api/v1/mentors/myMentoring/disconnect/${matchingId}`
@@ -314,18 +295,18 @@ const MenteeView: React.FC<{ data: MentorInfo[]; refreshData: () => void }> = ({
         <h4>멘토 목록</h4>
         <div className={styles.requestList}>
           {data.map((mentor) => (
-            <div key={mentor.id} className={styles.requestItem}>
+            <div key={mentor.matchingId} className={styles.requestItem}>
               <span>{mentor.name}</span>
               <div className={styles.buttonGroup}>
                 <button
                   className={styles.chatButton}
-                  onClick={() => handleChatRequest(mentor.mentorId)}
+                  onClick={() => handleChatRequest(mentor.matchingId)}
                 >
                   채팅신청
                 </button>
                 <button
                   className={styles.disconnectButton}
-                  onClick={() => handleDisconnect(mentor.id)}
+                  onClick={() => handleDisconnect(mentor.matchingId)}
                 >
                   연결 끊기
                 </button>
