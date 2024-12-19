@@ -3,6 +3,7 @@ package com.example.Main.domain.Mentor.controller;
 import com.example.Main.domain.Member.dto.MemberDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Mentor.dto.MatchingDTO;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
 import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
@@ -90,14 +91,40 @@ public class ApiV1MentorController {
     @GetMapping("/myMentoring/requests")
     public RsData getMyMentoring(Principal principal) {
         Member member = this.memberService.getMemberByEmail(principal.getName());
+
+        if (member.getMentorQualify() == null) {
+            return RsData.of("400", "멘토 자격이 없습니다.", null);
+        }
+
         Mentor mentor = this.mentorService.getMentorById(member.getMentorQualify().getId());
 
         List<MentorMenteeMatching> matchings = this.matchingService.myMentoringList(mentor);
-        List<MemberDTO> mentees = matchings.stream()    // 멘티의 정보만 DTO의 형식으로 재구성하여 리스트 만들기
-                .map(matching -> new MemberDTO(matching.getMentee()))
+        List<MatchingDTO> matchingDTOs = matchings.stream()
+                .map(matching -> new MatchingDTO(matching, matching.getMentee()))
                 .collect(Collectors.toList());
 
-        return RsData.of("200", "멘토: 내 멘토링 신청 목록", mentees);
+        return RsData.of("200", "멘토: 내 멘토링 신청 목록", matchingDTOs);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/myMentoring/disconnect/{matchingId}")
+    public RsData disconnectMentoring(@PathVariable("matchingId") Long matchingId, Principal principal) {
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+
+        MentorMenteeMatching matching = this.matchingService.getMatchingById(matchingId);
+        if (matching == null) {
+            return RsData.of("400", "존재하지 않는 멘토링 매치입니다.");
+        }
+
+        // 요청자가 멘토 또는 멘티인지 확인
+        if (!matching.getMentor().getMember().equals(member) && !matching.getMentee().equals(member)) {
+            return RsData.of("403", "이 멘토링 관계를 끊을 권한이 없습니다.");
+        }
+
+        // 매칭 데이터를 데이터베이스에서 삭제
+        this.matchingService.deleteMatching(matching);
+
+        return RsData.of("200", "멘토링 관계가 성공적으로 삭제되었습니다.");
     }
 
     @PreAuthorize("isAuthenticated()")

@@ -41,6 +41,9 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/*/members/delete/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/*/mentors/registration").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/mentors/profile/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/mentors/myMentoring/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/members/mentor/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/*/members/myMentorings/*").authenticated()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         // post 관련 API에 대한 권한 설정
