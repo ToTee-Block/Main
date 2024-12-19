@@ -9,12 +9,10 @@ import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,9 +21,28 @@ public class ApiV1AdminPostController {
     private final PostService postService;
     private final NotificationService notificationService;
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("")
+    public RsData<Page<PostDTO>> postList(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @AuthenticationPrincipal SecurityMember loggedInUser
+    ) {
+        if (loggedInUser == null) {
+            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
+        }
+
+        String role = loggedInUser.getAuthorities().toString();
+        if (!role.contains("ROLE_ADMIN")) {
+            return RsData.of("403", ErrorMessages.ONLY_ADMIN, null);
+        }
+
+        Page<PostDTO> posts = this.postService.getAdminPostList(page, size);
+        return RsData.of("200", "게시글 리스트 조회 성공", posts);
+    }
 
     // 관리자용 게시글 삭제
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public RsData<PostResponse> deletePostByAdmin(@PathVariable("id") Long id, @AuthenticationPrincipal SecurityMember loggedInUser) {
         if (loggedInUser == null) {

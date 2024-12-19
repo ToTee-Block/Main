@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class NotificationService {
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationRepository notificationRepository;
@@ -77,5 +78,10 @@ public class NotificationService {
             return true;
         }
         return false;
+    }
+
+    @Transactional
+    public void deleteAllByMember(Member member) {
+        notificationRepository.deleteByMember(member);
     }
 }

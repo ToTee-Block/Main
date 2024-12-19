@@ -1,0 +1,42 @@
+@import "../../globals/font-mixin.scss";
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-radius: 4px;
+
+  .pageInfo {
+    color: var(--gray-600);
+    @include font-XXXS-M;
+  }
+
+  .controls {
+    display: flex;
+
+    .pageButton {
+      width: 43px;
+      height: 30px;
+      border: 1px solid var(--border-solid-color);
+      background: var(--background);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-black);
+
+      &:disabled {
+        background-color: var(--gray-200);
+        color: var(--gray-500);
+        cursor: not-allowed;
+      }
+
+      &:hover:not(:disabled) {
+        background-color: var(--gray-200);
+        border-color: var(--gray-500);
+      }
+    }
+  }
+}

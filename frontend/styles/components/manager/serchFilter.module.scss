@@ -1,0 +1,72 @@
+@import "../../globals/font-mixin.scss";
+
+.container {
+  background-color: var(--background-gray-color);
+}
+
+.filterContainer {
+  display: flex;
+  width: fit-content;
+  background: var(--background);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+
+  .divider {
+    width: 1px;
+    height: 70px;
+    background-color: var(--gray-300);
+    margin-left: 24px;
+  }
+
+  .imageBox {
+    margin-left: 24px;
+  }
+
+  .inputGroup {
+    display: flex;
+    align-items: center;
+
+    .filterInput {
+      @include font-XXXS-B;
+      width: 113px;
+      padding: 8px 12px;
+      border: 1px solid var(--gray-300);
+      border-radius: 4px;
+      margin-left: 24px;
+      background-color: var(--gray-200);
+
+      &::placeholder {
+        color: var(--gray-500);
+      }
+
+      &[type="date"] {
+        width: 180px; // 날짜 입력 필드 너비 증가
+      }
+    }
+
+    .dateRange {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      span {
+        color: var(--gray-500);
+        margin-left: 24px;
+      }
+    }
+
+    .searchButton {
+      padding: 8px 12px;
+      border: 1px solid var(--gray-300);
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 24px;
+      margin-right: 24px;
+    }
+  }
+}
