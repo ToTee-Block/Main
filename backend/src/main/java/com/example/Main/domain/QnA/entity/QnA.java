@@ -21,8 +21,8 @@ import java.util.Set;
 @SuperBuilder
 @ToString(callSuper = true)
 public class QnA extends BaseEntity {
-
     private String subject;
+
     private String content;
 
     @ManyToOne

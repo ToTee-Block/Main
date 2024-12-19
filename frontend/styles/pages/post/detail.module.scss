@@ -1,0 +1,156 @@
+@import "../../globals/font-mixin.scss";
+
+.bodyContainer:first-child {
+  margin-top: 32px;
+}
+
+.bodyContainer:last-child {
+  margin-bottom: 32px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+
+  .postSection {
+    width: 100%;
+    margin-bottom: 40px;
+
+    .titleBox {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+
+      .title {
+        @include font-XXL-B;
+        color: var(--text-blue);
+        height: 76px;
+        display: flex;
+        align-items: flex-end;
+      }
+    }
+
+    .contentBox {
+      padding: 0 10px;
+
+      & > .content {
+        max-height: 880px;
+        min-height: 100px;
+        overflow-y: scroll;
+
+        & > span {
+          @include font-XS-B;
+        }
+      }
+    }
+  }
+
+  .utilBar {
+    display: flex;
+    gap: 8px;
+    height: 40px;
+
+    .airBox {
+      flex-grow: 1;
+    }
+  }
+
+  .commentSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 1380px;
+    width: 100%;
+    margin: 0 auto;
+
+    & > span {
+      font-size: 13px;
+    }
+  }
+}
+
+.markdownContent {
+  h1,
+  h2,
+  h3,
+  h4,
+  p {
+    line-height: 1.6; /* 행간 설정 */
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  h4 {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    line-height: 1.7; /* 문단의 행간 */
+    white-space: pre-line;
+  }
+
+  a {
+    color: var(--text-secondary-color);
+    text-decoration: underline;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  // 취소선
+  .markdownStrike,
+  del {
+    text-decoration: line-through !important;
+  }
+
+  // Bold 적용을 위한 스타일
+  strong {
+    font-weight: var(--font-weight-Bold);
+  }
+
+  hr {
+    width: 100%;
+    height: 1px;
+    background-color: var(--gray-300);
+    border: none;
+    margin: 24px 0;
+  }
+}
+
+.actionButtons {
+  width: 816px;
+  padding: 24px 0;
+  margin-top: auto;
+}
+
+.markdownImage {
+  max-width: 100%;
+  height: auto;
+  margin: 16px 0;
+  border-radius: 4px;
+  object-fit: contain;
+}

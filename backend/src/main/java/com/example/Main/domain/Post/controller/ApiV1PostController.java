@@ -12,19 +12,22 @@ import com.example.Main.domain.Post.dto.response.PostsResponse;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
 import com.example.Main.domain.TechStack.enums.TechStacks;
-import com.example.Main.global.RsData.RsData;
-import com.example.Main.global.Security.SecurityMember;
-import com.example.Main.global.Util.Markdown.MarkdownService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
+import com.example.Main.global.RsData.RsData;
+import com.example.Main.global.Util.Markdown.MarkdownService;
+import com.example.Main.global.Util.Image.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +36,7 @@ public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
     private final MarkdownService markdownService;
+    private final ImageService imageService;
 
     // 다건조회 - ver.전체
     @GetMapping("")
@@ -41,7 +45,6 @@ public class ApiV1PostController {
                        @RequestParam(value = "kw", defaultValue = "") String keyword) {
         Page<PostDTO> recentPosts = this.postService.searchRecentPosts(page, size, keyword);
         Page<PostDTO> hotPosts = this.postService.searchHotPosts(page, size, keyword);
-        Page<PostDTO> feedPosts = this.postService.searchHotPosts(page, size, keyword);
 
         List<Page> postPackage = new ArrayList<>();
         postPackage.add(recentPosts);
@@ -98,7 +101,9 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("")
     public RsData<PostCreateResponse> create(@Valid @RequestBody PostCreateRequest postCreateRequest,
-                                             Principal principal) {
+                                             Principal principal,
+                                             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+                                             @RequestParam(value = "files", required = false) MultipartFile[] files) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -107,11 +112,25 @@ public class ApiV1PostController {
 
         String htmlContent = markdownService.convertMarkdownToHtml(postCreateRequest.getContent());
 
+        // 썸네일 등록
+        String thumbnailPath = null;
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
+        }
+
+        // 여러 파일 등록
+        List<String> filePaths = new ArrayList<>();
+        if (files != null && files.length > 0) {
+            filePaths = imageService.saveFiles("posts/files", files);
+        }
+
         Post post = postService.write(
                 postCreateRequest.getSubject(),
                 htmlContent,
                 loggedInUser,  // 로그인한 사용자의 이메일을 작성자로 설정
-                postCreateRequest.getIsDraft()
+                postCreateRequest.getIsDraft(),
+                thumbnailPath,
+                filePaths
         );
 
         return RsData.of("200", "게시글 등록 성공", new PostCreateResponse(post));
@@ -120,8 +139,10 @@ public class ApiV1PostController {
     // 게시글 수정
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}")
-    public RsData<PostModifyResponse> modify(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
-                                             Principal principal) {
+    public RsData<PostModifyResponse> modify(@PathVariable("id") Long id, Principal principal,
+                                             @Valid @RequestBody PostModifyRequest postModifyRequest,
+                                             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+                                             @RequestParam(value = "files", required = false) MultipartFile[] files) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -139,7 +160,27 @@ public class ApiV1PostController {
 
         String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
 
-        post = this.postService.update(post, htmlContent, postModifyRequest.getSubject(), loggedInUser, postModifyRequest.getIsDraft());
+        // 썸네일 수정
+        String thumbnailPath = post.getThumbnail();
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
+        }
+
+        // 파일 수정
+        List<String> filePaths = post.getFilePaths();
+        if (files != null && files.length > 0) {
+            List<String> newFilePaths = imageService.saveFiles("posts/files", files);
+            filePaths.addAll(newFilePaths);
+        }
+        post = this.postService.update(
+                post
+                , htmlContent
+                , postModifyRequest.getSubject()
+                , loggedInUser
+                , postModifyRequest.getIsDraft()
+                , thumbnailPath
+                , filePaths
+        );
 
         return RsData.of("200", "게시글 수정 성공", new PostModifyResponse(post));
     }
@@ -200,8 +241,10 @@ public class ApiV1PostController {
     // 임시 저장된 게시글 이어서 수정 작성
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/draft/{id}")
-    public RsData<PostModifyResponse> continueDraft(@PathVariable("id") Long id, @Valid @RequestBody PostModifyRequest postModifyRequest,
-                                                    Principal principal) {
+    public RsData<PostModifyResponse> continueDraft(@PathVariable("id") Long id, Principal principal,
+                                                    @Valid @RequestBody PostModifyRequest postModifyRequest,
+                                                    @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
+                                                    @RequestParam(value = "files", required = false) MultipartFile[] files ){
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -219,12 +262,27 @@ public class ApiV1PostController {
 
         String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
 
+        // 썸네일 수정
+        String thumbnailPath = post.getThumbnail();
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
+        }
+
+        // 파일 수정
+        List<String> filePaths = post.getFilePaths();
+        if (files != null && files.length > 0) {
+            List<String> newFilePaths = imageService.saveFiles("posts/files", files);
+            filePaths.addAll(newFilePaths);  // 기존 파일 경로에 새 파일 경로 추가
+        }
+
         post = this.postService.continueDraft(
                 id,
                 htmlContent,
                 postModifyRequest.getSubject(),
                 loggedInUser,
-                postModifyRequest.getIsDraft()
+                postModifyRequest.getIsDraft(),
+                thumbnailPath,
+                filePaths
         );
 
         return RsData.of("200", "임시 저장된 게시글 이어서 작성 성공", new PostModifyResponse(post));

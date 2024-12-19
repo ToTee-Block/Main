@@ -2,7 +2,7 @@ package com.example.Main.domain.Report.controller.admin;
 
 import com.example.Main.domain.Report.dto.ReportPostCommentDTO;
 import com.example.Main.domain.Report.entity.ReportPostComment;
-import com.example.Main.domain.Report.eunums.ReportStatus;
+import com.example.Main.domain.Report.enums.ReportStatus;
 import com.example.Main.domain.Report.service.ReportPostCommentService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;

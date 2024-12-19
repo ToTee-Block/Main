@@ -1,6 +1,5 @@
 package com.example.Main.domain.Report.dto;
 
-import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Report.entity.Report;
 import lombok.Getter;
 

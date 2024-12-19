@@ -12,6 +12,7 @@ import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.Post.Comment.service.PostCommentService;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ public class ApiV1PostCommentController {
     private final PostCommentService commentService;
     private final MemberService memberService;
     private final PostService postService;
+    private final NotificationService notificationService;
 
     // 특정 게시글의 댓글 목록 조회 (다건 조회)
     @GetMapping
@@ -107,6 +109,14 @@ public class ApiV1PostCommentController {
 
         PostComment comment = commentService.addComment(commentCreateRequest.getContent(), post, author);
 
+        // 게시물 작성자에게 알림 전송
+        Member postAuthor = post.getAuthor();
+        if (postAuthor != null && !postAuthor.getId().equals(author.getId())) {
+            notificationService.sendNotification(
+                    postAuthor.getId().toString(),
+                    "게시물 '%s'에 댓글이 달렸습니다.".formatted(post.getSubject())
+            );
+        }
         return RsData.of("201", "댓글 작성 성공", new PostCommentCreateResponse(comment));
     }
 

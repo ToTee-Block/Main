@@ -10,7 +10,7 @@ interface TextInputProps {
   isNotModify?: boolean; // 수정 불가능 여부
   disabled?: boolean; // 패스워드 확인 로직
   className?: string; // 외부에서 스타일을 적용할 수 있는 prop
-  placeholder: string;
+  placeholder?: string; // placeholder를 선택적으로 변경
 }
 
 const TextInput: React.FC<TextInputProps> = ({

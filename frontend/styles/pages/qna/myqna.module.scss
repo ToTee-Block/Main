@@ -1,7 +1,8 @@
 @import "../../globals/font-mixin.scss";
 
 .container {
-  width: 1680px;
+  width: 100%;
+  max-width: 1680px;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -10,7 +11,7 @@
 .header {
   display: flex;
   justify-content: flex-start;
-  width: 1680px;
+  width: 100%;
 }
 
 .titleWrapper {
@@ -31,11 +32,16 @@
   background-color: var(--dark-blue-color);
 }
 
-.tagSection {
-  width: 1680px;
+.utilSection {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 100px;
+
+  .airBox {
+    flex-grow: 1;
+  }
 }
 .searchWrapper {
   display: flex;
@@ -44,20 +50,21 @@
 }
 
 .content {
-  width: 1200px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-self: center;
 }
 
 .qnaItem {
-  width: 1200px;
+  max-width: 1200px;
+  width: 100%;
   display: flex;
   align-items: center;
   text-decoration: none;
   border-bottom: 1px solid var(--gray-400);
   padding: 24px 0 10px;
-  
+
   &:hover {
     background-color: var(--background);
   }
@@ -105,7 +112,7 @@
 }
 
 .paginationWrapper {
-  width: 1680px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -123,5 +130,72 @@
       justify-content: center;
       gap: 8px;
     }
+  }
+}
+
+.markdownContent {
+  h1,
+  h2,
+  h3,
+  h4,
+  p {
+    line-height: 1.6; /* 행간 설정 */
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  h4 {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    line-height: 1.7; /* 문단의 행간 */
+    white-space: pre-line;
+  }
+
+  a {
+    color: var(--text-secondary-color);
+    text-decoration: underline;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  // 취소선
+  .markdownStrike,
+  del {
+    text-decoration: line-through !important;
+  }
+
+  // Bold 적용을 위한 스타일
+  strong {
+    font-weight: var(--font-weight-Bold);
+  }
+
+  hr {
+    width: 100%;
+    height: 1px;
+    background-color: var(--gray-300);
+    border: none;
+    margin: 24px 0;
   }
 }

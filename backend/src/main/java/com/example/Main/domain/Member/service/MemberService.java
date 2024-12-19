@@ -1,5 +1,6 @@
 package com.example.Main.domain.Member.service;
 
+import com.example.Main.domain.Chat.serivce.ChatService;
 import com.example.Main.domain.Member.dto.MemberDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.enums.MemberGender;
@@ -14,7 +15,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -72,6 +77,7 @@ public class MemberService {
         return member;
     }
 
+    @Transactional
     public void deleteMember(Member member) {
         this.memberRepository.delete(member);
     }
@@ -130,5 +136,23 @@ public class MemberService {
             throw new IllegalArgumentException("Member cannot be null");
         }
         return memberRepository.save(member);
+    }
+
+    public Page<MemberDTO> getMemberList(int page) {
+        if (page < 0) {
+            throw new IllegalArgumentException("페이지 수는 0 이상의 값이 필요합니다.");
+        }
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createdDate")));
+        Page<Member> members = this.memberRepository.findAll(pageable);
+
+        return members.map(MemberDTO::new);
+    }
+
+    public Member getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

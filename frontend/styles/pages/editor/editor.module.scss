@@ -1,0 +1,199 @@
+@import "../../globals/font-mixin.scss";
+
+.editorContainer {
+  display: flex;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  background-color: var(--background);
+  padding-bottom: 32px;
+  gap: 50px;
+}
+
+.editorSection {
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px;
+  width: 840px;
+  height: 1200px;
+  background-color: var(--gray-50);
+  margin-bottom: 32px;
+}
+
+.editorContent {
+  display: flex;
+  flex-direction: column;
+  width: 840px;
+  height: auto;
+  flex: 1;
+}
+
+.titleInput {
+  width: 816px;
+  border: none;
+  @include font-XL-B;
+  color: var(--text-black);
+  background-color: transparent;
+  margin-bottom: 12px;
+
+  &::placeholder {
+    color: var(--text-gray);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.divider {
+  width: 64px;
+  height: 6px;
+  background-color: var(--text-blue);
+  margin-bottom: 12px;
+}
+
+.tagSection {
+  width: 816px;
+  margin-bottom: 12px;
+  min-height: 48px;
+  max-height: 140px;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+.editorTextarea {
+  width: 816px;
+  flex: 1;
+  min-height: 815px;
+  padding: 16px;
+  border: none;
+  resize: none;
+  @include font-XXS-B;
+  line-height: 1.5;
+  background-color: var(--background);
+  border-radius: 4px;
+  color: var(--text-black);
+  overflow-y: scroll !important;
+  scrollbar-gutter: stable;
+  display: block;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: var(--text-gray);
+  }
+}
+
+.previewSection {
+  width: 830px;
+  padding: 24px;
+  background-color: var(--background);
+  overflow-y: auto;
+
+  .previewContent {
+    display: flex;
+    flex-direction: column;
+    width: 816px;
+    height: auto;
+  }
+
+  .previewTitle {
+    width: 816px;
+    border: none;
+    @include font-XL-B;
+    color: var(--text-black);
+    background-color: transparent;
+    margin: 0 0 12px;
+    pointer-events: none;
+  }
+
+  .divider {
+    width: 64px;
+    height: 6px;
+    background-color: var(--text-black);
+    margin-bottom: 150px;
+  }
+
+  .markdownContent {
+    .markdownH1,
+    .markdownH2,
+    .markdownH3,
+    .markdownH4,
+    .markdownP {
+      line-height: 1.6; /* 행간 설정 */
+    }
+
+    .markdownH1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .markdownH2 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .markdownH3 {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .markdownH4 {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .markdownP {
+      font-size: 1rem;
+      margin-bottom: 15px;
+      line-height: 1.7; /* 문단의 행간 */
+      white-space: pre-line;
+    }
+
+    .markdownLink {
+      color: var(--text-secondary-color);
+      text-decoration: underline;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    // 취소선
+    .markdownStrike,
+    del {
+      text-decoration: line-through !important;
+    }
+
+    // Bold 적용을 위한 스타일
+    strong {
+      font-weight: var(--font-weight-Bold);
+    }
+
+    hr {
+      width: 100%;
+      height: 1px;
+      background-color: var(--gray-300);
+      border: none;
+      margin: 24px 0;
+    }
+  }
+}
+
+.actionButtons {
+  width: 816px;
+  padding: 24px 0;
+  margin-top: auto;
+}
+
+.markdownImage {
+  max-width: 100%;
+  height: auto;
+  margin: 16px 0;
+  border-radius: 4px;
+  object-fit: contain;
+}
