@@ -227,4 +227,11 @@ public class PostService {
 
         return new PageImpl<>(hotPosts, pageable, searchedPosts.getTotalElements());
     }
+
+    public Page<PostDTO> getAdminPostList(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> posts = postRepository.findAllByIsDraftFalseOrderByCreatedDateDesc(pageable);
+
+        return posts.map(PostDTO::new);
+    }
 }
