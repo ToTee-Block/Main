@@ -3,8 +3,8 @@ import classNames from 'classnames';
 import styles from "@/styles/pages/home.module.scss";
 import LinkCard from '@/components/card/LinkCard';
 import PostCard from '@/components/card/PostCard';
-import Tabs from '@/components/Tabs';
 import Link from 'next/link';
+import Tabs from '@/components/Tabs';
 
 const posts = [];
 const basePost = {
@@ -20,23 +20,6 @@ for (let i = 0; i < 8; i++) {
   const post = { ...basePost, user: `admin0${i + 7}` };
   posts.push(post);
 }
-
-const mentors = [
-  {
-    name: "John Doe",
-    company: "ABC Company",
-    position: "Senior Developer",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    imageUrl: "/path/to/mentor/image1.jpg"
-  },
-  {
-    name: "Jane Smith",
-    company: "XYZ Corporation",
-    position: "Software Architect",
-    description: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-    imageUrl: "/path/to/mentor/image2.jpg"
-  },
-];
 
 export default function Home() {
   return (
@@ -69,6 +52,7 @@ export default function Home() {
 
         {/* 포스트와 멘토 섹션 수정 */}
         <div className={styles.content_container}>
+          {/* 포스트 섹션 */}
           <div className={styles.section_container}>
             <p>Post</p>
             <div className={styles.containerItemBox}>
@@ -84,50 +68,32 @@ export default function Home() {
                 />
               ))}
             </div>
-            <Link href="/posts" className={styles.moreButton}>
-              <span>Post</span>
-              <svg 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
+            <Link href="/post" className={styles.moreButton}>
+              <span>Post 더보기</span>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path 
-                  d="M9 6L15 12L9 18" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
+                <path
+                  d="M9 6L15 12L9 18"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>
             </Link>
           </div>
 
+          {/* 멘토 섹션 */}
           <div className={styles.section_container}>
             <p>Mentor</p>
-            <div className={styles.mentorGrid}>
-              {Array(10).fill(null).map((_, index) => (
-                <Link href="/mentor/detail" key={index} className={styles.mentorCard}>
-                  <div className={styles.profileImage} />
-                  <div className={styles.mentorInfo}>
-                    <div className={styles.nameWrapper}>
-                      <span className={styles.nameText}>박승수</span>
-                      <span className={styles.mentorText}>멘토</span>
-                    </div>
-                    <div className={styles.infoWrapper}>
-                      <span className={styles.company}>Google</span>
-                      <span className={styles.position}>Full-Stack</span>
-                    </div>
-                    <div className={styles.descriptionWrapper}>
-                      <span className={styles.description}>구글의 모든 서비스를 총괄</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <Tabs />
             <Link href="/mentor" className={styles.moreButton}>
-              <span>Mentor</span>
+              <span>Mentor 더보기</span>
               <svg
                 width="24"
                 height="24"

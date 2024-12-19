@@ -13,7 +13,7 @@ interface MentorCardProps {
 
 const MentorCard: React.FC<MentorCardProps> = ({ href, name, type, description }) => {
   return (
-    <Link href={href}>
+    <Link href={href} className={styles.MentorBox}>
       <div className={styles.MentorCard}>
         <div className={styles.imageWrapper}>
           {/* <Image src={imageUrl} alt={name} width={100} height={100} /> */}

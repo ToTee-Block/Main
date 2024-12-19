@@ -1,34 +1,31 @@
 "use client";
-
 import React, { useState } from "react";
 import MentorCard from "@/components/card/MentorCard";
 import styles from "@/styles/components/tabs.module.scss";
+import { type } from "os";
 
 const Tabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("full");
 
   // 각 탭에 맞는 카드 데이터
   const cardData: Record<string, { href: string; name: string; type: string; description: string;}[]> = {
-    full: Array.from({ length: 5 }, (_, index) => ({
+    full: Array.from({ length: 10 }, (_, index) => ({
       href: `/content-full${index + 1}`,
-      name: `full${index + 1}`,
-      type: `full${index + 1}`,
-      description: `full${index + 1}`,
-      // imageUrl: `/images/Rectangle.png`, // 예시 이미지 URL / 나중에 수정 되어야함
+      name: `박승수`,
+      type: `Full-Stack`,
+      description: `구글의 모든 서비스를 총괄`,
     })),
-    front: Array.from({ length: 5 }, (_, index) => ({
+    front: Array.from({ length: 10 }, (_, index) => ({
       href: `/content-front${index + 1}`,
-      name: `front${index + 1}`,
-      type: `front${index + 1}`,
-      description: `front${index + 1}`,
-      // imageUrl: `/images/Rectangle${index + 1}.png`, // 예시 이미지 URL / 나중에 수정 되어야함
+      name: `박승수`,
+      type: `Front-end`,
+      description: `프론트엔드 개발을 담당`,
     })),
-    back: Array.from({ length: 5 }, (_, index) => ({
+    back: Array.from({ length: 10 }, (_, index) => ({
       href: `/content-back${index + 1}`,
-      name: `back${index + 1}`,
-      type: `back${index + 1}`,
-      description: `back${index + 1}`,
-      // imageUrl: `/images/Rectangle${index + 1}.png`, // 예시 이미지 URL / 나중에 수정 되어야함
+      name: `박승수`,
+      type: `Back-end`,
+      description: `백엔드 개발을 담당`,
     })),
   };
 
@@ -60,20 +57,6 @@ const Tabs: React.FC = () => {
             name={card.name}
             type={card.type}
             description={card.description}
-            // imageUrl={card.imageUrl}
-          />
-        ))}
-      </div>
-      
-      <div className={styles.card_container}>
-        {cardData[activeTab].map((card) => (
-          <MentorCard
-            key={card.href}
-            href={card.href}
-            name={card.name}
-            type={card.type}
-            description={card.description}
-            // imageUrl={card.imageUrl}
           />
         ))}
       </div>

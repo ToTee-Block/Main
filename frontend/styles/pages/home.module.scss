@@ -3,12 +3,15 @@
 .main {
   width: 100%;
   height: 100%;
+  background-color: #fff0f5;
 }
 
 .container {
   width: 100%;
   height: auto;
   padding: 40px 100px;
+  display: flex;
+  margin: auto;
 
   & > p {
     @include font-XS-B;
@@ -53,12 +56,12 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background : var(--background);
+      background: var(--background);
       border-radius: 8px;
       padding: 20px;
 
       img {
-        max-width: 500Px;
+        max-width: 500px;
         height: 500px;
         object-fit: contain;
       }
@@ -67,14 +70,12 @@
 }
 
 .content_container {
-  display: flex;
   flex-direction: column;
   gap: 24px;
   padding-bottom: 60px;
   width: 100%;
   max-width: 1720px;
-  margin: 0 auto;
-  padding: 0 100px;
+  margin: auto;
 }
 
 .section_container {
@@ -82,6 +83,10 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  background: var(--background);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
 
   & > p {
     @include font-XS-B;
@@ -92,7 +97,6 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
-  width: 100%;
 
   & > div {
     background: var(--background);
@@ -109,15 +113,14 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--background);
-  border: 1px solid var(--gray-200);
+  background: var(--gray-50);
   border-radius: 4px;
   @include font-XXS-M;
   color: var(--gray-600);
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: var(--gray-50);
+    background-color: var(--gray-100);
     color: var(--gray-800);
   }
 
@@ -128,82 +131,4 @@
   &:hover svg {
     transform: translateX(4px);
   }
-}
-.mentorGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  column-gap: 95px;
-  row-gap: 24px;
-}
-
-.mentorGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  column-gap: 95px;
-  row-gap: 24px;
-}
-
-.mentorCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  text-decoration: none;
-  color: inherit;
-
-  &:hover {
-    text-decoration: none;
-  }
-}
-
-.profileImage {
-  width: 259.95px;
-  height: 259.95px;
-  border-radius: 50%;
-  background-color: var(--gray-200);
-}
-
-.mentorInfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  text-align: center;
-}
-
-.nameWrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nameText {
-  @include font-XXXS-B;
-  font-weight: bold;
-}
-
-.mentorText {
-  @include font-XXXXS-R;
-}
-
-.infoWrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.company,
-.name {
-  @include font-XXS-M;
-  font-size: 18px;
-}
-
-.position {
-  color: var(--gray-600);
-}
-
-.description {
-  @include font-XXXS-M;
-  color: var(--text-black);
 }
