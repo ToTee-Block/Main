@@ -1,0 +1,28 @@
+Index: backend/src/main/java/com/example/Main/domain/Report/dto/ReportDTO.java
+===================================================================
+diff --git a/backend/src/main/java/com/example/Main/domain/Report/dto/ReportDTO.java b/backend/src/main/java/com/example/Main/domain/Report/dto/ReportDTO.java
+deleted file mode 100644
+--- a/backend/src/main/java/com/example/Main/domain/Report/dto/ReportDTO.java	
++++ /dev/null	
+@@ -1,21 +0,0 @@
+-package com.example.Main.domain.Report.dto;
+-
+-import lombok.Getter;
+-
+-@Getter
+-public class ReportDTO {
+-
+-    private final Long reportId;
+-    private final String reporterName;
+-    private final PostSummaryDTO post;
+-    private final String reason;
+-    private final String status;
+-
+-    public ReportDTO(Report report) {
+-        this.reportId = report.getId();
+-        this.reporterName = report.getReporter() != null ? report.getReporter().getName() : "Unknown";
+-        this.post = report.getPost() != null ? new PostSummaryDTO(report.getPost()) : null;
+-        this.reason = report.getReason() != null ? report.getReason().getDescription() : null;
+-        this.status = report.getStatus() != null ? report.getStatus().getStatus() : null;
+-    }
+-}

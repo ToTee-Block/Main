@@ -4,6 +4,7 @@ import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.dto.response.PostResponse;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/api/v1/admin/posts")
 public class ApiV1AdminPostController {
     private final PostService postService;
+    private final NotificationService notificationService;
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("")
@@ -59,6 +61,17 @@ public class ApiV1AdminPostController {
         }
 
         this.postService.deletePostByAdmin(id);
+
+        // 게시물 작성자에게 삭제 알림 전송
+        notificationService.sendNotification(
+                String.valueOf(post.getAuthor().getId()),
+                "관리자에 의해 '%s'가 삭제되었습니다.".formatted(post.getSubject())
+        );
+
+        // 관리자에게 알림 전송
+        notificationService.sendNotificationToAdmins(
+                "관리자가 '%s'를 삭제했습니다.".formatted(post.getSubject())
+        );
 
         PostDTO postDTO = new PostDTO(post);
         return RsData.of("200", "%d 번 게시물 삭제 성공 (관리자 삭제)".formatted(id), new PostResponse(postDTO));
