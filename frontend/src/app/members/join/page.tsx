@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation"; // useRouter import
-import apiClient from "@/api/axiosConfig"; // Axios 인스턴스 import
+import apiClient from "@/api/axiosConfig";
 import LoginButton from "@/components/button/Loginbutton";
 import TextInput from "@/components/input/TextInput";
 import Birthday from "@/components/birthday/Birthday";
