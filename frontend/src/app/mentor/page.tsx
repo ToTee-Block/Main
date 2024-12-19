@@ -8,6 +8,7 @@ import Pagination from "@/components/pagination/custompagination";
 import Tag from "@/src/components/tag/tag";
 import SearchBox from "@/components/search/SearchBox";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Mentor {
   id: number;
@@ -26,6 +27,7 @@ export default function MentorSearch() {
   const [currentPage, setCurrentPage] = useState(1);
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [totalPages, setTotalPages] = useState(1);
+  const router = useRouter();
 
   const tags = [
     "전체",
@@ -83,6 +85,10 @@ export default function MentorSearch() {
     setCurrentPage(1);
   };
 
+  const handleMentorClick = (mentorId: number) => {
+    router.push(`/mentor/detail/${mentorId}`);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -104,10 +110,10 @@ export default function MentorSearch() {
 
       <div className={styles.mentorGrid}>
         {mentors.map((mentor, index) => (
-          <Link
-            href={`/mentor/detail/${mentor.id}`}
-            key={index}
+          <div
+            key={mentor.id} // index 대신 mentor.id 사용
             className={styles.mentorCard}
+            onClick={() => handleMentorClick(mentor.id)} // 각 멘토의 실제 id 사용
           >
             <div className={styles.profileImage}>
               <Image
@@ -130,7 +136,7 @@ export default function MentorSearch() {
                 <span className={styles.description}>{mentor.oneLineBio}</span>
               </div>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
 
