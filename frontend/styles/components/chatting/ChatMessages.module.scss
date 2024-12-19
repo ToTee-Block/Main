@@ -21,23 +21,31 @@
 
     .message {
       background-color: #007bff;
-      color: #fff !important; // 폰트 하얀색 적용
-      font-weight: 400;
+
+      .text {
+        color: #fff;
+      }
 
       .time {
         color: #ddd;
       }
     }
-
-    .imageMessage {
-      max-width: 70%;
-      border-radius: 10px;
-      margin-top: 5px;
-    }
   }
 
   &.received {
     text-align: left;
+
+    .message {
+      background-color: #f0f0f0;
+
+      .text {
+        color: #000;
+      }
+
+      .time {
+        color: #555;
+      }
+    }
 
     .senderInfo {
       display: flex;
@@ -57,22 +65,6 @@
         color: #333;
       }
     }
-
-    .message {
-      background-color: #f0f0f0;
-      color: #000;
-
-      .time {
-        color: #555;
-      }
-    }
-
-    .imageMessage {
-      max-width: 70%;
-      max-height: 300px;
-      border-radius: 10px;
-      margin-top: 5px;
-    }
   }
 
   .message {
@@ -82,12 +74,14 @@
     padding: 8px 12px;
     padding-bottom: 18px; /* 시간 표시 공간 확보 */
     border-radius: 10px;
-    font-size: 14px;
     position: relative;
     text-align: left;
 
-    word-wrap: break-word; /* 긴 단어가 줄을 넘어가도록 */
-    word-break: break-word; /* 단어가 너무 길 때 강제로 줄바꿈 */
+    .text {
+      font-size: 14px;
+      word-wrap: break-word; /* 긴 단어가 줄을 넘어가도록 */
+      word-break: break-word; /* 단어가 너무 길 때 강제로 줄바꿈 */
+    }
 
     .time {
       font-size: 10px;

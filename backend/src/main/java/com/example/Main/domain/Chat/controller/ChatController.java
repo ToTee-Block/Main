@@ -198,7 +198,7 @@ public class ChatController {
     @PostMapping("/chat/{roomId}/upload")
     public ResponseEntity<?> uploadImage(@PathVariable("roomId") Long roomId, @RequestParam("image") MultipartFile file) {
         try {
-            String uploadDir = "C:/work/IdeaProjects/ToTeeBlock/uploads/";
+            String uploadDir = "C:/work/Main/uploads/"; //C:/work/IdeaProjects/ToTeeBlock/uploads/
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.]", "_");
 
             File dest = new File(uploadDir + fileName);

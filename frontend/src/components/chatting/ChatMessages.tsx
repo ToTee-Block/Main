@@ -24,7 +24,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
   useEffect(() => {
     if (messagesContainerRef.current) {
       // 스크롤을 최하단으로 이동
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -47,45 +48,46 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ roomName, messages }) => {
           {/* 날짜 헤더 */}
           <div className={styles.dateHeader}>{date}</div>
           {/* 해당 날짜의 메시지 리스트 */}
-          {groupedMessages[date].map((message, index) => (
-            <div
-              key={index}
-              className={`${styles.chatMessage} ${
-                message.type === "sent"
-                  ? styles.sent
-                  : styles.received
-              }`}
-            >
-              {/* 수신 메시지의 프로필과 이름 */}
-              {message.type === "received" ? (
-                <div className={styles.senderInfo}>
-                  <img
-                    src={message.senderProfile || "/icon/circle_user.svg"}
-                    alt={`${
-                      message.senderName || "알 수 없는 사용자"
-                    }의 프로필`}
-                    className={styles.profileImage}
-                  />
-                  <span className={styles.senderName}>
-                    {message.senderName || "알 수 없는 사용자"}
-                  </span>
-                </div>
-              ) : null}
-              {/* 메시지 내용 */}
-              <div className={styles.message}>
-                {message.contentType === "image" ? (
-                  <img
-                    src={`http://localhost:8081${message.text}`} // 앞에 서버 주소 추가
-                    alt="전송된 이미지"
-                    className={styles.imageMessage}
-                  />
-                ) : (
-                  <span>{message.text}</span>
+          {groupedMessages[date].map((message, index) => {
+            const isSent = message.type === "sent";
+            const messageClass = isSent ? styles.sent : styles.received;
+
+            return (
+              <div
+                key={index}
+                className={`${styles.chatMessage} ${messageClass}`}
+              >
+                {/* 수신 메시지의 프로필과 이름 */}
+                {!isSent && (
+                  <div className={styles.senderInfo}>
+                    <img
+                      src={message.senderProfile || "/icon/circle_user.svg"}
+                      alt={`${
+                        message.senderName || "알 수 없는 사용자"
+                      }의 프로필`}
+                      className={styles.profileImage}
+                    />
+                    <span className={styles.senderName}>
+                      {message.senderName || "알 수 없는 사용자"}
+                    </span>
+                  </div>
                 )}
-                <span className={styles.time}>{message.time}</span>
+                {/* 메시지 내용 */}
+                <div className={styles.message}>
+                  {message.contentType === "image" ? (
+                    <img
+                      src={`http://localhost:8081${message.text}`} // 앞에 서버 주소 추가
+                      alt="전송된 이미지"
+                      className={styles.imageMessage}
+                    />
+                  ) : (
+                    <span className={styles.text}>{message.text}</span>
+                  )}
+                  <span className={styles.time}>{message.time}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ))}
     </div>
