@@ -13,6 +13,7 @@ import com.example.Main.domain.QnA.Comment.entity.QnAComment;
 import com.example.Main.domain.QnA.Comment.service.QnACommentService;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
@@ -33,6 +34,7 @@ public class ApiV1QnACommentController {
     private final QnACommentService commentService;
     private final MemberService memberService;
     private final QnAService qnAService;
+    private final NotificationService notificationService;
 
     // 특정 QnA의 댓글 목록 조회 (다건 조회)
     @GetMapping
@@ -108,6 +110,17 @@ public class ApiV1QnACommentController {
         }
 
         QnACommentCreateResponse response = new QnACommentCreateResponse(comment);
+
+        // QnA 게시물 작성자에게 알림 전송
+        QnA qnA = comment.getQnA();
+        Member qnAAuthor = qnA.getAuthor();
+        if (qnAAuthor != null && !qnAAuthor.getEmail().equals(userEmail)) {
+            notificationService.sendNotification(
+                    qnAAuthor.getId().toString(),
+                    "QnA 게시물 '%s'에 댓글이 달렸습니다.".formatted(qnA.getSubject())
+            );
+        }
+
         return RsData.of("201", "댓글 작성 성공", response);
     }
 

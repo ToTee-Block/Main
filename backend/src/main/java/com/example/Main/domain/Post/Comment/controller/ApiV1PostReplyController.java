@@ -1,5 +1,6 @@
 package com.example.Main.domain.Post.Comment.controller;
 
+import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.Comment.dto.PostCommentDTO;
 import com.example.Main.domain.Post.Comment.dto.request.PostCommentCreateRequest;
 import com.example.Main.domain.Post.Comment.dto.request.PostCommentModifyRequest;
@@ -7,6 +8,7 @@ import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.Post.Comment.service.PostCommentService;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import jakarta.validation.Valid;
@@ -24,6 +26,7 @@ public class ApiV1PostReplyController {
 
     private final PostCommentService commentService;
     private final PostService postService;
+    private final NotificationService notificationService;
 
     // 대댓글 조회
     @GetMapping
@@ -133,6 +136,16 @@ public class ApiV1PostReplyController {
 
         if (replyComment == null || !replyComment.getPost().getId().equals(postId)) {
             return RsData.of("404", ErrorMessages.INVALID_COMMENT_OPERATION, null);
+        }
+
+        // 부모 댓글 작성자에게 알림 전송
+        Member replyAuthor = parentComment.getAuthor();
+        if (replyAuthor != null && !replyAuthor.getEmail().equals(userEmail)) {
+
+            notificationService.sendNotification(
+                    replyAuthor.getId().toString(),
+                    "대댓글이 달렸습니다. "
+            );
         }
 
         return RsData.of("201", "대댓글 작성 성공", new PostCommentDTO(replyComment));
