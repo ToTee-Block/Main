@@ -19,6 +19,8 @@ interface MatchingDTO {
   matchingId: number;
   approve: boolean;
   name: string;
+  mentorId: number;
+  menteeId: number;
 }
 
 const Mentoring: React.FC = () => {
@@ -156,10 +158,13 @@ const MentorView: React.FC<{
     }
   };
 
-  const handleDisconnect = async (matchingId: number) => {
+  const handleDisconnect = async (mentorId: number, menteeId: number) => {
     try {
       const response = await apiClient.delete(
-        `/api/v1/mentors/myMentoring/disconnect/${matchingId}`
+        "/api/v1/mentors/myMentoring/disconnect",
+        {
+          params: { mentorId, menteeId },
+        }
       );
       if (response.data.resultCode === "200") {
         alert("멘토링 연결이 끊어졌습니다.");
@@ -230,13 +235,15 @@ const MentorView: React.FC<{
               <div className={styles.buttonGroup}>
                 <button
                   className={styles.chatButton}
-                  onClick={() => handleChatRequest(mentee.matchingId)}
+                  onClick={() => handleChatRequest(mentee.menteeId)}
                 >
                   채팅신청
                 </button>
                 <button
                   className={styles.disconnectButton}
-                  onClick={() => handleDisconnect(mentee.matchingId)}
+                  onClick={() =>
+                    handleDisconnect(mentee.mentorId, mentee.menteeId)
+                  }
                 >
                   연결 끊기
                 </button>
@@ -266,10 +273,13 @@ const MenteeView: React.FC<{
     }
   };
 
-  const handleDisconnect = async (matchingId: number) => {
+  const handleDisconnect = async (mentorId: number, menteeId: number) => {
     try {
       const response = await apiClient.delete(
-        `/api/v1/mentors/myMentoring/disconnect/${matchingId}`
+        "/api/v1/mentors/myMentoring/disconnect",
+        {
+          params: { mentorId, menteeId },
+        }
       );
       if (response.data.resultCode === "200") {
         alert("멘토링 연결이 끊어졌습니다.");
@@ -300,13 +310,15 @@ const MenteeView: React.FC<{
               <div className={styles.buttonGroup}>
                 <button
                   className={styles.chatButton}
-                  onClick={() => handleChatRequest(mentor.matchingId)}
+                  onClick={() => handleChatRequest(mentor.mentorId)}
                 >
                   채팅신청
                 </button>
                 <button
                   className={styles.disconnectButton}
-                  onClick={() => handleDisconnect(mentor.matchingId)}
+                  onClick={() =>
+                    handleDisconnect(mentor.mentorId, mentor.menteeId)
+                  }
                 >
                   연결 끊기
                 </button>

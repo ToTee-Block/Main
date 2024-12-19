@@ -78,4 +78,9 @@ public class MentorMenteeMatchingService {
         notificationService.sendNotification(matching.getMentee().getId().toString(),
                 matching.getMentor().getMember().getName() + "님과 멘토링 관계가 종료되었습니다.");
     }
+
+    public MentorMenteeMatching getMatchingByMentorAndMenteeId(Long mentorId, Long menteeId) {
+        return matchingRepository.findByMentor_IdAndMentee_Id(mentorId, menteeId)
+                .orElse(null);
+    }
 }

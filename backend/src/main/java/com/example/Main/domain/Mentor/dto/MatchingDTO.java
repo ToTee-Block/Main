@@ -15,9 +15,15 @@ public class MatchingDTO {
 
     private final String name;
 
+    private final Long mentorId;
+
+    private final Long menteeId;
+
     public MatchingDTO(MentorMenteeMatching mentorMenteeMatching, Member member) {
     this.matchingId = mentorMenteeMatching.getId();
     this.approve = mentorMenteeMatching.getApproved();
     this.name = member.getName();
+    this.mentorId = mentorMenteeMatching.getMentor().getId();
+    this.menteeId = mentorMenteeMatching.getMentee().getId();
     }
 }
