@@ -87,4 +87,11 @@ public class MentorService {
         }
         return new MentorDTO(mentor);
     }
+
+    public Page<MentorDTO> getApprovedFalseDTOs(int page) {
+        int pageSize = 10; // 페이지 크기를 10으로 설정
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
+        Page<Mentor> mentors = mentorRepository.findByApprovedFalse(pageRequest);
+        return mentors.map(mentor -> new MentorDTO(mentor));
+    }
 }

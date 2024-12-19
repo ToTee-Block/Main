@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import apiClient, { fetchUserProfile } from "@/api/axiosConfig";
-import styles from "@/styles/pages/post/detail/detail.module.scss";
+import styles from "@/styles/pages/post/detail.module.scss";
 import DivideBar from "@/components/divideBar";
 import StackCTGY from "@/components/category/StackCTGY";
 import LikeButton from "@/components/button/LikeButton";
@@ -65,6 +65,7 @@ const Detail: React.FC = () => {
   const [modalVisibleReport, setModalVisibleReport] = useState(false);
   const [modalVisibleDelete, setModalVisibleDelete] = useState(false);
   const [reportActiveNum, setReportActiveNum] = useState<Number>(0);
+  const [reportTextInput, setReportTextInput] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -172,6 +173,37 @@ const Detail: React.FC = () => {
     }
   };
 
+  const postReport = async () => {
+    if (!loginStatus) {
+      alert("로그인이 필요합니다.");
+      location.href = "/members";
+      return;
+    }
+
+    console.log(reportActiveNum);
+
+    try {
+      const response = await apiClient.post(
+        `http://localhost:8081/api/v1/reports/post/${post?.id}`,
+        {
+          reportCode: reportActiveNum,
+          additionalNote: reportTextInput,
+        }
+      );
+
+      const resultCode = response.data.resultCode;
+      const data = response.data.data;
+      console.log(response);
+      if (resultCode == "201") {
+        console.log(data);
+      } else if (resultCode == "404") {
+        alert(response.data.msg);
+      }
+    } catch (error) {
+      alert(`error: ${error}`);
+    }
+  };
+
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const id = Number(queryParams.get("id")) || 0; //기본값을 0로 설정
@@ -258,7 +290,7 @@ const Detail: React.FC = () => {
               <CommentCard
                 key={comment.id}
                 loginStatus={loginStatus}
-                postId={post.id}
+                parentId={post.id}
                 comment={comment}
                 me={me}
               ></CommentCard>
@@ -269,12 +301,12 @@ const Detail: React.FC = () => {
 
       <ReportModal
         visible={modalVisibleReport}
-        onConfirm={() => {
-          console.log("신고: index = " + reportActiveNum);
-        }}
+        onConfirm={() => postReport()}
         onClose={() => setModalVisibleReport(false)}
-        setReportActiveNum={(index: Number) => setReportActiveNum(index)}
+        setReportActiveNum={(key: Number) => setReportActiveNum(key)}
         reportActiveNum={reportActiveNum}
+        setReportTextInput={(text: string) => setReportTextInput(text)}
+        reportTextInput={reportTextInput}
       />
       <YesNoModal
         visible={modalVisibleDelete}

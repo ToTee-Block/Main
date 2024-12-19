@@ -1,6 +1,5 @@
 package com.example.Main.domain.Mentor.controller;
 
-import com.example.Main.domain.Member.dto.MemberDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
@@ -26,8 +25,7 @@ public class ApiV1AdminMentorController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("")    // 멘토 목록 - 아직 허가되지 않은 멘토 목록
     public RsData mentorRequestList(@RequestParam(value = "page", defaultValue = "0") int page) {
-        Page<Mentor> mentors = this.mentorService.getApprovedFalse(page);
-
+        Page<MentorDTO> mentors = this.mentorService.getApprovedFalseDTOs(page);
         return RsData.of("200", "멘토 신청 리스트", mentors);
     }
 

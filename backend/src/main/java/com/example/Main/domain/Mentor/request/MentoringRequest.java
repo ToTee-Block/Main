@@ -10,5 +10,8 @@ public class MentoringRequest {    // 관리자가 멘토를 허가할 때 사�
     private Long mentorId;
 
     @NotNull
+    private Long memberId;
+
+    @NotNull
     private boolean approve;
 }

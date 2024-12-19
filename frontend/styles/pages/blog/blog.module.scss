@@ -1,4 +1,4 @@
-@import "../../../globals/font-mixin.scss";
+@import "../../globals/font-mixin.scss";
 
 .bodyContainer:first-child {
   margin-top: 32px;
@@ -19,7 +19,7 @@
     gap: 40px;
     width: 100%;
     margin-bottom: 24px;
-  
+
     .title {
       @include font-XXL-B;
       color: var(--text-blue);

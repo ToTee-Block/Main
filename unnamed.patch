@@ -1,0 +1,113 @@
+Index: backend/src/main/java/com/example/Main/domain/Report/entity/ReportQnA.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/example/Main/domain/Report/entity/ReportQnA.java b/backend/src/main/java/com/example/Main/domain/Report/entity/ReportQnA.java
+--- a/backend/src/main/java/com/example/Main/domain/Report/entity/ReportQnA.java	
++++ b/backend/src/main/java/com/example/Main/domain/Report/entity/ReportQnA.java	(date 1734503996694)
+@@ -2,8 +2,8 @@
+ 
+ import com.example.Main.domain.Member.entity.Member;
+ import com.example.Main.domain.QnA.entity.QnA;
+-import com.example.Main.domain.Report.eunums.ReportReason;
+-import com.example.Main.domain.Report.eunums.ReportStatus;
++import com.example.Main.domain.Report.enums.ReportReason;
++import com.example.Main.domain.Report.enums.ReportStatus;
+ import com.example.Main.global.Jpa.BaseEntity;
+ import jakarta.persistence.*;
+ import jakarta.validation.constraints.NotNull;
+Index: backend/src/main/java/com/example/Main/domain/Report/entity/ReportPost.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/example/Main/domain/Report/entity/ReportPost.java b/backend/src/main/java/com/example/Main/domain/Report/entity/ReportPost.java
+--- a/backend/src/main/java/com/example/Main/domain/Report/entity/ReportPost.java	
++++ b/backend/src/main/java/com/example/Main/domain/Report/entity/ReportPost.java	(date 1734503996691)
+@@ -2,8 +2,8 @@
+ 
+ import com.example.Main.domain.Member.entity.Member;
+ import com.example.Main.domain.Post.entity.Post;
+-import com.example.Main.domain.Report.eunums.ReportReason;
+-import com.example.Main.domain.Report.eunums.ReportStatus;
++import com.example.Main.domain.Report.enums.ReportReason;
++import com.example.Main.domain.Report.enums.ReportStatus;
+ import com.example.Main.global.Jpa.BaseEntity;
+ import jakarta.persistence.*;
+ import jakarta.validation.constraints.NotNull;
+Index: backend/src/main/java/com/example/Main/domain/Report/entity/ReportQnAComment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/example/Main/domain/Report/entity/ReportQnAComment.java b/backend/src/main/java/com/example/Main/domain/Report/entity/ReportQnAComment.java
+--- a/backend/src/main/java/com/example/Main/domain/Report/entity/ReportQnAComment.java	
++++ b/backend/src/main/java/com/example/Main/domain/Report/entity/ReportQnAComment.java	(date 1734503996695)
+@@ -2,8 +2,8 @@
+ 
+ import com.example.Main.domain.Member.entity.Member;
+ import com.example.Main.domain.QnA.Comment.entity.QnAComment;
+-import com.example.Main.domain.Report.eunums.ReportReason;
+-import com.example.Main.domain.Report.eunums.ReportStatus;
++import com.example.Main.domain.Report.enums.ReportReason;
++import com.example.Main.domain.Report.enums.ReportStatus;
+ import com.example.Main.global.Jpa.BaseEntity;
+ import jakarta.persistence.*;
+ import jakarta.validation.constraints.NotNull;
+Index: backend/src/main/java/com/example/Main/domain/Report/entity/ReportPostComment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/example/Main/domain/Report/entity/ReportPostComment.java b/backend/src/main/java/com/example/Main/domain/Report/entity/ReportPostComment.java
+--- a/backend/src/main/java/com/example/Main/domain/Report/entity/ReportPostComment.java	
++++ b/backend/src/main/java/com/example/Main/domain/Report/entity/ReportPostComment.java	(date 1734503996693)
+@@ -2,8 +2,8 @@
+ 
+ import com.example.Main.domain.Member.entity.Member;
+ import com.example.Main.domain.Post.Comment.entity.PostComment;
+-import com.example.Main.domain.Report.eunums.ReportReason;
+-import com.example.Main.domain.Report.eunums.ReportStatus;
++import com.example.Main.domain.Report.enums.ReportReason;
++import com.example.Main.domain.Report.enums.ReportStatus;
+ import com.example.Main.global.Jpa.BaseEntity;
+ import jakarta.persistence.*;
+ import jakarta.validation.constraints.NotNull;
+Index: backend/src/main/java/com/example/Main/domain/Report/entity/Report.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/src/main/java/com/example/Main/domain/Report/entity/Report.java b/backend/src/main/java/com/example/Main/domain/Report/entity/Report.java
+--- a/backend/src/main/java/com/example/Main/domain/Report/entity/Report.java	
++++ b/backend/src/main/java/com/example/Main/domain/Report/entity/Report.java	(date 1734503996690)
+@@ -2,8 +2,9 @@
+ 
+ import com.example.Main.domain.Member.entity.Member;
+ import com.example.Main.domain.Post.entity.Post;
+-import com.example.Main.domain.Report.eunums.ReportReason;
+-import com.example.Main.domain.Report.eunums.ReportStatus;
++import com.example.Main.domain.QnA.entity.QnA;
++import com.example.Main.domain.Report.enums.ReportReason;
++import com.example.Main.domain.Report.enums.ReportStatus;
+ import com.example.Main.global.Jpa.BaseEntity;
+ import jakarta.persistence.*;
+ import jakarta.validation.constraints.NotNull;
+@@ -17,10 +18,16 @@
+ @ToString(callSuper = true)
+ public class Report extends BaseEntity {
+ 
++    private String type; // POST or QNA .. 이후 늘어날 수 있음
++
+     @ManyToOne
+     @JoinColumn(name = "post_id")
+     private Post post;
+ 
++    @ManyToOne
++    @JoinColumn(name = "qnA_id")
++    private QnA qnA;
++
+     @ManyToOne
+     @JoinColumn(name = "member_id")
+     private Member reporter;

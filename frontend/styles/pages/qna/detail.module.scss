@@ -1,4 +1,4 @@
-@import "../../../globals/font-mixin.scss";
+@import "../../globals/font-mixin.scss";
 
 .bodyContainer:first-child {
   margin-top: 32px;
@@ -16,7 +16,7 @@
   max-width: 1680px;
   margin: 0 auto;
 
-  .postSection {
+  .qnaSection {
     width: 100%;
     margin-bottom: 40px;
 

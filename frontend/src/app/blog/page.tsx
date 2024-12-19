@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchUserProfile } from "@/api/axiosConfig";
 import axios from "axios";
-import styles from "@/styles/pages/post/my/my.module.scss";
+import styles from "@/styles/pages/blog/blog.module.scss";
 import SearchBox from "@/components/search/SearchBox";
 import LinkButton from "@/components/button/LinkButton";
 import PostCard from "@/components/card/PostCard";
