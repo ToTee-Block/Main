@@ -4,6 +4,7 @@ import React, { useState, useEffect, use } from "react";
 import axios from "axios";
 import apiClient, { fetchUserProfile } from "@/api/axiosConfig";
 import styles from "@/styles/pages/qna/detail.module.scss";
+import classNames from "classnames";
 import DivideBar from "@/components/divideBar";
 import LikeButton from "@/components/button/LikeButton";
 import ReportButton from "@/components/button/ReportButton";
@@ -195,12 +196,12 @@ const Detail: React.FC = () => {
       setLoginStatus(await getMe());
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/v1/qnas/${id}`
+          `http://localhost:8081/api/v1/qnas/detail/${id}`
         );
 
         const resultCode = response.data.resultCode;
         const data = response.data.data;
-        console.log(data);
+        console.log(response);
         if (resultCode == "200") {
           setValues(data.qnADTO);
           console.log(data.qnADTO);
@@ -236,7 +237,7 @@ const Detail: React.FC = () => {
             <DivideBar width={300}></DivideBar>
           </div>
           <div className={styles.contentBox}>
-            <div className={styles.content}>
+            <div className={classNames(styles.content, styles.markdownContent)}>
               <MarkdownWithHtml markdownContent={qna?.content} />
             </div>
           </div>

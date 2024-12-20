@@ -118,7 +118,7 @@ export default function ProfileForm() {
       console.error("Error details:", err.response?.data);
       if (err.response?.status === 403) {
         setError("권한이 없습니다. 로그인 페이지로 이동합니다.");
-        setTimeout(() => router.push("/login"), 3000);
+        setTimeout(() => router.push("/members"), 3000);
       } else {
         setError(`데이터를 불러오는 데 실패했습니다: ${err.message}`);
       }
@@ -175,7 +175,7 @@ export default function ProfileForm() {
       console.error("Error details:", err.response?.data);
       if (err.response?.status === 403) {
         setError("권한이 없습니다. 로그인 페이지로 이동합니다.");
-        setTimeout(() => router.push("/login"), 3000);
+        setTimeout(() => router.push("/members"), 3000);
       } else {
         setError(`데이터 업데이트에 실패했습니다: ${err.message}`);
       }

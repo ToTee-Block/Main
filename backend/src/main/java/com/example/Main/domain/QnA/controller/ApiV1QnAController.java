@@ -13,6 +13,7 @@ import com.example.Main.domain.QnA.dto.response.QnAResponse;
 import com.example.Main.domain.QnA.dto.response.QnAsResponse;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
+import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
@@ -25,8 +26,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,7 +51,7 @@ public class ApiV1QnAController {
         return RsData.of("200", "검색 성공", new QnAsResponse(qnADTOs));
     }
 
-    // 다건 조회
+    // 다건조회 - ver.전체
     @GetMapping("")
     public RsData list(@RequestParam(value = "page", defaultValue = "0")int page,
                        @RequestParam(value = "size", defaultValue = "10") int size,
@@ -59,8 +61,31 @@ public class ApiV1QnAController {
         return RsData.of("200", "게시글 다건 조회 성공", qnAs);
     }
 
+    // 다건조회 - ver.특정사용자
+    @GetMapping("/{authorEmail}")
+    public RsData getMyQnAs(@RequestParam(value = "page", defaultValue = "0")int page,
+                             @RequestParam(value = "size", defaultValue = "10") int size,
+                             @RequestParam(value = "kw", defaultValue = "") String keyword,
+                             @PathVariable(value = "authorEmail") String authorEmail) {
+        Member author = this.memberService.getMemberByEmail(authorEmail);
+        if (author == null) {
+            return RsData.of("400", "존재하지 않는 사용자입니다.");
+        }
+
+        Map<String, Object> returnMap = new HashMap<>();
+
+        List<String> wholeTechStacks = TechStacks.printAllTechStacks();
+        Page<QnADTO> entireQnAs = qnAService.searchQnAsByAuthor(page, size, keyword, author);
+
+        returnMap.put("stacks", wholeTechStacks);
+        returnMap.put("qnAs", entireQnAs);
+
+
+        return RsData.of("200", "본인이 작성한 QnA 조회 성공", returnMap);
+    }
+
     // 단건 조회
-    @GetMapping("/{id}")
+    @GetMapping("/detail/{id}")
     public RsData<QnAResponse> getQnA(@PathVariable("id") Long id) {
         QnA qna = this.qnAService.getQnA(id);
 
@@ -69,24 +94,6 @@ public class ApiV1QnAController {
 
         QnADTO qnADTO = new QnADTO(qna);
         return RsData.of("200", "QnA 게시글 단건 조회 성공", new QnAResponse(qnADTO));
-    }
-
-    // 본인이 작성한 게시글 조회
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/myqnas")
-    public RsData<QnAsResponse> getMyQnAs(Principal principal) {
-        if (principal == null) {
-            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
-        }
-        String loggedInUser = principal.getName();
-
-        List<QnADTO> myQnAs = qnAService.getQnAsByAuthor(loggedInUser);
-
-        if (myQnAs.isEmpty()) {
-            return RsData.of("404", "본인이 작성한 QnA 게시물이 없습니다.", null);
-        }
-
-        return RsData.of("200", "본인이 작성한 QnA 게시글 조회 성공", new QnAsResponse(myQnAs));
     }
 
     // QnA 게시글 생성
