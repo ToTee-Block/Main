@@ -98,10 +98,20 @@ public class ChatService {
         return this.chatJoinRepository.findByChatJoiner(chatJoiner);
     }
 
-    public ChatRoom createRoom(String name) {
+    public ChatRoom createRoom(String name, Member creator) {
         ChatRoom newRoom = ChatRoom.builder()
-                .name(name).build();
-        return chatRoomRepository.save(newRoom);
+                .name(name)
+                .build();
+        ChatRoom savedRoom = chatRoomRepository.save(newRoom);
+
+        // 채팅방 생성자를 채팅방에 자동으로 join
+        ChatJoin chatJoin = ChatJoin.builder()
+                .chatJoiner(creator)
+                .chatRoom(savedRoom)
+                .build();
+        chatJoinRepository.save(chatJoin);
+
+        return savedRoom;
     }
 
     public void deleteRoom(Long roomId) {
@@ -138,5 +148,26 @@ public class ChatService {
                 chatRoomRepository.delete(chatRoom);
             }
         }
+    }
+
+    public ChatRoom createRoomWithUsers(String roomName, Member creator, Member otherUser) {
+        ChatRoom newRoom = ChatRoom.builder()
+                .name(roomName)
+                .build();
+        ChatRoom savedRoom = chatRoomRepository.save(newRoom);
+
+        ChatJoin creatorJoin = ChatJoin.builder()
+                .chatJoiner(creator)
+                .chatRoom(savedRoom)
+                .build();
+        ChatJoin otherUserJoin = ChatJoin.builder()
+                .chatJoiner(otherUser)
+                .chatRoom(savedRoom)
+                .build();
+
+        chatJoinRepository.save(creatorJoin);
+        chatJoinRepository.save(otherUserJoin);
+
+        return savedRoom;
     }
 }

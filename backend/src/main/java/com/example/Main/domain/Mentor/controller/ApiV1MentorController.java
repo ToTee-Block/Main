@@ -3,6 +3,7 @@ package com.example.Main.domain.Mentor.controller;
 import com.example.Main.domain.Member.dto.MemberDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Mentor.dto.MatchingDTO;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
 import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
@@ -10,28 +11,20 @@ import com.example.Main.domain.Mentor.request.ApproveMentoringRequest;
 import com.example.Main.domain.Mentor.request.MentorRegistrationRequest;
 import com.example.Main.domain.Mentor.service.MentorMenteeMatchingService;
 import com.example.Main.domain.Mentor.service.MentorService;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
-import com.example.Main.domain.notification.service.NotificationService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.security.Principal;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -69,6 +62,23 @@ public class ApiV1MentorController {
         return RsData.of("200", "멘토 등록 신청 성공", mentorDTO);
     }
 
+    @GetMapping
+    public ResponseEntity<RsData<List<MentorDTO>>> getAllMentors() {
+        List<MentorDTO> mentors = mentorService.getAllMentors();
+        return ResponseEntity.ok(RsData.of("200", "모든 멘토 정보 조회 성공", mentors));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<RsData<MentorDTO>> getMentorById(@PathVariable Long id) {
+        MentorDTO mentor = mentorService.getMentorDTOById(id);
+        if (mentor == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(RsData.of("404", "해당 ID의 멘토를 찾을 수 없습니다.", null));
+        }
+        return ResponseEntity.ok(RsData.of("200", "멘토 정보 조회 성공", mentor));
+    }
+
     @GetMapping("/profile/{id}")
     public ResponseEntity<?> getMentorProfile(@PathVariable(value = "id") Long id) {
         Member member = memberService.getMemberById(id);
@@ -76,7 +86,8 @@ public class ApiV1MentorController {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(RsData.of("404", "해당 ID의 멤버를 찾을 수 없습니다.", null));
-        };
+        }
+        ;
         MentorDTO mentorDTO = mentorService.getMentorInfoByMember(member);
         if (mentorDTO == null) {
             return ResponseEntity
@@ -90,14 +101,41 @@ public class ApiV1MentorController {
     @GetMapping("/myMentoring/requests")
     public RsData getMyMentoring(Principal principal) {
         Member member = this.memberService.getMemberByEmail(principal.getName());
+
+        if (member.getMentorQualify() == null) {
+            return RsData.of("400", "멘토 자격이 없습니다.", null);
+        }
+
         Mentor mentor = this.mentorService.getMentorById(member.getMentorQualify().getId());
 
         List<MentorMenteeMatching> matchings = this.matchingService.myMentoringList(mentor);
-        List<MemberDTO> mentees = matchings.stream()    // 멘티의 정보만 DTO의 형식으로 재구성하여 리스트 만들기
-                .map(matching -> new MemberDTO(matching.getMentee()))
+        List<MatchingDTO> matchingDTOs = matchings.stream()
+                .map(matching -> new MatchingDTO(matching, matching.getMentee()))
                 .collect(Collectors.toList());
 
-        return RsData.of("200", "멘토: 내 멘토링 신청 목록", mentees);
+        return RsData.of("200", "멘토: 내 멘토링 신청 목록", matchingDTOs);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/myMentoring/disconnect")
+    public RsData disconnectMentoring(
+            @RequestParam("mentorId") Long mentorId,
+            @RequestParam("menteeId") Long menteeId,
+            Principal principal) {
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+
+        MentorMenteeMatching matching = this.matchingService.getMatchingByMentorAndMenteeId(mentorId, menteeId);
+        if (matching == null) {
+            return RsData.of("400", "존재하지 않는 멘토링 매치입니다.");
+        }
+
+        if (!matching.getMentor().getMember().equals(member) && !matching.getMentee().equals(member)) {
+            return RsData.of("403", "이 멘토링 관계를 끊을 권한이 없습니다.");
+        }
+
+        this.matchingService.deleteMatching(matching);
+
+        return RsData.of("200", "멘토링 관계가 성공적으로 삭제되었습니다.");
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -107,33 +145,34 @@ public class ApiV1MentorController {
         Mentor mentor = this.mentorService.getMentorById(member.getMentorQualify().getId());
 
         List<MentorMenteeMatching> matchings = this.matchingService.myApprovedMentoringList(mentor);
-        List<MemberDTO> mentees = matchings.stream()    // 멘티의 정보만 DTO의 형식으로 재구성하여 리스트 만들기
-                .map(matching -> new MemberDTO(matching.getMentee()))
+        List<MatchingDTO> matchingDTOs = matchings.stream()
+                .map(matching -> new MatchingDTO(matching, matching.getMentee()))
                 .collect(Collectors.toList());
 
-        return RsData.of("200", "멘토: 내 진행중인 멘토링 목록", mentees);
+        return RsData.of("200", "멘토: 내 진행중인 멘토링 목록", matchingDTOs);
     }
+
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/myMentoring/approve")
     public RsData approveMentoring(@Valid @RequestBody ApproveMentoringRequest amr) {
         MentorMenteeMatching matching = this.matchingService.getMatchingById(amr.getMatchingId());
         if (matching == null) {
-            return RsData.of("400","존재하는 멘토링 매치가 아닙니다.");
+            return RsData.of("400", "존재하는 멘토링 매치가 아닙니다.");
         }
 
         if (amr.isApprove()) {
             this.matchingService.approveMatching(matching);
 
             // 멘티에게 알림 전송
-            notificationService.sendNotification(matching.getMentee().getId().toString(),"멘토링 요청이 승인되었습니다.");
+            notificationService.sendNotification(matching.getMentee().getId().toString(), "멘토링 요청이 승인되었습니다.");
             return RsData.of("200", "멘토: 멘토링 승인 완료", new MemberDTO(matching.getMentee()));
         }
 
         this.matchingService.denyMatching(matching);
 
         // 멘티에게 알림 전송
-        notificationService.sendNotification(matching.getMentee().getId().toString(),"멘토링 요청이 거절되었습니다.");
+        notificationService.sendNotification(matching.getMentee().getId().toString(), "멘토링 요청이 거절되었습니다.");
         return RsData.of("200", "멘토: 멘토링 거절 완료");
     }
 }
