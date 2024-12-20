@@ -68,12 +68,17 @@ public class QnAService {
         return optionalQnA.orElse(null);
     }
 
-    // 본인이 작성한 QnA 게시글 조회
-    public List<QnADTO> getQnAsByAuthor(String authorEmail) {
-        List<QnA> qnAsByAuthor = qnARepository.findByAuthor_EmailAndIsDraftFalse(authorEmail, Sort.by(Sort.Order.desc("createdDate")));
-        return qnAsByAuthor.stream()
-                .map(QnADTO::new)
+    // 작성자별 QnA 게시글 조회
+    public Page<QnADTO> searchQnAsByAuthor(int page, int size, String keyword, Member author) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<QnA> searchedPosts = this.qnARepository.searchQnAsByAuthor(keyword, pageable, author);
+
+        // Post 엔티티를 PostDTO로 변환
+        List<QnADTO> authoredPosts = searchedPosts.getContent().stream()
+                .map(QnADTO::new)  // Post 객체를 PostDTO로 변환
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(authoredPosts, pageable, searchedPosts.getTotalElements());
     }
 
     // 작성

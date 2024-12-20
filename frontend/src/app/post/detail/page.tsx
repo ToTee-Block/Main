@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import apiClient, { fetchUserProfile } from "@/api/axiosConfig";
 import styles from "@/styles/pages/post/detail.module.scss";
+import classNames from "classnames";
 import DivideBar from "@/components/divideBar";
 import StackCTGY from "@/components/category/StackCTGY";
 import LikeButton from "@/components/button/LikeButton";
@@ -254,7 +255,7 @@ const Detail: React.FC = () => {
             <StackCTGY stacks={stacks} disabled={true}></StackCTGY>
           </div>
           <div className={styles.contentBox}>
-            <div className={styles.content}>
+            <div className={classNames(styles.content, styles.markdownContent)}>
               <MarkdownWithHtml markdownContent={post?.content} />
             </div>
           </div>

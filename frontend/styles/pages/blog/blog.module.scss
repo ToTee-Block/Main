@@ -29,14 +29,19 @@
     }
 
     .utilBar {
+      width: 100%;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       gap: 100px;
 
-      ul.tabBox {
-        display: flex;
-        gap: 16px;
+      .tagBox {
+        width: 816px;
+        margin-bottom: 12px;
+        min-height: 48px;
+        max-height: 96px;
+        overflow-y: scroll;
+        scrollbar-gutter: stable;
       }
 
       .rightBox {
