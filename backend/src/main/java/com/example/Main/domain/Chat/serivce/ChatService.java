@@ -12,6 +12,10 @@ import com.example.Main.domain.Member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.File;
 
 import java.util.List;
 
@@ -51,15 +55,42 @@ public class ChatService {
 
     // Chat 엔티티 -> ChatDTO 변환
     public ChatDTO toDTO(ChatMessage message) {
+        // contentType을 설정: 이미지 URL 여부를 확인
+        String contentType = message.getMessage().startsWith("/uploads/") ? "image" : "text";
+
         return new ChatDTO(
-                message.getChatSender().getChatRoom().getId(),
-                message.getChatSender().getChatJoiner().getId(),
-                message.getMessage(),
-                message.getCreatedDate(),
-                message.getChatSender().getChatJoiner().getName(),
-                null,
-                ""
+                message.getChatSender().getChatRoom().getId(),       // 채팅방 ID
+                message.getChatSender().getChatJoiner().getId(),     // 발신자 ID
+                message.getMessage(),                                // 메시지 내용 (텍스트 또는 이미지 URL)
+                message.getCreatedDate(),                            // 전송 시간
+                message.getChatSender().getChatJoiner().getName(),   // 발신자 이름
+                null,                                               // senderProfile (추후 추가할 경우 수정)
+                "",                                                 // 메시지 타입 (sent 또는 received, 필요 시 설정)
+                contentType                                          // 콘텐츠 타입: image 또는 text
         );
+    }
+    public String saveImage(MultipartFile imageFile) {
+        try {
+            // 저장 경로 설정 (resources/static/uploads/)
+            String uploadDir = "C:/Users/LENOVO/Desktop/project/uploads/";
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs(); // 디렉토리가 존재하지 않으면 생성
+            }
+
+            // 고유한 파일명 생성
+            String originalFilename = imageFile.getOriginalFilename();
+            String fileName = System.currentTimeMillis() + "_" + originalFilename;
+            File destination = new File(uploadDir + fileName);
+
+            // 파일 저장
+            imageFile.transferTo(destination);
+
+            // 저장된 파일의 접근 가능한 URL 경로 반환
+            return "/uploads/" + fileName;
+        } catch (IOException e) {
+            throw new RuntimeException("Image file save failed", e);
+        }
     }
 
     // 모든 채팅방 가져오기 -> 한 유저가 들어간 채팅방 가져오기

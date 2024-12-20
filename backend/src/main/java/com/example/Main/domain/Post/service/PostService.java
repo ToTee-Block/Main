@@ -7,8 +7,10 @@ import com.example.Main.domain.Post.Comment.repository.PostCommentRepository;
 import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
+import com.example.Main.domain.Report.entity.Report;
 import com.example.Main.domain.Report.entity.ReportPost;
 import com.example.Main.domain.Report.repository.ReportPostRepository;
+import com.example.Main.domain.Report.repository.ReportRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
@@ -28,6 +30,7 @@ public class PostService {
     private final MemberService memberService;
     private final PostCommentRepository postCommentRepository;
     private final ReportPostRepository reportPostRepository;
+    private final ReportRepository reportRepository;
 
 
     // 게시글 전체 조회
@@ -56,7 +59,7 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    // 본인이 작성한 게시글 조회
+    // 작성자별 게시글 조회
     public Page<PostDTO> searchPostsByAuthor(int page, int size, String keyword, Member author) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Post> searchedPosts = this.postRepository.searchPostsByAuthor(keyword, pageable, author);
@@ -116,9 +119,8 @@ public class PostService {
     public PostDTO deletePostByAdmin(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
-
-        List<ReportPost> reportPosts = reportPostRepository.findByPost(post);
-        reportPostRepository.deleteAll(reportPosts);
+        List<Report> reports = reportRepository.findByPost(post);
+        reportRepository.deleteAll(reports);
 
         postCommentRepository.deleteByPostId(postId);
 

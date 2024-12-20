@@ -49,7 +49,6 @@ export default function Home() {
             />
           </div>
         </div>
-
         {/* 포스트와 멘토 섹션 수정 */}
         <div className={styles.content_container}>
           {/* 포스트 섹션 */}

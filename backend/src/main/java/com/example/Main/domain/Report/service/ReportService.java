@@ -96,9 +96,9 @@ public class ReportService {
     // 특정 게시물에 대한 중복 신고 여부를 확인하는 메서드
     public boolean existsReport(String targetType, Long targetId, String reporterEmail) {
         List<Report> existingReports = new ArrayList<>();
-        if (targetType == "post") {
+        if (targetType.equals("post")) {
             existingReports = reportRepository.findByPostIdAndReporterEmail(targetId, reporterEmail);
-        } else if (targetType == "qna") {
+        } else if (targetType.equals("qna")) {
             existingReports = reportRepository.findByQnAIdAndReporterEmail(targetId, reporterEmail);
         }
         return !existingReports.isEmpty();

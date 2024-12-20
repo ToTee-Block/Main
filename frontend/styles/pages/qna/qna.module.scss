@@ -3,9 +3,10 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 40px;
   width: 100%;
   max-width: 1680px;
+  min-width: 1200px;
 }
 
 .header {
