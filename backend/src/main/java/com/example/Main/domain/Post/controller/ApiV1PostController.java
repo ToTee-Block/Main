@@ -15,7 +15,7 @@ import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Util.Markdown.MarkdownService;
-import com.example.Main.global.Util.Service.ImageService;
+import com.example.Main.global.Util.Image.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,7 +45,6 @@ public class ApiV1PostController {
                        @RequestParam(value = "kw", defaultValue = "") String keyword) {
         Page<PostDTO> recentPosts = this.postService.searchRecentPosts(page, size, keyword);
         Page<PostDTO> hotPosts = this.postService.searchHotPosts(page, size, keyword);
-        Page<PostDTO> feedPosts = this.postService.searchHotPosts(page, size, keyword);
 
         List<Page> postPackage = new ArrayList<>();
         postPackage.add(recentPosts);
