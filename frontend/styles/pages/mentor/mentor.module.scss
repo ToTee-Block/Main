@@ -26,7 +26,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
 }
 
 .searchWrapper {
@@ -85,7 +84,8 @@
   gap: 8px;
 }
 
-.company, .name {
+.company,
+.name {
   @include font-XXS-M;
   font-size: 18px;
 }
@@ -101,7 +101,7 @@
 .linkWrapper {
   text-decoration: none;
   color: inherit;
-  
+
   &:hover {
     text-decoration: none;
   }
