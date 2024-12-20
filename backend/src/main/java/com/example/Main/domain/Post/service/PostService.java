@@ -15,6 +15,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -206,29 +207,27 @@ public class PostService {
     }
 
     // 검색기능
-    public Page<PostDTO> searchRecentPosts(int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<PostDTO> searchRecentPosts(@Param("keyword") String keyword, Pageable pageable) {
         Page<Post> searchedPosts = this.postRepository.searchRecentPosts(keyword, pageable);
 
-        // Post 엔티티를 PostDTO로 변환
         List<PostDTO> recentPosts = searchedPosts.getContent().stream()
-                .map(PostDTO::new)  // Post 객체를 PostDTO로 변환
+                .map(PostDTO::new)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(recentPosts, pageable, searchedPosts.getTotalElements());
     }
 
-    public Page<PostDTO> searchHotPosts(int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size);
+
+    public Page<PostDTO> searchHotPosts(@Param("keyword") String keyword, Pageable pageable) {
         Page<Post> searchedPosts = this.postRepository.searchHotPosts(keyword, pageable);
 
-        // Post 엔티티를 PostDTO로 변환
         List<PostDTO> hotPosts = searchedPosts.getContent().stream()
-                .map(PostDTO::new)  // Post 객체를 PostDTO로 변환
+                .map(PostDTO::new)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(hotPosts, pageable, searchedPosts.getTotalElements());
     }
+
 
     public Page<PostDTO> getAdminPostList(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

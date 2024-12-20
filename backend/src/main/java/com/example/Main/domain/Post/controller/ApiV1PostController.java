@@ -15,10 +15,12 @@ import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Util.Markdown.MarkdownService;
-import com.example.Main.global.Util.Image.ImageService;
+import com.example.Main.global.Util.Service.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,18 +42,20 @@ public class ApiV1PostController {
 
     // 다건조회 - ver.전체
     @GetMapping("")
-    public RsData list(@RequestParam(value = "page", defaultValue = "0")int page,
+    public RsData list(@RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "size", defaultValue = "10") int size,
                        @RequestParam(value = "kw", defaultValue = "") String keyword) {
-        Page<PostDTO> recentPosts = this.postService.searchRecentPosts(page, size, keyword);
-        Page<PostDTO> hotPosts = this.postService.searchHotPosts(page, size, keyword);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PostDTO> recentPosts = this.postService.searchRecentPosts(keyword, pageable);
+        Page<PostDTO> hotPosts = this.postService.searchHotPosts(keyword, pageable);
 
-        List<Page> postPackage = new ArrayList<>();
+        List<Page<PostDTO>> postPackage = new ArrayList<>();
         postPackage.add(recentPosts);
         postPackage.add(hotPosts);
 
         return RsData.of("200", "게시글 다건 조회 성공", postPackage);
     }
+
 
     // 다건조회 - ver.특정사용자
     @GetMapping("/{authorEmail}")

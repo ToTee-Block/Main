@@ -6,7 +6,10 @@ import com.example.Main.domain.Chat.entity.ChatRoom;
 import com.example.Main.domain.Chat.serivce.ChatService;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Mentor.entity.Mentor;
+import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
+import com.sun.tools.javac.Main;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -36,13 +39,22 @@ public class ChatController {
     private final SimpMessageSendingOperations templates;
     private final JwtProvider jwtProvider;
     private final MemberService memberService;
+    private final MentorService mentorService;
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat/rooms")
     public ResponseEntity<List<Map<String, Object>>> getChatRooms(Principal principal) {
-        Member chatJoiner = this.memberService.getMemberByEmail(principal.getName());
-        if (chatJoiner == null) {
+        // Principal에서 직접 ID를 얻을 수 없으므로, 먼저 이메일을 통해 Member를 찾습니다.
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+        if (member == null) {
             System.out.println("Unauthorized message received");
+            return ResponseEntity.badRequest().build();
+        }
+
+        // 찾은 Member의 ID를 사용하여 chatJoiner를 가져옵니다.
+        Member chatJoiner = this.memberService.getMemberById(member.getId());
+        if (chatJoiner == null) {
+            System.out.println("Chat joiner not found");
             return ResponseEntity.badRequest().build();
         }
 
@@ -57,15 +69,44 @@ public class ChatController {
         return ResponseEntity.ok(chatRooms);
     }
 
+
     /* create 타이밍 : 나중에 멘토등록 승인되면 그 멘토의 방이 만들어지게 하기 */
+//    @PostMapping("/chat/rooms")
+//    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody, Principal principal) {
+//        String roomName = requestBody.get("name");
+//        if (roomName == null || roomName.isBlank()) {
+//            return ResponseEntity.badRequest().body(Map.of("message", "Room name cannot be empty"));
+//        }
+//        Member creator = memberService.getMemberByEmail(principal.getName());
+//        var newRoom = chatService.createRoom(roomName, creator);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+//                "id", newRoom.getId(),
+//                "name", newRoom.getName()
+//        ));
+//    }
+
     @PostMapping("/chat/rooms")
-    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody, Principal principal) {
         String roomName = requestBody.get("name");
+        Long menteeId = Long.parseLong(requestBody.get("menteeId"));
+        Long mentorId = Long.parseLong(requestBody.get("mentorId"));
+
         if (roomName == null || roomName.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Room name cannot be empty"));
         }
-        var newRoom = chatService.createRoom(roomName);
+
+        Member creator = memberService.getMemberByEmail(principal.getName());
+        Member mentee = memberService.getMemberById(menteeId);
+        Mentor mentor = mentorService.getMentorById(mentorId);
+
+        if (mentee == null || mentor == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid user ID"));
+        }
+
+        var newRoom = chatService.createRoomWithUsers(roomName, mentee, mentor.getMember());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "resultCode", "200",
                 "id", newRoom.getId(),
                 "name", newRoom.getName()
         ));
@@ -198,7 +239,7 @@ public class ChatController {
     @PostMapping("/chat/{roomId}/upload")
     public ResponseEntity<?> uploadImage(@PathVariable("roomId") Long roomId, @RequestParam("image") MultipartFile file) {
         try {
-            String uploadDir = "C:/work/Main/uploads/"; //C:/work/IdeaProjects/ToTeeBlock/uploads/
+            String uploadDir = "C:/project/team_proj/ToTee_Block/Main/uploads/"; //C:/work/IdeaProjects/ToTeeBlock/uploads/
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.]", "_");
 
             File dest = new File(uploadDir + fileName);

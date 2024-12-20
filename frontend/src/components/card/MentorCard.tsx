@@ -1,22 +1,30 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import React from 'react';
-import styles from '@/styles/components/card/mentor-card.module.scss';
+import Link from "next/link";
+import Image from "next/image";
+import React from "react";
+import styles from "@/styles/components/card/mentor-card.module.scss";
 
 interface MentorCardProps {
   href: string;
   name: string;
   type: string;
   description: string;
-  imageUrl: string;
+  imageUrl?: string; // 옵셔널로 변경
 }
 
-const MentorCard: React.FC<MentorCardProps> = ({ href, name, type, description }) => {
+const MentorCard: React.FC<MentorCardProps> = ({
+  href,
+  name,
+  type,
+  description,
+  imageUrl,
+}) => {
   return (
     <Link href={href} className={styles.MentorBox}>
       <div className={styles.MentorCard}>
         <div className={styles.imageWrapper}>
-          {/* <Image src={imageUrl} alt={name} width={100} height={100} /> */}
+          {imageUrl && (
+            <Image src={imageUrl} alt={name} width={100} height={100} />
+          )}
         </div>
         <div className={styles.content}>
           <h3 className={styles.name}>{name}</h3>
