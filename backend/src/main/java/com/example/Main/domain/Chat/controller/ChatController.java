@@ -6,7 +6,10 @@ import com.example.Main.domain.Chat.entity.ChatRoom;
 import com.example.Main.domain.Chat.serivce.ChatService;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Mentor.entity.Mentor;
+import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
+import com.sun.tools.javac.Main;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,7 @@ public class ChatController {
     private final SimpMessageSendingOperations templates;
     private final JwtProvider jwtProvider;
     private final MemberService memberService;
+    private final MentorService mentorService;
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat/rooms")
@@ -93,13 +97,13 @@ public class ChatController {
 
         Member creator = memberService.getMemberByEmail(principal.getName());
         Member mentee = memberService.getMemberById(menteeId);
-        Member mentor = memberService.getMemberById(mentorId);
+        Mentor mentor = mentorService.getMentorById(mentorId);
 
         if (mentee == null || mentor == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid user ID"));
         }
 
-        var newRoom = chatService.createRoomWithUsers(roomName, mentee, mentor);
+        var newRoom = chatService.createRoomWithUsers(roomName, mentee, mentor.getMember());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "resultCode", "200",
@@ -235,7 +239,7 @@ public class ChatController {
     @PostMapping("/chat/{roomId}/upload")
     public ResponseEntity<?> uploadImage(@PathVariable("roomId") Long roomId, @RequestParam("image") MultipartFile file) {
         try {
-            String uploadDir = "C:/work/Main/uploads/"; //C:/work/IdeaProjects/ToTeeBlock/uploads/
+            String uploadDir = "C:/project/team_proj/ToTee_Block/Main/uploads/"; //C:/work/IdeaProjects/ToTeeBlock/uploads/
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.]", "_");
 
             File dest = new File(uploadDir + fileName);

@@ -251,7 +251,7 @@ const MentorView: React.FC<{
                     className={styles.chatButton}
                     onClick={() => handleChatRequest(mentee)}
                   >
-                    채팅신청
+                    채팅 연결
                   </button>
                   <button
                     className={styles.disconnectButton}
@@ -334,7 +334,7 @@ const MenteeView: React.FC<{
                     className={styles.chatButton}
                     onClick={() => handleChatRequest(mentor)}
                   >
-                    채팅신청
+                    채팅 연결
                   </button>
                   <button
                     className={styles.disconnectButton}

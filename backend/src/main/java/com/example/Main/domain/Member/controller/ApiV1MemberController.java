@@ -18,7 +18,7 @@ import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.TEST.EmptyMultipartFile;
-import com.example.Main.global.Util.Image.ImageService;
+import com.example.Main.global.Util.Service.ImageService;
 import com.example.Main.global.Util.Util;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
