@@ -34,13 +34,13 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         List<PostCommentDTO> replies = commentService.getRepliesByParentCommentId(commentId);
 
         if (replies.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_REPLIES, null);
+            return RsData.of("404", ErrorMessages.REPLY_NOT_FOUND, null);
         }
 
         return RsData.of("200", "대댓글 조회 성공", replies);
@@ -53,12 +53,12 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment parentComment = commentService.getComment(commentId).orElse(null);
         if (parentComment == null) {
-            return RsData.of("404", ErrorMessages.REPLY_PARENT_COMMENT_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.REPLY_NOT_FOUND, null);
         }
 
         PostComment reply = commentService.getComment(replyId).orElse(null);
@@ -85,7 +85,7 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment parentComment = commentService.getComment(commentId).orElse(null);
@@ -120,7 +120,7 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment parentComment = commentService.getComment(parentCommentId).orElse(null);
@@ -129,7 +129,7 @@ public class ApiV1PostReplyController {
         }
 
         if (!parentComment.getPost().getId().equals(postId)) {
-            return RsData.of("404", ErrorMessages.POST_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         PostComment replyComment = commentService.addComment(postId, userEmail, content, parentCommentId);
@@ -166,7 +166,7 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment parentComment = commentService.getComment(commentId).orElse(null);
@@ -184,7 +184,7 @@ public class ApiV1PostReplyController {
         }
 
         if (!reply.getAuthor().getEmail().equals(loggedInUserEmail)) {
-            return RsData.of("403", ErrorMessages.REPLY_CANNOT_BE_MODIFIED, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
         reply = commentService.updateComment(replyId, commentModifyRequest.getContent(), loggedInUserEmail);
@@ -206,7 +206,7 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment parentComment = commentService.getComment(commentId).orElse(null);
@@ -224,11 +224,11 @@ public class ApiV1PostReplyController {
         }
 
         if (!reply.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.REPLY_CANNOT_BE_DELETED, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
         if (commentService.hasReplies(reply)) {
-            return RsData.of("400", ErrorMessages.REPLY_CANNOT_BE_DELETED, null);
+            return RsData.of("400", ErrorMessages.COMMENT_HAS_REPLIES, null);
         }
         commentService.deleteComment(replyId);
         return RsData.of("200", "%d 번 대댓글 삭제 성공".formatted(replyId), null);

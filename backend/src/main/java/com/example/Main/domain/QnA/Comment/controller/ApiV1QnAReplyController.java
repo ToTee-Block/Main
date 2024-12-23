@@ -34,13 +34,13 @@ public class ApiV1QnAReplyController {
 
         QnA qna = qnAService.getQnA(qnAId);
         if (qna == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         List<QnACommentDTO> replies = commentService.getRepliesByParentCommentId(commentId);
 
         if (replies.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_REPLIES, null);
+            return RsData.of("404", ErrorMessages.REPLY_NOT_FOUND, null);
         }
 
         return RsData.of("200", "대댓글 조회 성공", replies);
@@ -53,7 +53,7 @@ public class ApiV1QnAReplyController {
 
         QnA qna = qnAService.getQnA(qnAId);
         if (qna == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         QnAComment parentComment = commentService.getComment(commentId).orElse(null);
@@ -67,7 +67,7 @@ public class ApiV1QnAReplyController {
         }
 
         if (!qna.getId().equals(reply.getQnA().getId())) {
-            return RsData.of("404", ErrorMessages.QNA_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         return RsData.of("200", "대댓글 조회 성공", new QnACommentDTO(reply));
@@ -85,7 +85,7 @@ public class ApiV1QnAReplyController {
 
         QnA qna = qnAService.getQnA(qnAId);
         if (qna == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         QnAComment parentComment = commentService.getComment(commentId).orElse(null);
@@ -119,7 +119,7 @@ public class ApiV1QnAReplyController {
 
         QnA qna = qnAService.getQnA(qnAId);
         if (qna == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         QnAComment parentComment = commentService.getComment(parentCommentId).orElse(null);
@@ -128,7 +128,7 @@ public class ApiV1QnAReplyController {
         }
 
         if (!parentComment.getQnA().getId().equals(qnAId)) {
-            return RsData.of("404", ErrorMessages.COMMENT_NOT_BELONG_TO_QNA, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         QnAComment replyComment = commentService.addComment(qnAId, userEmail, content, parentCommentId);
@@ -165,7 +165,7 @@ public class ApiV1QnAReplyController {
 
         QnA qna = qnAService.getQnA(qnAId);
         if (qna == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         QnAComment parentComment = commentService.getComment(commentId).orElse(null);
@@ -179,11 +179,11 @@ public class ApiV1QnAReplyController {
         }
 
         if (!qna.getId().equals(reply.getQnA().getId())) {
-            return RsData.of("404", ErrorMessages.QNA_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         if (!reply.getAuthor().getEmail().equals(loggedInUserEmail)) {
-            return RsData.of("403", ErrorMessages.REPLY_CANNOT_BE_MODIFIED, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
         reply = commentService.updateComment(replyId, commentModifyRequest.getContent(), loggedInUserEmail);
@@ -205,7 +205,7 @@ public class ApiV1QnAReplyController {
 
         QnA qna = qnAService.getQnA(qnAId);
         if (qna == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         QnAComment parentComment = commentService.getComment(commentId).orElse(null);
@@ -219,11 +219,11 @@ public class ApiV1QnAReplyController {
         }
 
         if (!qna.getId().equals(reply.getQnA().getId())) {
-            return RsData.of("404", ErrorMessages.QNA_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         if (!reply.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.REPLY_CANNOT_BE_DELETED, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
         if (commentService.hasReplies(reply)) {

@@ -158,7 +158,7 @@ public class ApiV1QnAController {
 
         String loggedInUser = principal.getName();
         if (!qnA.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.QNA_NOT_YOUR_OWN, null);
+            return RsData.of("403", ErrorMessages.NOT_YOUR_OWN, null);
         }
 
         this.qnAService.deleteQnA(id);

@@ -205,7 +205,7 @@ public class ApiV1PostController {
 
         String loggedInUser = principal.getName();
         if (!post.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.POST_NOT_YOUR_OWN, null);
+            return RsData.of("403", ErrorMessages.NOT_YOUR_OWN, null);
         }
 
         this.postService.deletePost(id);
@@ -218,7 +218,7 @@ public class ApiV1PostController {
         List<PostDTO> draftPosts = this.postService.getDrafts();
 
         if (draftPosts.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_DRAFT_POSTS, null);
+            return RsData.of("404", ErrorMessages.NO_DRAFT, null);
         }
 
         return RsData.of("200", "임시 저장된 게시글 목록 조회 성공", new PostsResponse(draftPosts));
@@ -236,7 +236,7 @@ public class ApiV1PostController {
         List<PostDTO> draftPosts = this.postService.getDraftsByAuthor(loggedInUser);
 
         if (draftPosts.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_DRAFT_POSTS, null);
+            return RsData.of("404", ErrorMessages.NO_DRAFT, null);
         }
 
         return RsData.of("200", "임시 저장된 게시글 목록 조회 성공", new PostsResponse(draftPosts));

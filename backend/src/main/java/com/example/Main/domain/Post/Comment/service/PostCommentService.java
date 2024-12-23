@@ -30,7 +30,7 @@ public class PostCommentService {
     // 댓글 목록 조회
     public List<PostCommentDTO> getCommentsByPostId(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.POST_NOT_FOUND));
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.NOT_FOUND));
 
         List<PostComment> comments = commentRepository.findByPost(post, Sort.by(Sort.Order.desc("createdDate")));
         return comments.stream()
@@ -96,7 +96,7 @@ public class PostCommentService {
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.UNAUTHORIZED));
 
         Post post = Optional.ofNullable(postService.getPost(postId))
-                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.POST_NOT_FOUND));
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.NOT_FOUND));
 
         PostComment parentComment = null;
         if (parentCommentId != null) {
@@ -122,7 +122,7 @@ public class PostCommentService {
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
 
         if (!comment.getAuthor().getEmail().equals(userEmail)) {
-            throw new IllegalArgumentException(ErrorMessages.FORBIDDEN);
+            throw new IllegalArgumentException(ErrorMessages.REPLY_NOT_YOUR_OWN);
         }
 
         comment.setContent(content);
