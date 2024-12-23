@@ -8,8 +8,6 @@ import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
 import com.example.Main.domain.Report.entity.Report;
-import com.example.Main.domain.Report.entity.ReportPost;
-import com.example.Main.domain.Report.repository.ReportPostRepository;
 import com.example.Main.domain.Report.repository.ReportRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,6 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final MemberService memberService;
     private final PostCommentRepository postCommentRepository;
-    private final ReportPostRepository reportPostRepository;
     private final ReportRepository reportRepository;
 
 
@@ -105,8 +102,8 @@ public class PostService {
     // 삭제
     @Transactional
     public void deletePost(Long postId) {
-        List<ReportPost> reportPosts = reportPostRepository.findByPostId(postId);
-        reportPostRepository.deleteAll(reportPosts);
+        List<Report> reports = reportRepository.findByPostId(postId);
+        reportRepository.deleteAll(reports);
 
         postCommentRepository.deleteByPostId(postId);
 

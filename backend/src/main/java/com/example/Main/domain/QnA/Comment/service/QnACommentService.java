@@ -2,16 +2,11 @@ package com.example.Main.domain.QnA.Comment.service;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
-import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.QnA.Comment.dto.QnACommentDTO;
 import com.example.Main.domain.QnA.Comment.entity.QnAComment;
 import com.example.Main.domain.QnA.Comment.repository.QnACommentRepository;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
-import com.example.Main.domain.Report.entity.ReportPostComment;
-import com.example.Main.domain.Report.entity.ReportQnAComment;
-import com.example.Main.domain.Report.repository.ReportPostCommentRepository;
-import com.example.Main.domain.Report.repository.ReportQnACommentRepository;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -29,7 +24,6 @@ public class QnACommentService {
     private final QnACommentRepository commentRepository;
     private final QnAService qnAService;
     private final MemberService memberService;
-    private final ReportQnACommentRepository reportQnACommentRepository;
 
     // 댓글 목록 조회
     public List<QnACommentDTO> getCommentsByQnAId(Long qnAId) {
@@ -138,9 +132,6 @@ public class QnACommentService {
         QnAComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
 
-        List<ReportQnAComment> reportQnAComments = comment.getReportQnAComments();
-        reportQnACommentRepository.deleteAll(reportQnAComments);
-
         commentRepository.delete(comment);
 
         return true;
@@ -151,9 +142,6 @@ public class QnACommentService {
     public boolean deleteCommentByAdmin(Long commentId) {
         QnAComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
-
-        List<ReportQnAComment> reportQnAComments = comment.getReportQnAComments();
-        reportQnACommentRepository.deleteAll(reportQnAComments);
 
         commentRepository.delete(comment);
 
