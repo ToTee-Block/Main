@@ -9,8 +9,8 @@ import com.example.Main.domain.Post.Comment.service.PostCommentService;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
 import com.example.Main.domain.notification.service.NotificationService;
-import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
+import com.example.Main.global.RsData.RsData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -227,9 +227,6 @@ public class ApiV1PostReplyController {
             return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
-        if (commentService.hasReplies(reply)) {
-            return RsData.of("400", ErrorMessages.COMMENT_HAS_REPLIES, null);
-        }
         commentService.deleteComment(replyId);
         return RsData.of("200", "%d 번 대댓글 삭제 성공".formatted(replyId), null);
     }

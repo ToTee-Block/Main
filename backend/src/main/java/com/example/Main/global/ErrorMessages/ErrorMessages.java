@@ -12,9 +12,6 @@ public class ErrorMessages {
 
     // 댓글 관련 오류 메시지
     public static final String COMMENT_NOT_FOUND = "댓글을 찾을 수 없습니다.";
-    public static final String COMMENT_HAS_REPLIES = "대댓글이 달린 댓글은 삭제할 수 없습니다.";
-
-    // 대댓글 관련 오류 메시지
     public static final String REPLY_NOT_FOUND = "대댓글을 찾을 수 없습니다.";
     public static final String REPLY_PARENT_COMMENT_NOT_FOUND = "부모 댓글을 찾을 수 없습니다.";
     public static final String REPLY_NO_USERS = "본인이 작성한 대댓글이 없습니다.";

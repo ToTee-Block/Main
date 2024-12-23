@@ -9,8 +9,8 @@ import com.example.Main.domain.QnA.Comment.service.QnACommentService;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
 import com.example.Main.domain.notification.service.NotificationService;
-import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
+import com.example.Main.global.RsData.RsData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -224,10 +224,6 @@ public class ApiV1QnAReplyController {
 
         if (!reply.getAuthor().getEmail().equals(loggedInUser)) {
             return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
-        }
-
-        if (commentService.hasReplies(reply)) {
-            return RsData.of("400", ErrorMessages.COMMENT_HAS_REPLIES, null);
         }
 
         commentService.deleteComment(replyId);
