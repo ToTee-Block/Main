@@ -35,6 +35,8 @@ public class MentorDTO {
 
     private Boolean matchingStatus;
 
+    private final Long memberID;
+
     /*private List<MentorTechStack> techStacks;*/
 
 
@@ -52,6 +54,7 @@ public class MentorDTO {
         this.approved = mentor.getApproved();
         this.matchingStatus = mentor.getMatchingStatus();
         /*this.techStacks = mentor.getTechStacks();*/
+        this.memberID = member.getId();
     }
 
     public MentorDTO(MentorMenteeMatching matching) {    // 매칭에서 멘토의 정보를 가져올때, 로그인한 나와 이루어진 매칭인지 확인: matchingStatus
@@ -68,5 +71,6 @@ public class MentorDTO {
         this.portfolio = mentor.getPortfolio();;
         this.approved = mentor.getApproved();
         this.matchingStatus = matching.getApproved();
+        this.memberID = member.getId();
     }
 }

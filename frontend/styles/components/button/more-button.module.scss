@@ -1,0 +1,30 @@
+@import "../../globals/font-mixin.scss";
+
+.moreButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  background-color: var(--background);
+  border: 1px solid var(--gray-200);
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  
+  span {
+    @include font-XXS-M;
+    color: var(--gray-600);
+  }
+
+  svg {
+    color: var(--gray-600);
+  }
+
+  &:hover {
+    background-color: var(--gray-50);
+    border-color: var(--gray-300);
+
+    span, svg {
+      color: var(--gray-800);
+    }
+  }
+}

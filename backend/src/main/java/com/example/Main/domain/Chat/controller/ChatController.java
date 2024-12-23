@@ -6,7 +6,10 @@ import com.example.Main.domain.Chat.entity.ChatRoom;
 import com.example.Main.domain.Chat.serivce.ChatService;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Mentor.entity.Mentor;
+import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
+import com.sun.tools.javac.Main;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +18,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -33,13 +39,22 @@ public class ChatController {
     private final SimpMessageSendingOperations templates;
     private final JwtProvider jwtProvider;
     private final MemberService memberService;
+    private final MentorService mentorService;
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat/rooms")
     public ResponseEntity<List<Map<String, Object>>> getChatRooms(Principal principal) {
-        Member chatJoiner = this.memberService.getMemberByEmail(principal.getName());
-        if (chatJoiner == null) {
+        // Principal에서 직접 ID를 얻을 수 없으므로, 먼저 이메일을 통해 Member를 찾습니다.
+        Member member = this.memberService.getMemberByEmail(principal.getName());
+        if (member == null) {
             System.out.println("Unauthorized message received");
+            return ResponseEntity.badRequest().build();
+        }
+
+        // 찾은 Member의 ID를 사용하여 chatJoiner를 가져옵니다.
+        Member chatJoiner = this.memberService.getMemberById(member.getId());
+        if (chatJoiner == null) {
+            System.out.println("Chat joiner not found");
             return ResponseEntity.badRequest().build();
         }
 
@@ -54,15 +69,44 @@ public class ChatController {
         return ResponseEntity.ok(chatRooms);
     }
 
+
     /* create 타이밍 : 나중에 멘토등록 승인되면 그 멘토의 방이 만들어지게 하기 */
+//    @PostMapping("/chat/rooms")
+//    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody, Principal principal) {
+//        String roomName = requestBody.get("name");
+//        if (roomName == null || roomName.isBlank()) {
+//            return ResponseEntity.badRequest().body(Map.of("message", "Room name cannot be empty"));
+//        }
+//        Member creator = memberService.getMemberByEmail(principal.getName());
+//        var newRoom = chatService.createRoom(roomName, creator);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+//                "id", newRoom.getId(),
+//                "name", newRoom.getName()
+//        ));
+//    }
+
     @PostMapping("/chat/rooms")
-    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody, Principal principal) {
         String roomName = requestBody.get("name");
+        Long menteeId = Long.parseLong(requestBody.get("menteeId"));
+        Long mentorId = Long.parseLong(requestBody.get("mentorId"));
+
         if (roomName == null || roomName.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Room name cannot be empty"));
         }
-        var newRoom = chatService.createRoom(roomName);
+
+        Member creator = memberService.getMemberByEmail(principal.getName());
+        Member mentee = memberService.getMemberById(menteeId);
+        Mentor mentor = mentorService.getMentorById(mentorId);
+
+        if (mentee == null || mentor == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid user ID"));
+        }
+
+        var newRoom = chatService.createRoomWithUsers(roomName, mentee, mentor.getMember());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "resultCode", "200",
                 "id", newRoom.getId(),
                 "name", newRoom.getName()
         ));
@@ -98,6 +142,7 @@ public class ChatController {
         }
     }
 
+
     @PreAuthorize("isAuthenticated()")
     @MessageMapping("/message")
     public void receiveMessage(ChatDTO chatDTO, Principal principal) {
@@ -118,23 +163,23 @@ public class ChatController {
         // 메시지를 전송하는 방의 ID와 일치하는 채팅방에 메시지를 전송
         String destination = "/sub/chatroom/" + chatDTO.getRoomId();
 
-        // 받은 메시지에 타입 설정: "sent"는 보낸 사람의 메시지, "received"는 받는 사람의 메시지
+        // 메시지 타입 설정: 이미지인지 텍스트인지 확인
+        String contentType = chatDTO.getMessage().startsWith("/uploads/") ? "image" : "text";
         String messageType = "sent"; // 기본적으로 보낸 사람의 메시지는 "sent"
-
-        // 여기서는 메시지를 전송한 사람(로그인한 사람)의 ID와 비교하여 타입을 설정합니다
         if (!chatDTO.getSenderId().equals(member.getId())) {
-            messageType = "received"; // 만약 보내는 사람과 로그인한 사용자가 다르면 "received"
+            messageType = "received"; // 상대방 메시지는 "received"
         }
 
         // enrichedChatDTO 객체 생성 시, 타입 추가
         ChatDTO enrichedChatDTO = new ChatDTO(
                 chatDTO.getRoomId(),
                 member.getId(),
-                chatDTO.getMessage(),
+                chatDTO.getMessage(), // 메시지 내용 (URL 또는 텍스트)
                 LocalDateTime.now(),
                 member.getName(), // 보낸 사람의 이름 추가
-                null,
-                messageType // 타입 설정
+                null,             // senderProfile (추가할 경우 수정)
+                messageType,      // sent 또는 received
+                contentType       // 이미지 또는 텍스트 타입
         );
 
         templates.convertAndSend(destination, enrichedChatDTO); // 메시지 전송
@@ -191,8 +236,21 @@ public class ChatController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    @PostMapping("/chat/{roomId}/upload")
+    public ResponseEntity<?> uploadImage(@PathVariable("roomId") Long roomId, @RequestParam("image") MultipartFile file) {
+        try {
+            String uploadDir = "C:/project/team_proj/ToTee_Block/Main/uploads/"; //C:/work/IdeaProjects/ToTeeBlock/uploads/
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.]", "_");
 
+            File dest = new File(uploadDir + fileName);
+            file.transferTo(dest);
 
+            String imageUrl = "/uploads/" + fileName;
+            return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to upload image");
+        }
+    }
 
     private Member getAuthenticatedMember(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();

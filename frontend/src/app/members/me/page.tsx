@@ -9,6 +9,7 @@ import TextInput from "@/components/input/TextInput";
 import GenderButton from "@/components/button/GenderButton";
 import LoginButton from "@/components/button/Loginbutton";
 import ProfileImage from "@/components/profile/ProfileImage";
+import Mentoring from "@/components/mentoring/Mentoring";
 import styles from "@/styles/pages/members/form.module.scss";
 
 interface BirthdayType {
@@ -17,32 +18,41 @@ interface BirthdayType {
   day: string;
 }
 
+interface UserData {
+  id: number;
+  email: string;
+  name: string;
+  birthDate: string;
+  gender: string;
+  profileImg: string | null;
+  role: "USER" | "MENTOR";
+  createdDate: string;
+  modifiedDate: string;
+}
+
 export default function ProfileForm() {
-  const [email, setEmail] = useState<string>("");
-  const [name, setName] = useState<string>("");
+  const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [birthdate, setBirthdate] = useState<BirthdayType>({
     year: "",
     month: "",
     day: "",
   });
-  const [gender, setGender] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const router = useRouter();
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
 
     try {
       const formData = new FormData();
       formData.append("profileImg", file);
 
       const response = await apiClient.post(
-        `/api/v1/members/profileImg/${email}`,
+        `/api/v1/members/profileImg/${user.email}`,
         formData,
         {
           headers: {
@@ -51,15 +61,10 @@ export default function ProfileForm() {
         }
       );
 
-      console.log("Image upload response:", response.data);
-
       if (response.data.resultCode === "200") {
         const memberResponse = await fetchUserProfile();
         if (memberResponse.resultCode === "200") {
-          const { profileImg } = memberResponse.data;
-          setProfileImage(
-            profileImg ? `http://localhost:8081/file/${profileImg}` : null
-          );
+          setUser(memberResponse.data);
         }
         setError(null);
       } else {
@@ -67,7 +72,6 @@ export default function ProfileForm() {
       }
     } catch (err: any) {
       console.error("Image upload error:", err);
-      console.error("Error details:", err.response?.data);
       setError(`이미지 업로드에 실패했습니다: ${err.message}`);
     }
   };
@@ -75,16 +79,14 @@ export default function ProfileForm() {
   const handleImageDelete = async () => {
     try {
       const response = await apiClient.delete("/api/v1/members/profile-image");
-      console.log("Image delete response:", response.data);
       if (response.data.resultCode === "200") {
-        setProfileImage(null);
+        setUser((prev) => (prev ? { ...prev, profileImg: null } : null));
         setError(null);
       } else {
         throw new Error(response.data.message || "Image deletion failed");
       }
     } catch (err: any) {
       console.error("Image delete error:", err);
-      console.error("Error details:", err.response?.data);
       setError(`이미지 삭제에 실패했습니다: ${err.message}`);
     }
   };
@@ -93,32 +95,25 @@ export default function ProfileForm() {
     try {
       setLoading(true);
       const response = await fetchUserProfile();
-      console.log("Fetch member data response:", response);
 
       if (response.resultCode === "200") {
-        const { email, name, birthDate, gender, profileImg } = response.data;
-        setEmail(email);
-        setName(name);
-        setProfileImage(
-          profileImg ? `http://localhost:8081/file/${profileImg}` : null
-        );
+        const userData: UserData = response.data;
+        setUser(userData);
 
-        if (birthDate) {
-          const [year, month, day] = birthDate.split("-");
+        if (userData.birthDate) {
+          const [year, month, day] = userData.birthDate.split("-");
           setBirthdate({ year, month, day });
         }
 
-        setGender(gender);
         setError(null);
       } else {
         throw new Error(response.msg || "Failed to fetch user data");
       }
     } catch (err: any) {
       console.error("Fetch member data error:", err);
-      console.error("Error details:", err.response?.data);
       if (err.response?.status === 403) {
         setError("권한이 없습니다. 로그인 페이지로 이동합니다.");
-        setTimeout(() => router.push("/login"), 3000);
+        setTimeout(() => router.push("/members"), 3000);
       } else {
         setError(`데이터를 불러오는 데 실패했습니다: ${err.message}`);
       }
@@ -128,11 +123,13 @@ export default function ProfileForm() {
   };
 
   const handleUpdate = async () => {
+    if (!user) return;
+
     try {
       setIsLoading(true);
       setError(null);
 
-      if (!name) {
+      if (!user.name) {
         setError("이름을 입력해주세요.");
         return;
       }
@@ -140,29 +137,24 @@ export default function ProfileForm() {
         setError("생년월일을 모두 입력해주세요.");
         return;
       }
-      if (!gender) {
+      if (!user.gender) {
         setError("성별을 선택해주세요.");
         return;
       }
 
       const updateData = {
-        email,
-        name,
+        email: user.email,
+        name: user.name,
         birthDate: `${birthdate.year}-${birthdate.month}-${birthdate.day}`,
-        gender,
+        gender: user.gender,
       };
 
-      console.log("Updating profile with data:", updateData);
       const response = await updateProfile(updateData);
-      console.log("Profile update response:", response);
 
       if (response.resultCode === "200") {
         const memberResponse = await fetchUserProfile();
         if (memberResponse.resultCode === "200") {
-          const { profileImg } = memberResponse.data;
-          setProfileImage(
-            profileImg ? `http://localhost:8081/file/${profileImg}` : null
-          );
+          setUser(memberResponse.data);
         }
 
         alert("프로필이 성공적으로 업데이트되었습니다!");
@@ -172,10 +164,9 @@ export default function ProfileForm() {
       }
     } catch (err: any) {
       console.error("Profile update error:", err);
-      console.error("Error details:", err.response?.data);
       if (err.response?.status === 403) {
         setError("권한이 없습니다. 로그인 페이지로 이동합니다.");
-        setTimeout(() => router.push("/login"), 3000);
+        setTimeout(() => router.push("/members"), 3000);
       } else {
         setError(`데이터 업데이트에 실패했습니다: ${err.message}`);
       }
@@ -185,12 +176,18 @@ export default function ProfileForm() {
   };
 
   useEffect(() => {
-    console.log("JWT token:", localStorage.getItem("token"));
     fetchMemberData();
   }, []);
 
   const isFormValid = () => {
-    return name && birthdate.year && birthdate.month && birthdate.day && gender;
+    return (
+      user &&
+      user.name &&
+      birthdate.year &&
+      birthdate.month &&
+      birthdate.day &&
+      user.gender
+    );
   };
 
   if (loading) return <p>로딩 중...</p>;
@@ -201,24 +198,32 @@ export default function ProfileForm() {
       </div>
     );
 
+  if (!user) return null;
+
   return (
     <div className={styles.container}>
       <p className={styles.formTitle}>프로필</p>
       <div className={styles.formBox}>
         <div>
           <ProfileImage
-            profileImage={profileImage || "/icon/user.svg"}
+            profileImage={
+              user.profileImg
+                ? `http://localhost:8081/file/${user.profileImg}`
+                : "/icon/user.svg"
+            }
             onImageUpload={handleImageUpload}
             onImageDelete={handleImageDelete}
           />
         </div>
 
-        <TextInput value={email} isNotModify className={styles.widthInput}>
+        <TextInput value={user.email} isNotModify className={styles.widthInput}>
           이메일
         </TextInput>
         <TextInput
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={user.name}
+          onChange={(e) =>
+            setUser((prev) => (prev ? { ...prev, name: e.target.value } : null))
+          }
           className={styles.widthInput}
         >
           이름
@@ -228,9 +233,12 @@ export default function ProfileForm() {
           onChange={(newValue) => setBirthdate(newValue)}
         />
         <GenderButton
-          selectedGender={gender}
-          onGenderChange={(newGender) => setGender(newGender)}
+          selectedGender={user.gender}
+          onGenderChange={(newGender) =>
+            setUser((prev) => (prev ? { ...prev, gender: newGender } : null))
+          }
         />
+        <Mentoring />
       </div>
       <div className={styles.buttonBox}>
         <Link href="/" className={styles.cancelButton}>

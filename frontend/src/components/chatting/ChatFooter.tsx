@@ -1,35 +1,68 @@
-"use client";
-
 import { useState } from "react";
 import styles from "@/styles/components/chatting/ChatFooter.module.scss";
 
 interface ChatFooterProps {
-  onSend: (message: string) => void; // 상위 컴포넌트로 메시지 전달
-  activeRoom: string | null; // 활성화된 채팅방
+  onSend: (message: string, imageUrl?: string) => void;
+  activeRoom: string | null;
 }
 
 const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
-  const [message, setMessage] = useState<string>("");
-  const [isEmojiPickerVisible, setIsEmojiPickerVisible] = useState(false);
+  const [message, setMessage] = useState<string>(""); // 메시지 입력 상태
+  const [image, setImage] = useState<File | null>(null); // 선택된 이미지 상태
+  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false); // 이모티콘 선택창 상태
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 이모티콘 추가 함수
+  const addEmoji = (emoji: string) => {
+    setMessage((prev) => prev + emoji); // 기존 입력 메시지에 이모티콘 추가
+    setShowEmojiPicker(false); // 이모티콘 선택창 닫기
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || !activeRoom) return;
 
-    // 부모 컴포넌트로 메시지 전달
-    onSend(message);
+    if (!activeRoom) return;
 
-    // 입력창 초기화
+    let imageUrl = "";
+
+    // 이미지 파일 업로드
+    if (image) {
+      const formData = new FormData();
+      formData.append("image", image);
+
+      try {
+        const res = await fetch(
+          `http://localhost:8081/chat/${activeRoom}/upload`,
+          {
+            method: "POST",
+            body: formData,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+          }
+        );
+
+        if (!res.ok) throw new Error("Failed to upload image");
+
+        const result = await res.json();
+        console.log("서버 반환 이미지 URL:", result.imageUrl);
+        imageUrl = result.imageUrl; // 서버에서 반환된 이미지 URL
+      } catch (err) {
+        console.error("Image upload error:", err);
+        return;
+      }
+    }
+
+    // 메시지 또는 이미지 전송
+    onSend(message, imageUrl);
     setMessage("");
+    setImage(null);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
-  };
-
-  const handleEmojiClick = (emoji: string) => {
-    setMessage((prevMessage) => prevMessage + emoji);
-    setIsEmojiPickerVisible(false);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setImage(e.target.files[0]);
+    }
   };
 
   return (
@@ -39,7 +72,7 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
         <button
           type="button"
           className={styles.iconButton}
-          onClick={() => setIsEmojiPickerVisible((prev) => !prev)}
+          onClick={() => setShowEmojiPicker((prev) => !prev)}
         >
           <img
             src={"/icon/face_smile.svg"} // 이모티콘 아이콘
@@ -47,44 +80,65 @@ const ChatFooter: React.FC<ChatFooterProps> = ({ onSend, activeRoom }) => {
             className={styles.iconImage}
           />
         </button>
-
+  
+        {/* 이모티콘 선택창 */}
+        {showEmojiPicker && (
+          <div className={styles.emojiPicker}>
+            <span onClick={() => addEmoji("😊")}>😊</span>
+            <span onClick={() => addEmoji("😂")}>😂</span>
+            <span onClick={() => addEmoji("😍")}>😍</span>
+            <span onClick={() => addEmoji("👍")}>👍</span>
+            <span onClick={() => addEmoji("🥰")}>🥰</span>
+          </div>
+        )}
+  
+        {/* 파일 선택 버튼 */}
+        <label className={styles.iconButton}>
+          <img
+            src={"/icon/at_sign.svg"} // 파일 첨부 아이콘
+            alt={"파일 첨부 버튼"}
+            className={styles.iconImage}
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className={styles.fileInput}
+          />
+        </label>
+  
+        {/* 이미지 썸네일 또는 이름 표시 */}
+        {image && (
+          <div className={styles.filePreview}>
+            <img
+              src={URL.createObjectURL(image)}
+              alt="선택된 이미지"
+              className={styles.thumbnail}
+            />
+          </div>
+        )}
+  
+        {/* 메시지 입력창 */}
         <input
           type="text"
-          id="chatInput"
           value={message}
-          onChange={handleInputChange}
+          onChange={(e) => setMessage(e.target.value)}
           placeholder="메시지를 입력하세요..."
+          className={styles.input}
         />
-
-        {/* 멘션 버튼 */}
-        <button type="button" className={styles.iconButton}>
+  
+        {/* 전송 버튼 */}
+        <button type="submit" className={styles.iconButton}>
           <img
-            src={"/icon/at_sign.svg"} // 멘션 아이콘
-            alt={"멘션 버튼"}
+            src={"/icon/location_arrow.svg"} // 전송 아이콘
+            alt={"전송 버튼"}
             className={styles.iconImage}
           />
         </button>
-
-        <button type="submit" className={styles.iconButton}>
-          <img
-            src={"/icon/location_arrow.svg"} // 전송버튼
-            alt={"전송버튼"}
-            className={styles.profileImage}
-          />
-        </button>
       </form>
-
-      {/* 이모티콘 선택기 */}
-      {isEmojiPickerVisible && (
-        <div className={styles.emojiPicker}>
-          {/* 간단한 이모티콘 리스트 예시 */}
-          <button onClick={() => handleEmojiClick("😊")}>😊</button>
-          <button onClick={() => handleEmojiClick("😂")}>😂</button>
-          <button onClick={() => handleEmojiClick("❤️")}>❤️</button>
-        </div>
-      )}
     </div>
   );
+  
 };
 
 export default ChatFooter;

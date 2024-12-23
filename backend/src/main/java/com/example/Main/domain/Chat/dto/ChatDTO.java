@@ -20,15 +20,18 @@ public class ChatDTO {
     private String senderName;
     private String senderProfile; // 발신자 프로필 이미지 추가
     private String type;     // 메시지 타입 (sent 또는 received)
+    private String contentType;   // image 또는 text
 
-    public ChatDTO(Long roomId, Long senderId, String message, LocalDateTime sendTime, String senderName, String senderProfile, String type) {
+
+    public ChatDTO(Long roomId, Long senderId, String message, LocalDateTime sendTime, String senderName, String senderProfile, String type,String contentType) {
         this.roomId = roomId;
         this.senderId = senderId;
         this.message = message;
         this.sendTime = sendTime;
         this.senderName = senderName;
         this.senderProfile = senderProfile; // 프로필 이미지 추가
-        this.type = type;  // 타입도 생성자에서 설정
+        this.type = type;// 타입도 생성자에서 설정
+        this.contentType = contentType;
     }
 }
 

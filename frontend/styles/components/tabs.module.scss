@@ -9,7 +9,6 @@
 .buttonBox {
   margin-bottom: 14px;
 
-
   .button {
     border: 1px solid var(--border-gray-color);
     padding: 10px 20px;
@@ -24,7 +23,7 @@
   }
 
   .active {
-    color: #F14556 !important;
+    color: #f14556 !important;
     background-color: var(--danger-color);
     border: 1px solid var(--text-danger-color);
   }
@@ -32,7 +31,69 @@
 
 .card_container {
   width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.mentorCard {
   display: flex;
-  justify-content: space-between;
-  gap: 20px;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.profileImage {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background-color: var(--gray-200);
+}
+
+.mentorInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.nameWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nameText {
+  @include font-XXXS-B;
+  font-weight: bold;
+}
+
+.mentorText {
+  @include font-XXXXS-R;
+}
+
+.infoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.company,
+.name {
+  @include font-XXS-M;
+  font-size: 18px;
+}
+
+.position {
+  color: var(--gray-600);
+}
+
+.description {
+  @include font-XXXS-M;
+  color: var(--text-black);
 }

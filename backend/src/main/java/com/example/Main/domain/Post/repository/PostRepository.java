@@ -17,7 +17,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 본인이 작성한 게시글 조회
     List<Post> findByAuthor_EmailAndIsDraftFalse(String authorEmail, Sort createdDate);
-    // 본인이 작성한 게시글 조회
+
+    // 작성자별 게시글 조회
     @Query("SELECT p FROM Post p JOIN p.author a WHERE " +
             "(LOWER(p.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
@@ -28,13 +29,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 제목, 내용, 작성자 이름으로 검색하는 메소드
     // ver - 전체 / 최신순
-    @Query("SELECT p FROM Post p JOIN p.author a WHERE " +
-            "(LOWER(p.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-            "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
-            "OR LOWER(a.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
-            "AND p.isDraft = false " +
-            "ORDER BY p.createdDate DESC")
-    Page<Post> searchRecentPosts(String searchTerm, Pageable pageable);
+    @Query("SELECT p FROM Post p JOIN p.author a WHERE (LOWER(p.subject) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND p.isDraft = false ORDER BY p.createdDate DESC")
+    Page<Post> searchRecentPosts(@Param("keyword") String keyword, Pageable pageable);
+
     // ver - 전체 / 인기순
     @Query("SELECT p FROM Post p JOIN p.author a WHERE " +
             "(LOWER(p.subject) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +

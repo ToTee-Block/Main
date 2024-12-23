@@ -41,6 +41,9 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/*/members/delete/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/*/mentors/registration").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/mentors/profile/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/mentors/myMentoring/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/members/mentor/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/*/members/myMentorings/*").authenticated()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         // post 관련 API에 대한 권한 설정
@@ -61,12 +64,18 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/*/comments/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/comments/**").authenticated()
 
+                        // 기술스택 관련 API에 대한 권한 설정
+                        .requestMatchers(HttpMethod.GET, "/api/*/techStacks/**").permitAll()
+
                         // 신고 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.GET, "/api/*/reports/**").permitAll()
 
-                        // 알림 관련 API에 대한 권한 설정 추가
+                        // 알림 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.GET, "api/*/notifications/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/*/notifications/**").permitAll()
+
+                        //멘토 관련 API에 대한 권한 설정
+                        .requestMatchers(HttpMethod.GET, "api/*/mentors/**").permitAll()
 
                         // 관리자만 접근 가능한 API
                         .requestMatchers(HttpMethod.GET, "/api/*/post/**/report/admin").hasRole("ADMIN")
