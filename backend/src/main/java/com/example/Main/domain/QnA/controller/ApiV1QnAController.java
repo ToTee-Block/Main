@@ -2,10 +2,8 @@ package com.example.Main.domain.QnA.controller;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
-import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.QnA.dto.QnADTO;
 import com.example.Main.domain.QnA.dto.request.QnACreateRequest;
-import com.example.Main.domain.QnA.dto.request.QnALikeDTO;
 import com.example.Main.domain.QnA.dto.request.QnAModifyRequest;
 import com.example.Main.domain.QnA.dto.response.QnACreateResponse;
 import com.example.Main.domain.QnA.dto.response.QnAModifyResponse;
@@ -17,7 +15,6 @@ import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import com.example.Main.global.Security.SecurityMember;
-import com.example.Main.global.Util.Markdown.MarkdownService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,7 +33,6 @@ import java.util.Map;
 public class ApiV1QnAController {
     private final QnAService qnAService;
     private final MemberService memberService;
-    private final MarkdownService markdownService;
 
     // 검색
     @GetMapping("/search")
@@ -106,10 +102,9 @@ public class ApiV1QnAController {
         }
         String loggedInUser = principal.getName();
 
-        String htmlContent = markdownService.convertMarkdownToHtml(qnACreateRequest.getContent());
         QnA qna = qnAService.write(
                 qnACreateRequest.getSubject(),
-                htmlContent,
+                qnACreateRequest.getContent(),
                 loggedInUser,
                 qnACreateRequest.getIsDraft()
         );
@@ -135,9 +130,13 @@ public class ApiV1QnAController {
             return RsData.of("403", "본인만 QnA 게시글을 수정할 수 있습니다.", null);
         }
 
-        String htmlContent = markdownService.convertMarkdownToHtml(qnAModifyRequest.getContent());
 
-        qna = this.qnAService.update(qna, htmlContent, qnAModifyRequest.getSubject(), loggedInUser, qnAModifyRequest.getIsDraft());
+        qna = this.qnAService.update(
+                qna,
+                qnAModifyRequest.getSubject(),
+                qnAModifyRequest.getContent(),
+                loggedInUser,
+                qnAModifyRequest.getIsDraft());
 
         return RsData.of("200", "QnA 게시글 수정 성공", new QnAModifyResponse(qna));
     }
@@ -240,12 +239,11 @@ public class ApiV1QnAController {
             return RsData.of("403", "본인만 임시 저장 QnA 게시글을 이어서 작성할 수 있습니다.", null);
         }
 
-        String htmlContent = markdownService.convertMarkdownToHtml(qnAModifyRequest.getContent());
 
         qna = this.qnAService.continueDraft(
                 id,
-                htmlContent,
                 qnAModifyRequest.getSubject(),
+                qnAModifyRequest.getContent(),
                 loggedInUser,
                 qnAModifyRequest.getIsDraft()
         );
