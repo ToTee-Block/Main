@@ -2,16 +2,15 @@
 
 .about_page {
   width: 100%;
-  max-width: 1680px;
-  height: 1600px;
-  margin: auto;
+  justify-content: center;
 
   .mockup_section {
-    width: 100%;
+    width: 1000px;
     height: 450px;
     background-color: var(--secondary-color);
     display: flex;
     justify-content: center;
+    margin: 0 auto;
 
     .mockup_container {
       width: 1000px;
@@ -34,8 +33,9 @@
       }
 
       .text_animation_container {
-        width: 400px;
+        width: 600px;
         height: 100px;
+        white-space: nowrap;
         display: flex;
         overflow: hidden;
 
@@ -102,18 +102,24 @@
 
   .feature_section {
     width: 1000px;
+    margin: 0 auto;
+    padding-bottom: 100px;
 
     .company_structure {
       width: 100%;
       height: 400px;
       background-color: rgba(0, 0, 0, 0.8);
       background-blend-mode: overlay;
-      
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
       .overlay_content {
         width: 100%;
         display: flex;
         flex-direction: column;
+        align-items: center;
+        margin-top: -40px;
       }
 
       .section_title {
