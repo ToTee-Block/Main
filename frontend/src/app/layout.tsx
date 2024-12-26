@@ -5,7 +5,7 @@ import '@/styles/globals/global.scss';
 import Header from '@/src/components/Header';
 import Footer from '@/src/components/Footer';
 import PageWrapper from '@/components/pagewrapper/pagewrapper';
-import Loading from "@/components/loading";
+import Loading from "@/components/animation/loading";
 import ChatSection from "@/src/components/chatting/ChatSection";
 
 export const metadata: Metadata = {

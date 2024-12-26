@@ -1,0 +1,54 @@
+.carContainer {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    height: 60px;
+  }
+  
+  .car {
+    width: 80px;
+    height: auto;
+    position: absolute;
+    bottom: 0;
+    animation: carRide 20s infinite linear;
+  }
+ 
+  
+  @keyframes carRide {
+    0% {
+        transform: translateX(calc(-100px + (-5vw)));
+    }
+    25% {
+        transform: translateX(calc(200px + (10vw)));
+    }
+    30% {
+        transform: translateX(calc(250px + (12.5vw))) translateY(-10px); // 첫 번째 덜컥
+    }
+    35% {
+        transform: translateX(calc(300px + (15vw))) translateY(0);
+    }
+    55% {
+        transform: translateX(calc(600px + (30vw)));
+    }
+    60% {
+        transform: translateX(calc(650px + (32.5vw))) translateY(-10px); // 중간 덜컥
+    }
+    65% {
+        transform: translateX(calc(700px + (35vw))) translateY(0);
+    }
+    85% {
+        transform: translateX(calc(1100px + (55vw)));
+    }
+    90% {
+        transform: translateX(calc(1150px + (57.5vw))) translateY(-10px); // 두 번째 덜컥
+    }
+    95% {
+        transform: translateX(calc(1200px + (60vw))) translateY(0);
+    }
+    100% {
+        transform: translateX(calc(1500px + (75vw)));
+    }
+  }
+    
