@@ -38,6 +38,7 @@ const Post: React.FC = () => {
   const handleSubmit = () => {
     // sessionStorage에 데이터를 저장
     sessionStorage.setItem("postingType", "posts");
+    sessionStorage.setItem("id", "");
 
     // 페이지 이동
     router.push("/editor");
@@ -168,7 +169,9 @@ const Post: React.FC = () => {
                     user={post.authorName}
                     date={post.createdDate}
                     imageUrl={
-                      post.thumbnail ? post.thumbnail : "/images/Rectangle.png"
+                      post.thumbnail
+                        ? `http://localhost:8081/file/${post.thumbnail}`
+                        : "/images/Rectangle.png"
                     }
                   />
                 ))
@@ -188,15 +191,17 @@ const Post: React.FC = () => {
                     user={post.authorName}
                     date={post.createdDate}
                     imageUrl={
-                      post.thumbnail ? post.thumbnail : "/images/Rectangle.png"
+                      post.thumbnail
+                        ? `http://localhost:8081/file/${post.thumbnail}`
+                        : "/images/Rectangle.png"
                     }
                   />
                 ))
             )
           ) : entirePosts.filter(
               (post) =>
-                post.techStacks?.some((stack) =>
-                  selectedStacks.includes(stack)
+                selectedStacks.every((stack) =>
+                  post.techStacks?.includes(stack)
                 ) && post.isDraft === false
             ).length === 0 ? (
             <NoSearch></NoSearch>
@@ -204,8 +209,8 @@ const Post: React.FC = () => {
             entirePosts
               .filter(
                 (post) =>
-                  post.techStacks?.some((stack) =>
-                    selectedStacks.includes(stack)
+                  selectedStacks.every((stack) =>
+                    post.techStacks?.includes(stack)
                   ) && post.isDraft === false
               )
               .map((post, index) => (
@@ -217,7 +222,9 @@ const Post: React.FC = () => {
                   user={post.authorName}
                   date={post.createdDate}
                   imageUrl={
-                    post.thumbnail ? post.thumbnail : "/images/Rectangle.png"
+                    post.thumbnail
+                      ? `http://localhost:8081/file/${post.thumbnail}`
+                      : "/images/Rectangle.png"
                   }
                 />
               ))

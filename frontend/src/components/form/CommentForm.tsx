@@ -25,7 +25,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
           <img
             src={
               disabled && myProfileImg !== ""
-                ? myProfileImg
+                ? `http://localhost:8081/file/${myProfileImg}`
                 : "/images/Rectangle.png"
             }
             alt={

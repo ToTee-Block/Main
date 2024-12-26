@@ -1,17 +1,28 @@
 import React from "react";
+import { useRouter } from "next/navigation";
 import styles from "@/styles/components/button/modify-button.module.scss"; // SCSS 모듈 임포트
 
 interface ModifyButtonProps {
-  to: string; // 이동할 경로 (필수)
+  type: string;
+  id: Number;
 }
 
-const commentPost = async (to: string) => {
-  console.log(to);
-};
+const ModifyButton: React.FC<ModifyButtonProps> = ({ type, id }) => {
+  const router = useRouter();
+  const handleSubmit = () => {
+    sessionStorage.setItem("postingType", type); // type: "posts" or "qnas"
+    sessionStorage.setItem("id", id + "");
+    router.push("/editor");
+  };
 
-const ModifyButton: React.FC<ModifyButtonProps> = ({ to }) => {
   return (
-    <button onClick={() => commentPost(to)} className={styles.modifytBtn}>
+    <button
+      onClick={() => {
+        handleSubmit();
+        console.log("수정하기");
+      }}
+      className={styles.modifytBtn}
+    >
       수정하기
     </button>
   );

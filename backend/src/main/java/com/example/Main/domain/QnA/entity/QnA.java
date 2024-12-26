@@ -21,12 +21,17 @@ import java.util.Set;
 @SuperBuilder
 @ToString(callSuper = true)
 public class QnA extends BaseEntity {
+    @Column(length = 1024)
     private String subject;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne
     private Member author;
+
+    @ElementCollection
+    private Set<String> techStacks;
 
     @Column(name = "is_draft")
     private Boolean isDraft;

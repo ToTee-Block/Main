@@ -21,13 +21,16 @@ import java.util.Set;
 @SuperBuilder
 @ToString(callSuper = true)
 public class Post extends BaseEntity {
+    @Column(length = 1024)
     private String subject;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne
     private Member author;
 
+    @ElementCollection
     private Set<String> techStacks;
 
     @Column(name = "is_draft")
@@ -61,6 +64,8 @@ public class Post extends BaseEntity {
     @JsonManagedReference  // 순환 참조 방지를 위해 부모 객체에 적용
     private List<PostComment> comments;
 
+    @Column(length = 1024)
     private String thumbnail;
+
     private List<String> filePaths;
 }
