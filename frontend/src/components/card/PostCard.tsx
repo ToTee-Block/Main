@@ -33,7 +33,9 @@ const PostCard: React.FC<PostCardProps> = ({
           </div>
           <div className={styles.textBox}>
             <span className={styles.user}>{user}</span>
-            <span className={styles.date}>{date}</span>
+            <span className={styles.date}>
+              {new Date(date).toISOString().split("T")[0]}
+            </span>
           </div>
         </div>
       </div>
