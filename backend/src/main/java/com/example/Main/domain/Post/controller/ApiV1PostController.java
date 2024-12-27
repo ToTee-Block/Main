@@ -14,16 +14,18 @@ import com.example.Main.domain.Post.service.PostService;
 import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
-import com.example.Main.global.Util.Markdown.MarkdownService;
-import com.example.Main.global.Util.Image.ImageService;
+import com.example.Main.global.Util.Service.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,23 +37,24 @@ import java.util.Map;
 public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
-    private final MarkdownService markdownService;
     private final ImageService imageService;
 
     // 다건조회 - ver.전체
     @GetMapping("")
-    public RsData list(@RequestParam(value = "page", defaultValue = "0")int page,
+    public RsData list(@RequestParam(value = "page", defaultValue = "0") int page,
                        @RequestParam(value = "size", defaultValue = "10") int size,
                        @RequestParam(value = "kw", defaultValue = "") String keyword) {
-        Page<PostDTO> recentPosts = this.postService.searchRecentPosts(page, size, keyword);
-        Page<PostDTO> hotPosts = this.postService.searchHotPosts(page, size, keyword);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PostDTO> recentPosts = this.postService.searchRecentPosts(keyword, pageable);
+        Page<PostDTO> hotPosts = this.postService.searchHotPosts(keyword, pageable);
 
-        List<Page> postPackage = new ArrayList<>();
+        List<Page<PostDTO>> postPackage = new ArrayList<>();
         postPackage.add(recentPosts);
         postPackage.add(hotPosts);
 
         return RsData.of("200", "게시글 다건 조회 성공", postPackage);
     }
+
 
     // 다건조회 - ver.특정사용자
     @GetMapping("/{authorEmail}")
@@ -110,8 +113,6 @@ public class ApiV1PostController {
 
         String loggedInUser = principal.getName();
 
-        String htmlContent = markdownService.convertMarkdownToHtml(postCreateRequest.getContent());
-
         // 썸네일 등록
         String thumbnailPath = null;
         if (thumbnail != null && !thumbnail.isEmpty()) {
@@ -126,7 +127,8 @@ public class ApiV1PostController {
 
         Post post = postService.write(
                 postCreateRequest.getSubject(),
-                htmlContent,
+                postCreateRequest.getContent(),
+                postCreateRequest.getTechStacks(),
                 loggedInUser,  // 로그인한 사용자의 이메일을 작성자로 설정
                 postCreateRequest.getIsDraft(),
                 thumbnailPath,
@@ -158,27 +160,19 @@ public class ApiV1PostController {
             return RsData.of("403", "본인만 게시글을 수정할 수 있습니다.", null);
         }
 
-        String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
-
-        // 썸네일 수정
         String thumbnailPath = post.getThumbnail();
         if (thumbnail != null && !thumbnail.isEmpty()) {
-            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
+            thumbnailPath = imageService.saveImage("post", thumbnail);
         }
 
-        // 파일 수정
-        List<String> filePaths = post.getFilePaths();
-        if (files != null && files.length > 0) {
-            List<String> newFilePaths = imageService.saveFiles("posts/files", files);
-            filePaths.addAll(newFilePaths);
-        }
         post = this.postService.update(
                 post
-                , htmlContent
                 , postModifyRequest.getSubject()
+                , postModifyRequest.getContent()
+                , postModifyRequest.getTechStacks()
                 , loggedInUser
                 , postModifyRequest.getIsDraft()
-                , thumbnailPath
+                , post.getThumbnail()
                 , filePaths
         );
 
@@ -201,7 +195,7 @@ public class ApiV1PostController {
 
         String loggedInUser = principal.getName();
         if (!post.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.POST_NOT_YOUR_OWN, null);
+            return RsData.of("403", ErrorMessages.NOT_YOUR_OWN, null);
         }
 
         this.postService.deletePost(id);
@@ -214,7 +208,7 @@ public class ApiV1PostController {
         List<PostDTO> draftPosts = this.postService.getDrafts();
 
         if (draftPosts.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_DRAFT_POSTS, null);
+            return RsData.of("404", ErrorMessages.NO_DRAFT, null);
         }
 
         return RsData.of("200", "임시 저장된 게시글 목록 조회 성공", new PostsResponse(draftPosts));
@@ -232,7 +226,7 @@ public class ApiV1PostController {
         List<PostDTO> draftPosts = this.postService.getDraftsByAuthor(loggedInUser);
 
         if (draftPosts.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_DRAFT_POSTS, null);
+            return RsData.of("404", ErrorMessages.NO_DRAFT, null);
         }
 
         return RsData.of("200", "임시 저장된 게시글 목록 조회 성공", new PostsResponse(draftPosts));
@@ -260,8 +254,6 @@ public class ApiV1PostController {
             return RsData.of("403", ErrorMessages.ONLY_OWN_DRAFT, null);
         }
 
-        String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
-
         // 썸네일 수정
         String thumbnailPath = post.getThumbnail();
         if (thumbnail != null && !thumbnail.isEmpty()) {
@@ -277,8 +269,8 @@ public class ApiV1PostController {
 
         post = this.postService.continueDraft(
                 id,
-                htmlContent,
                 postModifyRequest.getSubject(),
+                postModifyRequest.getContent(),
                 loggedInUser,
                 postModifyRequest.getIsDraft(),
                 thumbnailPath,

@@ -3,16 +3,11 @@ package com.example.Main.domain.QnA.service;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.repository.MemberRepository;
 import com.example.Main.domain.Member.service.MemberService;
-import com.example.Main.domain.Post.dto.PostDTO;
-import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.QnA.Comment.repository.QnACommentRepository;
 import com.example.Main.domain.QnA.dto.QnADTO;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.repository.QnARepository;
 import com.example.Main.domain.Report.entity.Report;
-import com.example.Main.domain.Report.entity.ReportPost;
-import com.example.Main.domain.Report.entity.ReportQnA;
-import com.example.Main.domain.Report.repository.ReportQnARepository;
 import com.example.Main.domain.Report.repository.ReportRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +26,6 @@ public class QnAService {
     private final QnARepository qnARepository;
     private final MemberRepository memberRepository;
     private final MemberService memberService;
-    private final ReportQnARepository reportQnARepository;
     private final QnACommentRepository qnACommentRepository;
     private final ReportRepository reportRepository;
 
@@ -108,9 +102,8 @@ public class QnAService {
     // 삭제
     @Transactional
     public void deleteQnA(Long qnAId) {
-        List<ReportQnA> reportQnAS = reportQnARepository.findByQnAId(qnAId);
-        reportQnARepository.deleteAll(reportQnAS);
-
+        List<Report> reportQnAS = reportRepository.findByQnAId(qnAId);
+        reportRepository.deleteAll(reportQnAS);
 
         qnACommentRepository.deleteByQnAId(qnAId);
 

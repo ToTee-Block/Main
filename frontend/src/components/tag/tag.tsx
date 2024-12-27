@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React from 'react';
-import styles from '@/styles/components/tag/tag.module.scss';
+import React from "react";
+import styles from "@/styles/components/tag/tag.module.scss";
 
 interface TagProps {
   tags: string[];
-  selectedTags: boolean[];
-  onTagToggle: (index: number) => void;
+  selectedTags: string[];
+  onTagToggle: (tag: string) => void;
 }
 
 export default function Tag({ tags, selectedTags, onTagToggle }: TagProps) {
@@ -15,13 +15,15 @@ export default function Tag({ tags, selectedTags, onTagToggle }: TagProps) {
       {tags.map((tag, index) => (
         <label
           key={index}
-          className={`${styles.tag} ${selectedTags[index] ? styles.checkedTag : ''}`}
+          className={`${styles.tag} ${
+            selectedTags.includes(tag) ? styles.checkedTag : ""
+          }`}
         >
           <input
             type="checkbox"
             className={styles.hiddenCheckbox}
-            checked={selectedTags[index]}
-            onChange={() => onTagToggle(index)}
+            checked={selectedTags.includes(tag)}
+            onChange={() => onTagToggle(tag)}
           />
           {tag}
         </label>

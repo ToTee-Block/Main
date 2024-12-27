@@ -8,18 +8,18 @@ import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
 import com.example.Main.domain.Report.entity.Report;
-import com.example.Main.domain.Report.entity.ReportPost;
-import com.example.Main.domain.Report.repository.ReportPostRepository;
 import com.example.Main.domain.Report.repository.ReportRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +29,6 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final MemberService memberService;
     private final PostCommentRepository postCommentRepository;
-    private final ReportPostRepository reportPostRepository;
     private final ReportRepository reportRepository;
 
 
@@ -73,12 +72,13 @@ public class PostService {
     }
 
     // 작성
-    public Post write(String subject, String content, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
+    public Post write(String subject, String content, Set<String> techStacks, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
         Member member = memberService.getMemberByEmail(userEmail);
 
         Post post = Post.builder()
                 .subject(subject)
                 .content(content)
+                .techStacks(techStacks)
                 .author(member)
                 .isDraft(isDraft)
                 .thumbnail(thumbnailPath)
@@ -89,10 +89,11 @@ public class PostService {
     }
 
     // 수정
-    public Post update(Post post, String content, String subject, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
+    public Post update(Post post, String content, String subject, Set<String> techStacks, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
         Member member = memberService.getMemberByEmail(userEmail);
         post.setSubject(subject);
         post.setContent(content);
+        post.setTechStacks(techStacks);
         post.setAuthor(member);
         post.setIsDraft(isDraft);
         post.setThumbnail(thumbnailPath);
@@ -104,8 +105,8 @@ public class PostService {
     // 삭제
     @Transactional
     public void deletePost(Long postId) {
-        List<ReportPost> reportPosts = reportPostRepository.findByPostId(postId);
-        reportPostRepository.deleteAll(reportPosts);
+        List<Report> reports = reportRepository.findByPostId(postId);
+        reportRepository.deleteAll(reports);
 
         postCommentRepository.deleteByPostId(postId);
 
@@ -206,29 +207,27 @@ public class PostService {
     }
 
     // 검색기능
-    public Page<PostDTO> searchRecentPosts(int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<PostDTO> searchRecentPosts(@Param("keyword") String keyword, Pageable pageable) {
         Page<Post> searchedPosts = this.postRepository.searchRecentPosts(keyword, pageable);
 
-        // Post 엔티티를 PostDTO로 변환
         List<PostDTO> recentPosts = searchedPosts.getContent().stream()
-                .map(PostDTO::new)  // Post 객체를 PostDTO로 변환
+                .map(PostDTO::new)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(recentPosts, pageable, searchedPosts.getTotalElements());
     }
 
-    public Page<PostDTO> searchHotPosts(int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size);
+
+    public Page<PostDTO> searchHotPosts(@Param("keyword") String keyword, Pageable pageable) {
         Page<Post> searchedPosts = this.postRepository.searchHotPosts(keyword, pageable);
 
-        // Post 엔티티를 PostDTO로 변환
         List<PostDTO> hotPosts = searchedPosts.getContent().stream()
-                .map(PostDTO::new)  // Post 객체를 PostDTO로 변환
+                .map(PostDTO::new)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(hotPosts, pageable, searchedPosts.getTotalElements());
     }
+
 
     public Page<PostDTO> getAdminPostList(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

@@ -22,4 +22,10 @@ public interface ReportRepository extends JpaRepository<Report,Long> {
     List<Report> findByPost(Post post);
 
     List<Report> findByQnA(QnA qnA);
+
+    // 삭제 기능을 위해 게시물 찾는 메서드
+    List<Report> findByPostId(Long postId);
+
+    // 삭제 기능을 위해 qna 찾는 메서드
+    List<Report> findByQnAId(Long qnAId);
 }
