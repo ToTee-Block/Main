@@ -44,6 +44,7 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/*/mentors/myMentoring/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/members/mentor/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/*/members/myMentorings/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/*/members/chatAuth").authenticated()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         // post 관련 API에 대한 권한 설정

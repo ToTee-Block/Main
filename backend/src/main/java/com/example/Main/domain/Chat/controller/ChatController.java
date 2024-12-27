@@ -146,10 +146,9 @@ public class ChatController {
     @PreAuthorize("isAuthenticated()")
     @MessageMapping("/message")
     public void receiveMessage(ChatDTO chatDTO, Principal principal) {
-        // 현재 로그인한 사용자 정보 가져오기
         Member member = this.memberService.getMemberByEmail(principal.getName());
         if (member == null) {
-            System.out.println("Unauthorized message received");
+            System.err.println("Unauthorized message received: " + principal.getName());
             return;
         }
 
@@ -157,32 +156,29 @@ public class ChatController {
 
         // 메시지 저장
         chatDTO.setSenderId(member.getId());
-        chatDTO.setSenderName(member.getName()); // 사용자의 이름 추가
+        chatDTO.setSenderName(member.getName());
         chatService.saveMessage(chatDTO);
 
         // 메시지를 전송하는 방의 ID와 일치하는 채팅방에 메시지를 전송
         String destination = "/sub/chatroom/" + chatDTO.getRoomId();
 
-        // 메시지 타입 설정: 이미지인지 텍스트인지 확인
+        // 메시지 타입 설정: 프론트엔드에서 처리하므로 제외 가능
         String contentType = chatDTO.getMessage().startsWith("/uploads/") ? "image" : "text";
-        String messageType = "sent"; // 기본적으로 보낸 사람의 메시지는 "sent"
-        if (!chatDTO.getSenderId().equals(member.getId())) {
-            messageType = "received"; // 상대방 메시지는 "received"
-        }
 
-        // enrichedChatDTO 객체 생성 시, 타입 추가
+        // 클라이언트로 보낼 DTO 생성
         ChatDTO enrichedChatDTO = new ChatDTO(
                 chatDTO.getRoomId(),
-                member.getId(),
-                chatDTO.getMessage(), // 메시지 내용 (URL 또는 텍스트)
+                chatDTO.getMessage(),
                 LocalDateTime.now(),
-                member.getName(), // 보낸 사람의 이름 추가
-                null,             // senderProfile (추가할 경우 수정)
-                messageType,      // sent 또는 received
+                member.getId(),
+                member.getEmail(),
+                member.getName(),
+                null,             // senderProfile
+                null,             // 메시지 타입 (프론트에서 처리)
                 contentType       // 이미지 또는 텍스트 타입
         );
 
-        templates.convertAndSend(destination, enrichedChatDTO); // 메시지 전송
+        templates.convertAndSend(destination, enrichedChatDTO);
         System.out.println("Message broadcasted to: " + destination);
     }
 
@@ -239,7 +235,7 @@ public class ChatController {
     @PostMapping("/chat/{roomId}/upload")
     public ResponseEntity<?> uploadImage(@PathVariable("roomId") Long roomId, @RequestParam("image") MultipartFile file) {
         try {
-            String uploadDir = "C:/project/team_proj/ToTee_Block/Main/uploads/"; //C:/work/IdeaProjects/ToTeeBlock/uploads/
+            String uploadDir = "C:/work/Main/uploads"; //C:/work/IdeaProjects/ToTeeBlock/uploads/
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.]", "_");
 
             File dest = new File(uploadDir + fileName);
