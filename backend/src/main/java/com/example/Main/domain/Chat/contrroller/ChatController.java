@@ -1,8 +1,10 @@
 package com.example.Main.domain.Chat.contrroller;
 
 import com.example.Main.domain.Chat.dto.ChatDTO;
+import com.example.Main.domain.Chat.entity.ChatJoin;
 import com.example.Main.domain.Chat.entity.ChatMessage;
 import com.example.Main.domain.Chat.entity.ChatRoom;
+import com.example.Main.domain.Chat.repository.ChatJoinRepository;
 import com.example.Main.domain.Chat.serivce.ChatService;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
@@ -36,6 +38,8 @@ public class ChatController {
     private final SimpMessageSendingOperations templates;
     private final JwtProvider jwtProvider;
     private final MemberService memberService;
+    private final ChatJoinRepository chatJoinRepository;
+
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat/rooms")
@@ -198,7 +202,7 @@ public class ChatController {
     @PostMapping("/chat/{roomId}/upload")
     public ResponseEntity<?> uploadImage(@PathVariable("roomId") Long roomId, @RequestParam("image") MultipartFile file) {
         try {
-            String uploadDir = "C:/Users/LENOVO/Desktop/project/uploads/";
+            String uploadDir = "C:/Users/LENOVO/Desktop/ToTee/uploads/";
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.]", "_");
 
             File dest = new File(uploadDir + fileName);
@@ -209,6 +213,41 @@ public class ChatController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to upload image");
         }
+    }
+
+    @GetMapping("/chat/rooms/unread")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<Long, Integer>> getUnreadMessageCounts(Principal principal) {
+        Member member = memberService.getMemberByEmail(principal.getName());
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<ChatJoin> chatJoins = chatJoinRepository.findByChatJoiner(member);
+        Map<Long, Integer> unreadCounts = chatJoins.stream()
+                .collect(Collectors.toMap(
+                        chatJoin -> chatJoin.getChatRoom().getId(),
+                        ChatJoin::getUnreadMessageCount
+                ));
+
+        return ResponseEntity.ok(unreadCounts);
+    }
+
+    @PostMapping("/chat/{roomId}/read")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> markRoomAsRead(@PathVariable("roomId") Long roomId, Principal principal) {
+        Member member = memberService.getMemberByEmail(principal.getName());
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        ChatJoin chatJoin = chatJoinRepository.findByMemberIdAndRoomId(member.getId(), roomId)
+                .orElseThrow(() -> new IllegalArgumentException("User not joined chat room"));
+
+        chatJoin.setUnreadMessageCount(0); // 읽지 않은 메시지 초기화
+        chatJoinRepository.save(chatJoin);
+
+        return ResponseEntity.ok().build();
     }
 
 

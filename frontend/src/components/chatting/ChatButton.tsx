@@ -3,14 +3,19 @@
 import styles from "@/styles/components/chatting/ChatButton.module.scss";
 
 interface ChatButtonProps {
-  onClick: () => void;
+  onClick: () => void; // 클릭 핸들러
+  hasUnread?: boolean; // 알림 상태 (선택적)
 }
 
-const ChatButton: React.FC<ChatButtonProps> = ({ onClick }) => {
+const ChatButton: React.FC<ChatButtonProps> = ({
+  onClick,
+  hasUnread = false,
+}) => {
   return (
-    <button className={styles.chatButton} onClick={onClick}>
-      💬
-    </button>
+    <div className={styles.chatButton} onClick={onClick}>
+      {hasUnread && <div className={styles.notificationDot}></div>}
+      <span>💬</span>
+    </div>
   );
 };
 
