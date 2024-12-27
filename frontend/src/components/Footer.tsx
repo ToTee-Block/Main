@@ -3,6 +3,7 @@
 import React from 'react';
 import styles from '@/styles/components/footer.module.scss';
 import Link from 'next/link';
+import carstyles from '@/styles/components/animation/car.module.scss';
 
 const Footer: React.FC = () => {
 
@@ -24,6 +25,13 @@ const Footer: React.FC = () => {
           <span>Contact</span>
           </Link>
         </nav>
+      </div>
+      <div className={carstyles.carContainer}>
+        <img
+        src="/images/pixel-car.png"
+        alt="moving car"
+        className={carstyles.car}
+        />
       </div>
     </footer>
   );
