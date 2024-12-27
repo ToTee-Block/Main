@@ -28,6 +28,7 @@ public class Post extends BaseEntity {
     @ManyToOne
     private Member author;
 
+    @ElementCollection
     private Set<String> techStacks;
 
     @Column(name = "is_draft")
@@ -62,5 +63,6 @@ public class Post extends BaseEntity {
     private List<PostComment> comments;
 
     private String thumbnail;
+
     private List<String> filePaths;
 }

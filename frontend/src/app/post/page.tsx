@@ -85,7 +85,7 @@ const Post: React.FC = () => {
             description: post.content,
             user: post.authorName,
             date: new Date(post.createdDate).toISOString().split("T")[0],
-            imageUrl: "/images/Rectangle.png",
+            imageUrl: post.thumbnail ? post.thumbnail : "/images/Rectangle.png",
           }))
         : [],
 
@@ -97,7 +97,7 @@ const Post: React.FC = () => {
             description: post.content,
             user: post.authorName,
             date: new Date(post.createdDate).toISOString().split("T")[0],
-            imageUrl: "/images/Rectangle.png",
+            imageUrl: post.thumbnail ? post.thumbnail : "/images/Rectangle.png",
           }))
         : [],
   };

@@ -270,7 +270,7 @@ const Detail: React.FC = () => {
             <></>
           ) : (
             <>
-              <ModifyButton to={"#"}></ModifyButton>
+              <ModifyButton type={"posts"} id={post?.id}></ModifyButton>
               <RemoveButton
                 setModalVisible={() => setModalVisibleDelete(true)}
               ></RemoveButton>

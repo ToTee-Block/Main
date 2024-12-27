@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,12 +72,13 @@ public class PostService {
     }
 
     // 작성
-    public Post write(String subject, String content, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
+    public Post write(String subject, String content, Set<String> techStacks, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
         Member member = memberService.getMemberByEmail(userEmail);
 
         Post post = Post.builder()
                 .subject(subject)
                 .content(content)
+                .techStacks(techStacks)
                 .author(member)
                 .isDraft(isDraft)
                 .thumbnail(thumbnailPath)
@@ -87,10 +89,11 @@ public class PostService {
     }
 
     // 수정
-    public Post update(Post post, String content, String subject, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
+    public Post update(Post post, String content, String subject, Set<String> techStacks, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
         Member member = memberService.getMemberByEmail(userEmail);
         post.setSubject(subject);
         post.setContent(content);
+        post.setTechStacks(techStacks);
         post.setAuthor(member);
         post.setIsDraft(isDraft);
         post.setThumbnail(thumbnailPath);

@@ -23,7 +23,6 @@ interface Me {
   role: string;
 }
 
-
 export default function QnA() {
   const [me, setMe] = useState<Me>();
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,6 +39,7 @@ export default function QnA() {
   const handleSubmit = () => {
     // sessionStorage에 데이터를 저장
     sessionStorage.setItem("postingType", "qnas");
+    sessionStorage.setItem("id", "");
 
     // 페이지 이동
     router.push("/editor");

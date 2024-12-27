@@ -1,32 +1,46 @@
-'use client';
-import classNames from 'classnames';
+"use client";
+
+import { useState, useEffect } from "react";
+import classNames from "classnames";
 import styles from "@/styles/pages/home.module.scss";
-import LinkCard from '@/components/card/LinkCard';
-import PostCard from '@/components/card/PostCard';
-import Link from 'next/link';
-import Tabs from '@/components/Tabs';
-
-const posts = [];
-const basePost = {
-  href: "/#",
-  title: "Post",
-  description: "예시 텍스트 입니다.",
-  user: "admin",
-  date: "2024.11.20",
-  imageUrl: "/images/Rectangle.png"
-};
-
-for (let i = 0; i < 8; i++) {
-  const post = { ...basePost, user: `admin0${i + 7}` };
-  posts.push(post);
-}
+import LinkCard from "@/components/card/LinkCard";
+import PostCard from "@/components/card/PostCard";
+import Link from "next/link";
+import Tabs from "@/components/Tabs";
+import axios from "axios";
 
 export default function Home() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get("http://localhost:8081/api/v1/posts", {
+          params: { page: 0, size: 10, kw: "" },
+        });
+
+        const resultCode = response.data.resultCode;
+        const data = response.data.data;
+        console.log(response);
+        if (resultCode === "200") {
+          console.log(data[0].content);
+          setPosts(data[0].content);
+        }
+      } catch (error) {
+        console.log("error: " + error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
   return (
     <>
       <main className={styles.main}>
         {/* 기존 상단 부분 유지 */}
-        <div className={classNames(styles.container, styles.background_container)}>
+        <div
+          className={classNames(styles.container, styles.background_container)}
+        >
           <div className={styles.banner_card}></div>
           <div className={styles.link_cardBox}>
             <LinkCard
@@ -58,12 +72,14 @@ export default function Home() {
               {posts.map((post, index) => (
                 <PostCard
                   key={index}
-                  href={post.href}
-                  title={post.title}
-                  description={post.description}
-                  user={post.user}
-                  date={post.date}
-                  imageUrl={post.imageUrl}
+                  href={`/post/detail?id=${post.id}`}
+                  title={post.subject}
+                  description={post.content}
+                  user={post.authorName}
+                  date={post.createdDate}
+                  imageUrl={
+                    post.thumbnail ? post.thumbnail : "/images/Rectangle.png"
+                  }
                 />
               ))}
             </div>

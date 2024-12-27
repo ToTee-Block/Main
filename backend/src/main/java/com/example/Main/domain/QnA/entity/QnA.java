@@ -28,6 +28,9 @@ public class QnA extends BaseEntity {
     @ManyToOne
     private Member author;
 
+    @ElementCollection
+    private Set<String> techStacks;
+
     @Column(name = "is_draft")
     private Boolean isDraft;
 
