@@ -8,8 +8,6 @@ import com.example.Main.domain.Post.Comment.repository.PostCommentRepository;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
 import com.example.Main.domain.Post.service.PostService;
-import com.example.Main.domain.Report.entity.ReportPostComment;
-import com.example.Main.domain.Report.repository.ReportPostCommentRepository;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -28,12 +26,11 @@ public class PostCommentService {
     private final PostRepository postRepository;
     private final MemberService memberService;
     private final PostService postService;
-    private final ReportPostCommentRepository reportPostCommentRepository;
 
     // 댓글 목록 조회
     public List<PostCommentDTO> getCommentsByPostId(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.POST_NOT_FOUND));
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.NOT_FOUND));
 
         List<PostComment> comments = commentRepository.findByPost(post, Sort.by(Sort.Order.desc("createdDate")));
         return comments.stream()
@@ -99,7 +96,7 @@ public class PostCommentService {
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.UNAUTHORIZED));
 
         Post post = Optional.ofNullable(postService.getPost(postId))
-                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.POST_NOT_FOUND));
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.NOT_FOUND));
 
         PostComment parentComment = null;
         if (parentCommentId != null) {
@@ -125,7 +122,7 @@ public class PostCommentService {
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
 
         if (!comment.getAuthor().getEmail().equals(userEmail)) {
-            throw new IllegalArgumentException(ErrorMessages.FORBIDDEN);
+            throw new IllegalArgumentException(ErrorMessages.REPLY_NOT_YOUR_OWN);
         }
 
         comment.setContent(content);
@@ -138,9 +135,6 @@ public class PostCommentService {
         PostComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
 
-        List<ReportPostComment> reportPostComments = comment.getReportPostComments();
-        reportPostCommentRepository.deleteAll(reportPostComments);
-
         commentRepository.delete(comment);
 
         return true;
@@ -152,8 +146,6 @@ public class PostCommentService {
         PostComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
 
-        List<ReportPostComment> reportPostComments = comment.getReportPostComments();
-        reportPostCommentRepository.deleteAll(reportPostComments);
 
         commentRepository.delete(comment);
 

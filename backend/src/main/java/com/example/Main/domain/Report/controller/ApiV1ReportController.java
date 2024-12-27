@@ -52,11 +52,11 @@ public class ApiV1ReportController {
 
         if (targetType.equals("post")) {
             if (this.postService.getPost(targetId) == null) {
-                return RsData.of("404", ErrorMessages.POST_NOT_FOUND);
+                return RsData.of("404", ErrorMessages.NOT_FOUND);
             }
         } else if (targetType.equals("qna")) {
             if (this.qnAService.getQnA(targetId) == null) {
-                return RsData.of("404", ErrorMessages.QNA_NOT_FOUND);
+                return RsData.of("404", ErrorMessages.NOT_FOUND);
             }
         } else {
             return RsData.of("404", String.format("잘못된 url 요청입니다: %s", targetType));
@@ -91,8 +91,9 @@ public class ApiV1ReportController {
     }
 
     // 전체 게시물의 본인 신고 내역
+    // 확인용
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/report/my")
+    @GetMapping("/my")
     public RsData<List<ReportDTO>> getReportsByUser(Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);

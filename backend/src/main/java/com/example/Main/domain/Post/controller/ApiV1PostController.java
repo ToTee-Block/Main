@@ -14,7 +14,6 @@ import com.example.Main.domain.Post.service.PostService;
 import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
-import com.example.Main.global.Util.Markdown.MarkdownService;
 import com.example.Main.global.Util.Service.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,6 @@ import java.util.Map;
 public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
-    private final MarkdownService markdownService;
     private final ImageService imageService;
 
     // 다건조회 - ver.전체
@@ -115,8 +113,6 @@ public class ApiV1PostController {
 
         String loggedInUser = principal.getName();
 
-        String htmlContent = markdownService.convertMarkdownToHtml(postCreateRequest.getContent());
-
         // 썸네일 등록
         String thumbnailPath = null;
         if (thumbnail != null && !thumbnail.isEmpty()) {
@@ -131,7 +127,7 @@ public class ApiV1PostController {
 
         Post post = postService.write(
                 postCreateRequest.getSubject(),
-                htmlContent,
+                postCreateRequest.getContent(),
                 postCreateRequest.getTechStacks(),
                 loggedInUser,  // 로그인한 사용자의 이메일을 작성자로 설정
                 postCreateRequest.getIsDraft(),
@@ -164,19 +160,15 @@ public class ApiV1PostController {
             return RsData.of("403", "본인만 게시글을 수정할 수 있습니다.", null);
         }
 
-        String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
-
-        // 파일 수정
-        List<String> filePaths = post.getFilePaths();
-        if (files != null && files.length > 0) {
-            List<String> newFilePaths = imageService.saveFiles("posts/files", files);
-            filePaths.addAll(newFilePaths);
+        String thumbnailPath = post.getThumbnail();
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            thumbnailPath = imageService.saveImage("post", thumbnail);
         }
 
         post = this.postService.update(
                 post
-                , htmlContent
                 , postModifyRequest.getSubject()
+                , postModifyRequest.getContent()
                 , postModifyRequest.getTechStacks()
                 , loggedInUser
                 , postModifyRequest.getIsDraft()
@@ -203,7 +195,7 @@ public class ApiV1PostController {
 
         String loggedInUser = principal.getName();
         if (!post.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.POST_NOT_YOUR_OWN, null);
+            return RsData.of("403", ErrorMessages.NOT_YOUR_OWN, null);
         }
 
         this.postService.deletePost(id);
@@ -216,7 +208,7 @@ public class ApiV1PostController {
         List<PostDTO> draftPosts = this.postService.getDrafts();
 
         if (draftPosts.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_DRAFT_POSTS, null);
+            return RsData.of("404", ErrorMessages.NO_DRAFT, null);
         }
 
         return RsData.of("200", "임시 저장된 게시글 목록 조회 성공", new PostsResponse(draftPosts));
@@ -234,7 +226,7 @@ public class ApiV1PostController {
         List<PostDTO> draftPosts = this.postService.getDraftsByAuthor(loggedInUser);
 
         if (draftPosts.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_DRAFT_POSTS, null);
+            return RsData.of("404", ErrorMessages.NO_DRAFT, null);
         }
 
         return RsData.of("200", "임시 저장된 게시글 목록 조회 성공", new PostsResponse(draftPosts));
@@ -262,8 +254,6 @@ public class ApiV1PostController {
             return RsData.of("403", ErrorMessages.ONLY_OWN_DRAFT, null);
         }
 
-        String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
-
         // 썸네일 수정
         String thumbnailPath = post.getThumbnail();
         if (thumbnail != null && !thumbnail.isEmpty()) {
@@ -279,8 +269,8 @@ public class ApiV1PostController {
 
         post = this.postService.continueDraft(
                 id,
-                htmlContent,
                 postModifyRequest.getSubject(),
+                postModifyRequest.getContent(),
                 loggedInUser,
                 postModifyRequest.getIsDraft(),
                 thumbnailPath,
