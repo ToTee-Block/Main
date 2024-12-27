@@ -16,9 +16,10 @@ export default function EditorPage() {
   const [postingType, setPostingType] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
+  const [thumbNail, setThumbName] = useState<string>();
   const [images, setImages] = useState<{ [key: string]: string }>({});
   const [tags, setTags] = useState<string[]>();
-  const [selectedTags, setSelectedTags] = useState<boolean[]>();
+  const [selectedTags, setSelectedTags] = useState<string[]>([""]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -65,6 +66,33 @@ export default function EditorPage() {
     }
   };
 
+  const handleTagToggle = (tagName: string): void => {
+    setSelectedTags((prev) => {
+      let newState = [...prev];
+      if (tagName === "전체") {
+        return ["전체"];
+      } else if (tagName === "임시저장") {
+        return ["임시저장"];
+      } else {
+        if (
+          newState.indexOf("전체") !== -1 ||
+          newState.indexOf("임시저장") !== -1
+        ) {
+          newState = newState.filter(
+            (item) => item !== "전체" && item !== "임시저장"
+          );
+        }
+        if (newState.includes(tagName)) {
+          newState = newState.filter((item) => item !== tagName);
+          if (newState.length === 0) newState = ["전체"];
+        } else {
+          newState.push(tagName);
+        }
+        return newState;
+      }
+    });
+  };
+
   // URL.createObjectURL로 생성된 URL 해제
   React.useEffect(() => {
     return () => {
@@ -81,21 +109,46 @@ export default function EditorPage() {
   };
 
   const postWrite = async (draft: boolean) => {
+    let queryUrl = `http://localhost:8081/api/v1/${postingType}`;
+    let response;
+    let msg;
     try {
-      const response = await apiClient.post(
-        `http://localhost:8081/api/v1/${postingType}`,
-        {
-          subject: title,
-          content: content,
-          isDraft: draft,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
+      if (sessionStorage.getItem("id") !== "") {
+        console.log("수정하기");
+        queryUrl = `${queryUrl}/${sessionStorage.getItem("id")}`;
+        response = await apiClient.patch(
+          queryUrl,
+          {
+            subject: title,
+            content: content,
+            techStacks: selectedTags,
+            isDraft: draft,
           },
-        }
-      );
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } else {
+        console.log("생성하기");
+        response = await apiClient.post(
+          queryUrl,
+          {
+            subject: title,
+            content: content,
+            techStacks: selectedTags,
+            isDraft: draft,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
       const resultCode = response.data.resultCode;
+      msg = response.data.msg;
       const data = response.data.data;
       console.log(response);
       if (resultCode === "200") {
@@ -104,40 +157,67 @@ export default function EditorPage() {
         } else {
           router.push("/qna/my");
         }
+      } else if (resultCode === "400") {
+        alert(msg);
       }
       setLoading(false);
     } catch (error) {
-      setError("Failed to fetch recent posts.");
+      alert(msg);
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchTags = async () => {
-      const storedData = sessionStorage.getItem("postingType");
-      if (storedData) {
-        setPostingType(storedData);
-      }
-
+    const fetchAll = async () => {
       try {
         const response = await axios.get(
           `http://localhost:8081/api/v1/techStacks`
         );
         const resultCode = response.data.resultCode;
         const data = response.data.data;
-        console.log(response);
+        console.log(data);
         if (resultCode === "200") {
           setTags(data);
-          setSelectedTags(new Array(data.length).fill(false));
         }
         setLoading(false);
       } catch (error) {
         setError("Failed to fetch recent posts.");
         setLoading(false);
       }
+
+      const storedData = sessionStorage.getItem("postingType");
+      const id = sessionStorage.getItem("id");
+      if (storedData) {
+        setPostingType(storedData);
+      }
+      if (id !== "") {
+        try {
+          const response = await axios.get(
+            `http://localhost:8081/api/v1/posts/detail/${id}`
+          );
+
+          const resultCode = response.data.resultCode;
+          const data = response.data.data;
+          console.log(response);
+          if (resultCode == "200") {
+            setTitle(data.post.subject);
+            setContent(data.post.content);
+
+            console.log(data.post);
+          } else if (resultCode == "400") {
+            setError("올바른 게시물이 아닙니다.");
+          } else if (resultCode == "500") {
+            setError(response.data.msg);
+          }
+          setLoading(false);
+        } catch (error) {
+          setError("Failed to fetch recent posts.");
+          setLoading(false);
+        }
+      }
     };
 
-    fetchTags();
+    fetchAll();
   }, []);
 
   if (loading) {
@@ -166,11 +246,7 @@ export default function EditorPage() {
             <Tag
               tags={tags}
               selectedTags={selectedTags}
-              onTagToggle={(index) => {
-                const newSelectedTags = [...selectedTags];
-                newSelectedTags[index] = !newSelectedTags[index];
-                setSelectedTags(newSelectedTags);
-              }}
+              onTagToggle={handleTagToggle}
             />
           </div>
 
@@ -198,6 +274,7 @@ export default function EditorPage() {
         </div>
       </div>
 
+      {/* 미리보기 섹션 */}
       <div className={styles.previewSection}>
         <div className={styles.previewContent}>
           <input
@@ -207,6 +284,9 @@ export default function EditorPage() {
             readOnly
           />
           <div className={styles.divider} />
+          <div className={styles.thumbNailBox}>
+            <img src={thumbNail ? thumbNail : "/images/Rectangle.png"} alt="" />
+          </div>
           <div className={styles.markdownContent}>
             <ReactMarkdown
               remarkPlugins={[

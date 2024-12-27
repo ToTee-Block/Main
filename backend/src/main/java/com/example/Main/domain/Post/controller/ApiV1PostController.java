@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -131,6 +132,7 @@ public class ApiV1PostController {
         Post post = postService.write(
                 postCreateRequest.getSubject(),
                 htmlContent,
+                postCreateRequest.getTechStacks(),
                 loggedInUser,  // 로그인한 사용자의 이메일을 작성자로 설정
                 postCreateRequest.getIsDraft(),
                 thumbnailPath,
@@ -164,25 +166,21 @@ public class ApiV1PostController {
 
         String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
 
-        // 썸네일 수정
-        String thumbnailPath = post.getThumbnail();
-        if (thumbnail != null && !thumbnail.isEmpty()) {
-            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
-        }
-
         // 파일 수정
         List<String> filePaths = post.getFilePaths();
         if (files != null && files.length > 0) {
             List<String> newFilePaths = imageService.saveFiles("posts/files", files);
             filePaths.addAll(newFilePaths);
         }
+
         post = this.postService.update(
                 post
                 , htmlContent
                 , postModifyRequest.getSubject()
+                , postModifyRequest.getTechStacks()
                 , loggedInUser
                 , postModifyRequest.getIsDraft()
-                , thumbnailPath
+                , post.getThumbnail()
                 , filePaths
         );
 
