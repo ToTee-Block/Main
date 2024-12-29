@@ -215,6 +215,7 @@ export default function EditorPage() {
             setTitle(data.post.subject);
             setContent(data.post.content);
             setSelectedTags(data.post.techStacks);
+            setThumbNail(data.post.thumbnail);
             console.log(data.post);
           } else if (resultCode == "400") {
             setError("올바른 게시물이 아닙니다.");

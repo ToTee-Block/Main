@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import apiClient from "@/api/axiosConfig";
 import styles from "@/styles/components/editortoolbar/fileupload.module.scss";
 import Image from "next/image";
-import { resourceLimits } from "worker_threads";
 
 interface FileUploadProps {
   id: Number;
@@ -12,11 +11,7 @@ interface FileUploadProps {
   setThumbNail: (url: string) => void;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({
-  thumbNail,
-  setThumbNail,
-  id,
-}) => {
+const FileUpload: React.FC<FileUploadProps> = ({ thumbNail, setThumbNail }) => {
   const [thisThumbNail, setThisThumbNail] = useState<string | null>(thumbNail);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -60,8 +55,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
       <div className={styles.imgBox}>
         <img
           src={
-            thisThumbNail
-              ? `http://localhost:8081/file/${thisThumbNail}`
+            thumbNail
+              ? `http://localhost:8081/file/${thumbNail}`
               : "/images/Rectangle.png"
           }
           alt="썸네일 이미지"
