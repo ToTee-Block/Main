@@ -199,6 +199,8 @@ html > body {
 //메인,상세페이지 여백적용x
 .contentAreaFull {
   width: 100%;
+  padding-left: 120px;
+  padding-right: 120px;
 }
 // 전역 스크롤바 스타일
 ::-webkit-scrollbar {

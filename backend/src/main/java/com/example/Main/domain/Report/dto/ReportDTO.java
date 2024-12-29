@@ -1,7 +1,6 @@
 package com.example.Main.domain.Report.dto;
 
-import com.example.Main.domain.Report.dto.summary.PostSummaryDTO;
-import com.example.Main.domain.Report.dto.summary.QnASummaryDTO;
+import com.example.Main.domain.Report.dto.summary.SummaryDTO;
 import com.example.Main.domain.Report.entity.Report;
 import lombok.Getter;
 
@@ -21,9 +20,9 @@ public class ReportDTO {
         this.status = report.getStatus() != null ? report.getStatus().getStatus() : null;
 
         if (report.getPost() != null) {
-            this.target = new PostSummaryDTO(report.getPost());
+            this.target = new SummaryDTO(report.getPost());
         } else if (report.getQnA() != null) {
-            this.target = new QnASummaryDTO(report.getQnA());
+            this.target = new SummaryDTO(report.getQnA());
         } else {
             this.target = null;
         }

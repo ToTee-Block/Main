@@ -296,7 +296,6 @@ export default function EditorPage() {
           />
 
           <div className={styles.divider} />
-
           <div className={styles.markdownContent}>
             <MarkdownWithHtml markdownContent={content} />
             {/* <ReactMarkdown

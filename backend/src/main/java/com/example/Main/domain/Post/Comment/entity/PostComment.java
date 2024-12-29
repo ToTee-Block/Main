@@ -2,7 +2,6 @@ package com.example.Main.domain.Post.Comment.entity;
 
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.entity.Post;
-import com.example.Main.domain.Report.entity.ReportPostComment;
 import com.example.Main.global.Jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -42,9 +41,6 @@ public class PostComment extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "parent_comment_id")
     private PostComment parentComment;
-
-    @OneToMany(mappedBy = "postComment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReportPostComment> reportPostComments = new ArrayList<>();
 
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostComment> replies = new ArrayList<>();
