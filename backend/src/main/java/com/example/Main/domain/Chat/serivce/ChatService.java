@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.File;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +33,45 @@ public class ChatService {
 
     // 메시지 저장
     public void saveMessage(ChatDTO chatDTO) {
-        ChatMessage chatMessage = toEntity(chatDTO);
+        ChatJoin chatJoin = this.chatJoinRepository.findByMemberIdAndRoomId(
+                chatDTO.getSenderId(),
+                chatDTO.getRoomId()
+        ).orElseThrow(() -> new IllegalArgumentException("User not joined chat room"));
+
+        ChatMessage chatMessage = ChatMessage.builder()
+                .chatSender(chatJoin)
+                .message(chatDTO.getMessage())
+                .build();
         chatMessageRepository.save(chatMessage);
+
+        // 다른 참가자들의 "읽지 않은 메시지" 카운트 증가
+        List<ChatJoin> participants = chatJoinRepository.findByChatRoom(chatJoin.getChatRoom());
+        for (ChatJoin participant : participants) {
+            if (!participant.getChatJoiner().getId().equals(chatDTO.getSenderId())) {
+                participant.setUnreadMessageCount(participant.getUnreadMessageCount() + 1);
+                chatJoinRepository.save(participant);
+            }
+        }
+    }
+
+    // 방 읽음 처리
+    public void markRoomAsRead(Long roomId, Long memberId) {
+        ChatJoin chatJoin = chatJoinRepository.findByMemberIdAndRoomId(memberId, roomId)
+                .orElseThrow(() -> new IllegalArgumentException("User not part of the chat room"));
+
+        chatJoin.setUnreadMessageCount(0); // 읽지 않은 메시지 수 초기화
+        chatJoinRepository.save(chatJoin);
+    }
+
+    // 읽지 않은 메시지 상태 반환
+    public Map<Long, Integer> getUnreadMessageCounts(Member member) {
+        List<ChatJoin> chatJoins = chatJoinRepository.findByChatJoiner(member);
+
+        return chatJoins.stream()
+                .collect(Collectors.toMap(
+                        chatJoin -> chatJoin.getChatRoom().getId(),
+                        ChatJoin::getUnreadMessageCount
+                ));
     }
 
     // 채팅방 ID로 메시지 가져오기

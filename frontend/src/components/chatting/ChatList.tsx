@@ -1,18 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import styles from "@/styles/components/chatting/ChatList.module.scss";
 
 interface ChatListProps {
-  activeRoom: string | null;
+  activeRoom: string | null; // 현재 활성화된 방 ID
   rooms: { id: number; name: string }[]; // 채팅방 리스트
-  onRoomSelect: (roomId: string) => void; // 방 선택 콜백
+  onRoomSelect: (roomId: string) => void; // 방 선택 시 실행되는 콜백 함수
+  notifications: { [roomId: string]: boolean }; // 방별 알림 상태
 }
 
 const ChatList: React.FC<ChatListProps> = ({
   activeRoom,
   rooms,
-  onRoomSelect, // 로딩 상태
+  onRoomSelect,
+  notifications,
 }) => {
   return (
     <div className={styles.chatList}>
@@ -25,8 +26,13 @@ const ChatList: React.FC<ChatListProps> = ({
           }`}
           onClick={() => onRoomSelect(String(room.id))}
         >
+          {/* 방 이름 표시 */}
           <span>{room.name}</span>
-          {room.name === "박승수" && <div className={styles.status}></div>}
+
+          {/* 알림 표시 */}
+          {notifications[String(room.id)] && (
+            <div className={styles.notificationIndicator}></div>
+          )}
         </div>
       ))}
     </div>

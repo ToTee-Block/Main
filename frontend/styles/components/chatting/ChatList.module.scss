@@ -20,8 +20,8 @@
 
 .chatRoom {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
   padding: 10px;
   cursor: pointer;
   font-size: 14px;
@@ -37,11 +37,9 @@
   }
 }
 
-.status {
-  width: 8px;
-  height: 8px;
+.notificationIndicator {
+  width: 10px;
+  height: 10px;
+  background-color: red;
   border-radius: 50%;
-  background-color: red; /* 읽지 않은 메시지가 있을 때 빨간색 */
-  flex-shrink: 0;
-  margin-left: 10px;
 }

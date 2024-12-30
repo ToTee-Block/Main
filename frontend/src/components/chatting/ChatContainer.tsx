@@ -1,20 +1,23 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import styles from "@/styles/components/chatting/ChatContainer.module.scss";
 import ChatList from "./ChatList";
 import ChatMessages from "./ChatMessages";
 import ChatFooter from "./ChatFooter";
 import ChatHeader from "./ChatHeader";
+import ChatButton from "./ChatButton"; // ChatButton 컴포넌트 추가
 import { Client } from "@stomp/stompjs";
 
 interface Message {
-  text: string; // 메시지 내용
-  type: "sent" | "received"; // 보낸 메시지인지, 받은 메시지인지
-  contentType: "image" | "text"; // 콘텐츠 타입: 이미지 또는 텍스트
-  senderId?: number; // 발신자 ID
-  senderName?: string; // 발신자 이름
-  senderProfile?: string; // 발신자 프로필 이미지 URL
-  time: string; // 메시지 전송 시간
-  date: string; // 메시지 전송 날짜
+  text: string;
+  type: "sent" | "received";
+  contentType: "image" | "text";
+  senderId?: number;
+  senderName?: string;
+  senderProfile?: string;
+  time: string;
+  date: string;
 }
 
 type ChatHistory = {
@@ -29,6 +32,7 @@ interface RoomDetails {
 
 const ChatContainer = () => {
   const [activeRoom, setActiveRoom] = useState<string | null>(null);
+  const [isWidgetOpen, setIsWidgetOpen] = useState(false); // 위젯 열림/닫힘 상태
   const [chatHistory, setChatHistory] = useState<ChatHistory>({});
   const [rooms, setRooms] = useState<RoomDetails[]>([]);
   const [roomDetails, setRoomDetails] = useState<RoomDetails | null>(null);
@@ -76,10 +80,16 @@ const ChatContainer = () => {
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging]);
+  const [notifications, setNotifications] = useState<{
+    [roomId: string]: boolean;
+  }>({});
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false); // 알림 상태
 
-  // 현재 시간/날짜 가져오기
+  // 현재 시간 가져오기
   const getCurrentTime = (): string =>
     new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  // 현재 날짜 가져오기
   const getCurrentDate = (): string => new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -88,6 +98,12 @@ const ChatContainer = () => {
       setCurrentUserEmail(email); // 로컬 스토리지에서 이메일 가져오기
     }
   }, []);
+
+  // 알림 상태 업데이트
+  useEffect(() => {
+    const hasUnread = Object.values(notifications).some((isUnread) => isUnread);
+    setHasUnreadMessages(hasUnread);
+  }, [notifications]);
 
   // 채팅방 목록 가져오기
   useEffect(() => {
@@ -110,6 +126,29 @@ const ChatContainer = () => {
     };
 
     fetchRooms();
+  }, []);
+
+  // 읽지 않은 메시지 상태 가져오기
+  useEffect(() => {
+    const fetchUnreadCounts = async () => {
+      try {
+        const res = await fetch("http://localhost:8081/chat/rooms/unread", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Failed to fetch unread counts");
+        const data = await res.json();
+        setNotifications(data);
+      } catch (err) {
+        console.error("Error fetching unread counts:", err);
+      }
+    };
+
+    fetchUnreadCounts();
   }, []);
 
   // STOMP 클라이언트 초기화
@@ -177,7 +216,7 @@ const ChatContainer = () => {
           senderName: message.senderName,
           senderProfile: message.senderProfile,
           type: message.type,
-          contentType: message.contentType, // 이미지 또는 텍스트
+          contentType: message.contentType,
           time: new Date(message.sendTime).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -190,7 +229,7 @@ const ChatContainer = () => {
     }
   };
 
-  const handleSendMessage = (message: string, imageUrl?: string) => {
+const handleSendMessage = (message: string, imageUrl?: string) => {
     if (!stompClient || !activeRoom || !currentUserEmail) return;
 
     const payload = {
@@ -206,10 +245,27 @@ const ChatContainer = () => {
     });
   };
 
-  const handleRoomSelect = (roomId: string) => {
-    if (!stompClient) return;
-
+  // 방 선택
+  const handleRoomSelect = async (roomId: string) => {
     setActiveRoom(roomId);
+
+    try {
+      await fetch(`http://localhost:8081/chat/${roomId}/read`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Error marking room as read:", err);
+    }
+
+    setNotifications((prev) => ({
+      ...prev,
+      [roomId]: false,
+    }));
 
     if (subscriptionRef.current) {
       stompClient.unsubscribe(subscriptionRef.current);
@@ -221,9 +277,6 @@ const ChatContainer = () => {
       (messageOutput) => {
         const data = JSON.parse(messageOutput.body);
 
-        console.log("Received message:", data);
-        console.log("currentUserEmail:", currentUserEmail);
-        console.log("Message senderEmail:", data.senderEmail);
         // 메시지 타입 구분: 발신자와 현재 사용자가 같으면 'sent', 다르면 'received'
         const messageType =
           data.senderEmail === currentUserEmail ? "sent" : "received"; // senderEmail을 currentUserEmail과 비교
@@ -247,6 +300,13 @@ const ChatContainer = () => {
             },
           ],
         }));
+
+        if (activeRoom !== String(roomId)) {
+          setNotifications((prev) => ({
+            ...prev,
+            [roomId]: true,
+          }));
+        }
       }
     );
 
@@ -256,30 +316,39 @@ const ChatContainer = () => {
   };
 
   return (
-    <div
-      className={styles.chatContainer}
-      ref={chatContainerRef}
-      onMouseDown={handleMouseDown}
-    >
-      <ChatList
-        activeRoom={activeRoom}
-        rooms={rooms}
-        onRoomSelect={handleRoomSelect}
+    <div>
+      {/* 알림 상태를 전달 */}
+      <ChatButton
+        onClick={handleChatWidgetToggle}
+        hasUnread={hasUnreadMessages}
       />
-      <div className={styles.chatContent}>
-        {activeRoom ? (
-          <>
-            <ChatHeader roomDetails={roomDetails} />
-            <ChatMessages
-              roomName={roomDetails?.name || ""}
-              messages={chatHistory[activeRoom] || []}
-            />
-            <ChatFooter onSend={handleSendMessage} activeRoom={activeRoom} />
-          </>
-        ) : (
-          <p className={styles.noRoomSelected}>채팅방을 선택하세요</p>
-        )}
-      </div>
+      {isWidgetOpen && (
+        <div className={styles.chatContainer}>
+          <ChatList
+            activeRoom={activeRoom}
+            rooms={rooms}
+            onRoomSelect={handleRoomSelect}
+            notifications={notifications}
+          />
+          <div className={styles.chatContent}>
+            {activeRoom ? (
+              <>
+                <ChatHeader roomDetails={roomDetails} />
+                <ChatMessages
+                  roomName={roomDetails?.name || ""}
+                  messages={chatHistory[activeRoom] || []}
+                />
+                <ChatFooter
+                  onSend={handleSendMessage}
+                  activeRoom={activeRoom}
+                />
+              </>
+            ) : (
+              <p className={styles.noRoomSelected}>채팅방을 선택하세요</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

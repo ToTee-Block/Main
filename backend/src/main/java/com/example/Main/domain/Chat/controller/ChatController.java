@@ -1,8 +1,10 @@
 package com.example.Main.domain.Chat.controller;
 
 import com.example.Main.domain.Chat.dto.ChatDTO;
+import com.example.Main.domain.Chat.entity.ChatJoin;
 import com.example.Main.domain.Chat.entity.ChatMessage;
 import com.example.Main.domain.Chat.entity.ChatRoom;
+import com.example.Main.domain.Chat.repository.ChatJoinRepository;
 import com.example.Main.domain.Chat.serivce.ChatService;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
@@ -40,6 +42,8 @@ public class ChatController {
     private final JwtProvider jwtProvider;
     private final MemberService memberService;
     private final MentorService mentorService;
+    private final ChatJoinRepository chatJoinRepository;
+
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat/rooms")
@@ -54,7 +58,7 @@ public class ChatController {
         // 찾은 Member의 ID를 사용하여 chatJoiner를 가져옵니다.
         Member chatJoiner = this.memberService.getMemberById(member.getId());
         if (chatJoiner == null) {
-            System.out.println("Chat joiner not found");
+            System.out.println("Unauthorized message received");
             return ResponseEntity.badRequest().build();
         }
 
@@ -69,22 +73,7 @@ public class ChatController {
         return ResponseEntity.ok(chatRooms);
     }
 
-
     /* create 타이밍 : 나중에 멘토등록 승인되면 그 멘토의 방이 만들어지게 하기 */
-//    @PostMapping("/chat/rooms")
-//    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody, Principal principal) {
-//        String roomName = requestBody.get("name");
-//        if (roomName == null || roomName.isBlank()) {
-//            return ResponseEntity.badRequest().body(Map.of("message", "Room name cannot be empty"));
-//        }
-//        Member creator = memberService.getMemberByEmail(principal.getName());
-//        var newRoom = chatService.createRoom(roomName, creator);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-//                "id", newRoom.getId(),
-//                "name", newRoom.getName()
-//        ));
-//    }
-
     @PostMapping("/chat/rooms")
     public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody, Principal principal) {
         String roomName = requestBody.get("name");
@@ -162,7 +151,7 @@ public class ChatController {
         // 메시지를 전송하는 방의 ID와 일치하는 채팅방에 메시지를 전송
         String destination = "/sub/chatroom/" + chatDTO.getRoomId();
 
-        // 메시지 타입 설정: 프론트엔드에서 처리하므로 제외 가능
+        // 메시지 타입 설정: 이미지인지 텍스트인지 확인
         String contentType = chatDTO.getMessage().startsWith("/uploads/") ? "image" : "text";
 
         // 클라이언트로 보낼 DTO 생성
@@ -247,6 +236,44 @@ public class ChatController {
             return ResponseEntity.badRequest().body("Failed to upload image");
         }
     }
+
+    @GetMapping("/chat/rooms/unread")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<Long, Integer>> getUnreadMessageCounts(Principal principal) {
+        Member member = memberService.getMemberByEmail(principal.getName());
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<ChatJoin> chatJoins = chatJoinRepository.findByChatJoiner(member);
+        Map<Long, Integer> unreadCounts = chatJoins.stream()
+                .collect(Collectors.toMap(
+                        chatJoin -> chatJoin.getChatRoom().getId(),
+                        ChatJoin::getUnreadMessageCount
+                ));
+
+        return ResponseEntity.ok(unreadCounts);
+    }
+
+    @PostMapping("/chat/{roomId}/read")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> markRoomAsRead(@PathVariable("roomId") Long roomId, Principal principal) {
+        Member member = memberService.getMemberByEmail(principal.getName());
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        ChatJoin chatJoin = chatJoinRepository.findByMemberIdAndRoomId(member.getId(), roomId)
+                .orElseThrow(() -> new IllegalArgumentException("User not joined chat room"));
+
+        chatJoin.setUnreadMessageCount(0); // 읽지 않은 메시지 초기화
+        chatJoinRepository.save(chatJoin);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+
 
     private Member getAuthenticatedMember(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
