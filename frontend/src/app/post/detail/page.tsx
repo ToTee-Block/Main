@@ -6,7 +6,7 @@ import apiClient, { fetchUserProfile } from "@/api/axiosConfig";
 import styles from "@/styles/pages/post/detail.module.scss";
 import classNames from "classnames";
 import DivideBar from "@/components/divideBar";
-import StackCTGY from "@/components/category/StackCTGY";
+import Tag from "@/components/tag/tag";
 import LikeButton from "@/components/button/LikeButton";
 import ReportButton from "@/components/button/ReportButton";
 import ModifyButton from "@/components/button/ModifyButton";
@@ -252,7 +252,13 @@ const Detail: React.FC = () => {
           <div className={styles.titleBox}>
             <h1 className={styles.title}>{post?.subject}</h1>
             <DivideBar width={300}></DivideBar>
-            <StackCTGY stacks={stacks} disabled={true}></StackCTGY>
+            <div className={styles.tagSection}>
+              <Tag
+                tags={post?.techStacks}
+                selectedTags={post?.techStacks}
+                onTagToggle={null}
+              />
+            </div>
           </div>
           <div className={styles.contentBox}>
             <div className={classNames(styles.content, styles.markdownContent)}>

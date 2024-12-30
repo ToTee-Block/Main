@@ -169,7 +169,9 @@ const Post: React.FC = () => {
                     user={post.authorName}
                     date={post.createdDate}
                     imageUrl={
-                      post.thumbnail ? post.thumbnail : "/images/Rectangle.png"
+                      post.thumbnail
+                        ? `http://localhost:8081/file/${post.thumbnail}`
+                        : "/images/Rectangle.png"
                     }
                   />
                 ))
@@ -189,7 +191,9 @@ const Post: React.FC = () => {
                     user={post.authorName}
                     date={post.createdDate}
                     imageUrl={
-                      post.thumbnail ? post.thumbnail : "/images/Rectangle.png"
+                      post.thumbnail
+                        ? `http://localhost:8081/file/${post.thumbnail}`
+                        : "/images/Rectangle.png"
                     }
                   />
                 ))
@@ -218,7 +222,9 @@ const Post: React.FC = () => {
                   user={post.authorName}
                   date={post.createdDate}
                   imageUrl={
-                    post.thumbnail ? post.thumbnail : "/images/Rectangle.png"
+                    post.thumbnail
+                      ? `http://localhost:8081/file/${post.thumbnail}`
+                      : "/images/Rectangle.png"
                   }
                 />
               ))

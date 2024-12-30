@@ -18,7 +18,7 @@ public class PostModifyRequest {
 
     private Set<String> techStacks;
 
-    private MultipartFile thumbnail;
+    private String thumbnail;
 
     private MultipartFile[] filePaths;
 

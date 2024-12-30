@@ -3,6 +3,7 @@ package com.example.Main.domain.QnA.entity;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.QnA.Comment.entity.QnAComment;
+import com.example.Main.domain.Report.entity.Report;
 import com.example.Main.global.Jpa.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -21,8 +22,10 @@ import java.util.Set;
 @SuperBuilder
 @ToString(callSuper = true)
 public class QnA extends BaseEntity {
+    @Column(length = 1024)
     private String subject;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne
@@ -61,4 +64,7 @@ public class QnA extends BaseEntity {
     @OrderBy("createdDate DESC")
     @JsonManagedReference  // 순환 참조 방지를 위해 부모 객체에 적용
     private List<QnAComment> comments;
+
+    @OneToMany(mappedBy = "qnA", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Report> reports;
 }

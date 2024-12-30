@@ -235,7 +235,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
               <img
                 src={
                   thisComment.profileImg !== ""
-                    ? thisComment.profileImg
+                    ? `http://localhost:8081/file/${thisComment.profileImg}`
                     : "/images/Rectangle.png"
                 }
                 alt="사용자 프로필 이미지"

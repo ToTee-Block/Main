@@ -2,24 +2,23 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import apiClient, { fetchUserProfile } from "@/api/axiosConfig";
+import apiClient from "@/api/axiosConfig";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/pages/editor/editor.module.scss";
 import Tag from "@/components/tag/tag";
 import EditorToolbar from "@/components/editortoolbar/editortoolbar";
 import FileUpload from "@/components/editortoolbar/fileupload";
 import ActionButtons from "@/components/button/EditorActionButtom/ActionButton";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import MarkdownWithHtml from "@/components/MarkdownWithHtml";
 
 export default function EditorPage() {
   const [postingType, setPostingType] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const [thumbNail, setThumbName] = useState<string>();
-  const [images, setImages] = useState<{ [key: string]: string }>({});
+  const [thumbNail, setThumbNail] = useState<string>();
   const [tags, setTags] = useState<string[]>();
   const [selectedTags, setSelectedTags] = useState<string[]>([""]);
+  const [createPopup, setCreatePopup] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -39,27 +38,32 @@ export default function EditorPage() {
 
     try {
       for (const file of files) {
-        // 이미지 URL 생성
-        const imageUrl = URL.createObjectURL(file);
-        // 고유한 키 생성 (랜덤 문자열 사용)
-        const imageKey = `image-${Math.random().toString(36).substring(2, 15)}`;
+        // 서버에 파일 업로드
+        const formData = new FormData();
+        formData.append("image", file);
 
-        // 이미지 URL을 상태에 저장
-        setImages((prev) => ({
-          ...prev,
-          [imageKey]: imageUrl,
-        }));
+        const response = await apiClient.patch(
+          "http://localhost:8081/api/v1/posts/image",
+          formData // FormData 객체를 전달
+        );
 
-        // 커서 위치에 이미지 마크다운 삽입
-        const textarea = e.currentTarget;
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
+        const resultCode = response.data.resultCode;
+        const msg = response.data.msg;
+        const data = response.data.data;
+        if (resultCode === "200") {
+          // 서버에서 반환된 이미지 URL
+          const imageUrl = `http://localhost:8081/file/${data}`;
 
-        // 이미지 마크다운 구문 생성 (파일 이름 제외)
-        const imageMarkdown = `![](${imageKey})\n`;
-        const newContent =
-          content.substring(0, start) + imageMarkdown + content.substring(end);
-        setContent(newContent);
+          // 고유한 키 생성 (랜덤 문자열 사용)
+          const imageKey = `image-${Math.random()
+            .toString(36)
+            .substring(2, 15)}`;
+
+          const imageHtml = `\n<img src="${imageUrl}" alt="image" width="600" height="auto"/>`;
+
+          const newContent = content + imageHtml;
+          setContent(newContent);
+        }
       }
     } catch (error) {
       console.error("이미지 처리 중 오류 발생:", error);
@@ -93,12 +97,18 @@ export default function EditorPage() {
     });
   };
 
-  // URL.createObjectURL로 생성된 URL 해제
-  React.useEffect(() => {
+  useEffect(() => {
+    if (createPopup) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    // 컴포넌트 언마운트 시에도 복원
     return () => {
-      Object.values(images).forEach((url) => URL.revokeObjectURL(url));
+      document.body.style.overflow = "";
     };
-  }, [images]);
+  }, [createPopup]);
 
   const goBack = () => {
     if (postingType == "posts") {
@@ -122,6 +132,7 @@ export default function EditorPage() {
             subject: title,
             content: content,
             techStacks: selectedTags,
+            thumbnail: thumbNail,
             isDraft: draft,
           },
           {
@@ -138,6 +149,7 @@ export default function EditorPage() {
             subject: title,
             content: content,
             techStacks: selectedTags,
+            thumbnail: thumbNail,
             isDraft: draft,
           },
           {
@@ -202,7 +214,8 @@ export default function EditorPage() {
           if (resultCode == "200") {
             setTitle(data.post.subject);
             setContent(data.post.content);
-
+            setSelectedTags(data.post.techStacks);
+            setThumbNail(data.post.thumbnail);
             console.log(data.post);
           } else if (resultCode == "400") {
             setError("올바른 게시물이 아닙니다.");
@@ -250,8 +263,6 @@ export default function EditorPage() {
             />
           </div>
 
-          <FileUpload />
-
           <EditorToolbar onContentChange={setContent} content={content} />
 
           <textarea
@@ -269,7 +280,7 @@ export default function EditorPage() {
             postingType={postingType}
             onClose={() => goBack()}
             onDraft={() => postWrite(true)}
-            onWrite={() => postWrite(false)}
+            onWrite={() => setCreatePopup(true)}
           />
         </div>
       </div>
@@ -283,12 +294,11 @@ export default function EditorPage() {
             value={title || ""}
             readOnly
           />
+
           <div className={styles.divider} />
-          <div className={styles.thumbNailBox}>
-            <img src={thumbNail ? thumbNail : "/images/Rectangle.png"} alt="" />
-          </div>
           <div className={styles.markdownContent}>
-            <ReactMarkdown
+            <MarkdownWithHtml markdownContent={content} />
+            {/* <ReactMarkdown
               remarkPlugins={[
                 [
                   remarkGfm,
@@ -330,7 +340,36 @@ export default function EditorPage() {
               }}
             >
               {content}
-            </ReactMarkdown>
+            </ReactMarkdown> */}
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={styles.createPopup}
+        style={{ display: createPopup ? "block" : "none" }}
+      >
+        <div className={styles.innerBox}>
+          <div className={styles.thumbNailSection}>
+            <FileUpload
+              id={Number(sessionStorage.getItem("id"))}
+              thumbNail={thumbNail}
+              setThumbNail={setThumbNail}
+            />
+          </div>
+          <div className={styles.actionButtons}>
+            <button
+              className={styles.draftButton}
+              onClick={() => setCreatePopup(false)}
+            >
+              취소
+            </button>
+            <button
+              className={styles.submitButton}
+              onClick={() => postWrite(false)}
+            >
+              작성완료
+            </button>
           </div>
         </div>
       </div>

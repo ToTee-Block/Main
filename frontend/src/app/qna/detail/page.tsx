@@ -264,7 +264,9 @@ const Detail: React.FC = () => {
           <CommentForm
             disabled={loginStatus}
             myProfileImg={
-              me?.profileImg ? me?.profileImg : "/images/Rectangle.png"
+              me?.profileImg
+                ? `http://localhost:8081/file/${me?.profileImg}`
+                : "/images/Rectangle.png"
             }
             comment={comment}
             setComment={setComment}
