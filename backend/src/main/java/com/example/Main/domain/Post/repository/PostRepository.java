@@ -25,7 +25,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "OR LOWER(a.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
             "AND a = :author " +
             "ORDER BY p.createdDate DESC")
-    Page<Post> searchPostsByAuthor(String searchTerm, Pageable pageable, Member author);
+    Page<Post> searchPostsByAuthor(@Param("searchTerm")String searchTerm, Pageable pageable, @Param("author") Member author);
 
     // 제목, 내용, 작성자 이름으로 검색하는 메소드
     // ver - 전체 / 최신순
@@ -40,7 +40,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "AND p.isDraft = false " +
             "AND p.likes >= 10 " +
             "ORDER BY p.likes DESC")
-    Page<Post> searchHotPosts(String searchTerm, Pageable pageable);
+    Page<Post> searchHotPosts(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     // 임시 저장된 게시물 전체 조회
     List<Post> findByIsDraftTrue(Sort sort);
