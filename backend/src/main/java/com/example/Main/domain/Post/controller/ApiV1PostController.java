@@ -129,17 +129,15 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}")
     public RsData<PostModifyResponse> modify(@PathVariable("id") Long id, Principal principal,
-                                             @Valid @RequestBody PostModifyRequest postModifyRequest,
-                                             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
-                                             @RequestParam(value = "files", required = false) MultipartFile[] files) {
+                                             @Valid @RequestBody PostModifyRequest postModifyRequest) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
 
         Post post = this.postService.getPost(id);
 
-        if (post == null || post.getIsDraft()) {
-            return RsData.of("404", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
+        if (post == null) {
+            return RsData.of("404", "%d 번 게시물은 존재하지 않습니다.".formatted(id));
         }
 
         String loggedInUser = principal.getName();
