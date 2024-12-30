@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import apiClient, {
   fetchNotifications,
-markNotificationAsRead,
+  markNotificationAsRead,
 } from "@/api/axiosConfig";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,100 +16,131 @@ const LOGIN_EVENT = "onLogin";
 const LOGOUT_EVENT = "onLogout";
 
 interface Notification {
- id: number;
- message: string;
- isRead: boolean;
+  id: number;
+  message: string;
+  isRead: boolean;
 }
 
 const Header: React.FC = () => {
- const pathname = usePathname();
- const [showProfileMenu, setShowProfileMenu] = useState(false);
- const [showNotifications, setShowNotifications] = useState(false);
- const [isLoggedIn, setIsLoggedIn] = useState(false);
- const [userName, setUserName] = useState("");
- const [notifications, setNotifications] = useState<Notification[]>([]);
- const [hasNewNotification, setHasNewNotification] = useState(false);
- const [profileImageUrl, setProfileImageUrl] = useState("/icon/user.svg");
- const [isAdmin, setIsAdmin] = useState(false);
+  const pathname = usePathname();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [hasNewNotification, setHasNewNotification] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState("/icon/user.svg");
+  const [isAdmin, setIsAdmin] = useState(false);
 
- useEffect(() => {
-   const token = localStorage.getItem("token");
-   const storedName = localStorage.getItem("name");
-   const userRole = localStorage.getItem("role");
+  const checkNewNotifications = useCallback(async () => {
+    try {
+      const response = await fetchNotifications();
+      if (response.data && Array.isArray(response.data)) {
+        setNotifications(response.data);
+        setHasNewNotification(response.data.some((notif) => !notif.isRead));
+      }
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    }
+  }, []);
 
-   if (token) {
-     setIsLoggedIn(true);
-     setUserName(storedName || "사용자");
-     setIsAdmin(userRole === "ADMIN");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const storedName = localStorage.getItem("name");
+    const userRole = localStorage.getItem("role");
 
-     if (userRole !== "ADMIN") {
-       const fetchProfile = async () => {
-         try {
-           const response = await fetchUserProfile();
-           if (response.resultCode === "200" && response.data.profileImg) {
-             setProfileImageUrl(`http://localhost:8081/file/${response.data.profileImg}`);
-           }
-         } catch (error) {
-           console.error("Failed to fetch profile image:", error);
-         }
-       };
-       fetchProfile();
-     }
+    if (token) {
+      setIsLoggedIn(true);
+      setUserName(storedName || "사용자");
+      setIsAdmin(userRole === "ADMIN");
 
-     const handleLogin = (e: CustomEvent) => {
-       const { name } = e.detail;
-       setIsLoggedIn(true);
-       setUserName(name || "사용자");
-     };
+      if (userRole !== "ADMIN") {
+        const fetchProfile = async () => {
+          try {
+            const response = await fetchUserProfile();
+            if (response.resultCode === "200" && response.data.profileImg) {
+              setProfileImageUrl(
+                `http://localhost:8081/file/${response.data.profileImg}`
+              );
+            } else {
+              setProfileImageUrl("/icon/user.svg");
+            }
+          } catch (error) {
+            console.error("Failed to fetch profile image:", error);
+            setProfileImageUrl("/icon/user.svg");
+          }
+        };
+        fetchProfile();
+      }
 
-     window.addEventListener(LOGIN_EVENT, handleLogin as EventListener);
+      const handleLogin = (e: CustomEvent) => {
+        const { name } = e.detail;
+        setIsLoggedIn(true);
+        setUserName(name || "사용자");
+      };
 
-     let notificationInterval: NodeJS.Timeout | null = null;
+      window.addEventListener(LOGIN_EVENT, handleLogin as EventListener);
 
-     if (isLoggedIn) {
-       const checkNewNotifications = () => {
-         const mockNotifications: Notification[] = [];
-         setNotifications(mockNotifications);
-         setHasNewNotification(false);
-       };
+      checkNewNotifications();
+      const notificationInterval = setInterval(checkNewNotifications, 30000);
 
-       notificationInterval = setInterval(checkNewNotifications, 5000);
-     }
+      return () => {
+        window.removeEventListener(LOGIN_EVENT, handleLogin as EventListener);
+        clearInterval(notificationInterval);
+      };
+    }
+  }, [isLoggedIn, checkNewNotifications]);
 
-     return () => {
-       window.removeEventListener(LOGIN_EVENT, handleLogin as EventListener);
-       if (notificationInterval) {
-         clearInterval(notificationInterval);
-       }
-     };
-   }
- }, [isLoggedIn]);
+  useEffect(() => {
+    const handleLogout = () => {
+      setIsLoggedIn(false);
+      setUserName("");
+      setProfileImageUrl("/icon/user.svg");
+      setIsAdmin(false);
+    };
 
- useEffect(() => {
-   setShowProfileMenu(false);
-   setShowNotifications(false);
- }, [pathname]);
+    window.addEventListener(LOGOUT_EVENT, handleLogout);
 
- useEffect(() => {
-   const handleBeforeUnload = () => {
-     setShowProfileMenu(false);
-     setShowNotifications(false);
-   };
+    return () => {
+      window.removeEventListener(LOGOUT_EVENT, handleLogout);
+    };
+  }, []);
 
-   window.addEventListener("beforeunload", handleBeforeUnload);
+  const toggleProfileMenu = () => {
+    setShowProfileMenu(!showProfileMenu);
+    setShowNotifications(false);
+  };
 
-   return () => {
-     window.removeEventListener("beforeunload", handleBeforeUnload);
-   };
- }, []);
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+    setShowProfileMenu(false);
+    if (hasNewNotification) {
+      setHasNewNotification(false);
+      notifications.forEach((notif) => {
+        if (!notif.isRead) {
+          markNotificationAsRead(notif.id).then(() => {
+            setNotifications((prevNotifications) =>
+              prevNotifications.map((n) =>
+                n.id === notif.id ? { ...n, isRead: true } : n
+              )
+            );
+          });
+        }
+      });
+    }
+  };
+
   const handleLogout = async () => {
     try {
       const response = await apiClient.get("/api/v1/members/logout");
       if (response.data.resultCode === "200") {
         localStorage.removeItem("token");
         localStorage.removeItem("name");
+        localStorage.removeItem("role");
         setIsLoggedIn(false);
         setUserName("");
+        setProfileImageUrl("/icon/user.svg");
+        setIsAdmin(false);
         window.dispatchEvent(new Event(LOGOUT_EVENT));
       } else {
         console.error("로그아웃 실패:", response.data.msg);
@@ -119,38 +150,9 @@ const Header: React.FC = () => {
     }
   };
 
- const isActive = (path: string): boolean => {
-   if (!pathname) return false;
-   return pathname === path;
- };
-
- const toggleProfileMenu = () => {
-  setShowProfileMenu(!showProfileMenu);
-  setShowNotifications(false);
-};
-
-
-  const toggleNotifications = () => {
-    setShowNotifications(!showNotifications);
-    setShowProfileMenu(false);
-    if (hasNewNotification) {
-      setHasNewNotification(false);
-      notifications.forEach((notif) => {
-        if (!notif.read) {
-          markNotificationAsRead(notif.id).then(() => {
-            setNotifications((prevNotifications) =>
-              prevNotifications.map((n) =>
-                n.id === notif.id ? { ...n, read: true } : n
-              )
-            );
-          });
-        }
-      });
-    }
-  };
-
-  const toggleNotificationContent = (id: number) => {
-    setExpandedNotificationId((prevId) => (prevId === id ? null : id));
+  const isActive = (path: string): boolean => {
+    if (!pathname) return false;
+    return pathname === path;
   };
 
   return (
@@ -190,7 +192,7 @@ const Header: React.FC = () => {
           <div className={styles.userSection}>
             <div className={styles.userInfo} onClick={toggleProfileMenu}>
               <Image
-                src="/icon/user.svg"
+                src={profileImageUrl}
                 alt="profile"
                 width={40}
                 height={40}
@@ -239,24 +241,24 @@ const Header: React.FC = () => {
                   <div className={styles.notificationDot} />
                 )}
               </button>
-              {showNotifications && notifications.length > 0 && (
+              {showNotifications && (
                 <div className={styles.notificationDropdown}>
-                  {notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={`${styles.notificationItem} ${
-                        expandedNotificationId === notification.id
-                          ? styles.fullText
-                          : ""
-                      }`}
-                      onClick={() => toggleNotificationContent(notification.id)}
-                    >
-                      {notification.message}
-                      {!notification.read && (
-                        <span className={styles.unreadDot} />
-                      )}
+                  {notifications.length > 0 ? (
+                    notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`${styles.notificationItem} ${
+                          !notification.isRead ? styles.unread : ""
+                        }`}
+                      >
+                        {notification.message}
+                      </div>
+                    ))
+                  ) : (
+                    <div className={styles.notificationItem}>
+                      알림이 없습니다.
                     </div>
-                  ))}
+                  )}
                 </div>
               )}
             </div>

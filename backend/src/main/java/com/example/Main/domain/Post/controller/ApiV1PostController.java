@@ -161,17 +161,17 @@ public class ApiV1PostController {
         if (!post.getAuthor().getEmail().equals(loggedInUser)) {
             return RsData.of("403", "본인만 게시글을 수정할 수 있습니다.", null);
         }
-
-        post = this.postService.update(
-                post
-                , postModifyRequest.getContent()
-                , postModifyRequest.getSubject()
-                , postModifyRequest.getTechStacks()
-                , loggedInUser
-                , postModifyRequest.getIsDraft()
-                , postModifyRequest.getThumbnail()
-                , filePaths
-        );
+//
+//        post = this.postService.update(
+//                post
+//                , postModifyRequest.getContent()
+//                , postModifyRequest.getSubject()
+//                , postModifyRequest.getTechStacks()
+//                , loggedInUser
+//                , postModifyRequest.getIsDraft()
+//                , postModifyRequest.getThumbnail()
+//                , filePaths
+//        );
 
         return RsData.of("200", "게시글 수정 성공", new PostModifyResponse(post));
     }
