@@ -128,317 +128,669 @@
 ## 📝 프로젝트 전체 구조
 
 ```
-├── README.md
-├── build.gradle
-├── .gitignore
-├── gradlew.bat
-├── gradlew
+백엔드
+│  MainApplication.java
 │
-└── src.main
-     ├── java.com.cod.AniBirth
-           ├── AniBirthApplication.java
-           ├── AniBirth
-                  ├── account
-                          ├── entity.Account.java
-                          ├── repository.AccountRepository.java
-                          ├── service.AccountService.java
-                  ├── adopt
-                        ├── controller.AdoptController.java
-                        ├── entity
-                               ├── Adopt.java
-                               ├── AdoptApply.java
-                               ├── AdoptReview.java
-                        ├── form
-                              ├── AdoptForm.java
-                              ├── AdoptionnoticeForm.java
-                              ├── createReviewForm.java
-                        ├── repository
-                                 ├── AdoptApplyRepository.java
-                                 ├── AdoptRepository.java
-                                 ├── AdoptReviewRepository.java
-                        ├── service
-                                ├── AdoptReviewService.java
-                                ├── AdoptService.java
-                  ├── animal
-                        ├── contorller.AnimalController.java
-                        ├── entity.Animal.java
-                        ├── repository.AnimalRepository.java
-                        ├── service.AnimalService.java
-                        ├── AnimalSearchDTO.java
-                        ├── AnimalSpecification.java
-                  ├── article
-                        ├── contorller.ArticleController.java
-                        ├── contorller.QaController.java
-                        ├── entity.Article.java
-                        ├── entity.Qa.java
-                        ├── repository.ArticleRepository.java
-                        ├── repository.QaRepository.java
-                        ├── service.ArticleService.java
-                        ├── service.QaService.java
-                  ├── base
-                        ├── entity.BaseEntity.java
-                        ├── WebMvcConfig.java
-                  ├── calendar
-                        ├── contorller.CalendarController.java
-                        ├── entity.Calendar.java
-                        ├── repository.CalendarRepository.java
-                        ├── service.CalendarService.java
-                  ├── cart
-                        ├── contorller.CartController.java
-                        ├── entity.CartItem.java
-                        ├── repository.CartRepository.java
-                        ├── service.CartService.java
-                  ├── category
-                        ├── contorller.CategoryController.java
-                        ├── entity.Category.java
-                        ├── repository.CategoryRepository.java
-                        ├── service.CategoryService.java
-                        ├── CategoryInitializer.java
-                  ├── donation
-                        ├── contorller.DonationController.java
-                        ├── entity.Donation.java
-                        ├── repository.DonationRepository.java
-                        ├── service.DonationService.java
-                  ├── email
-                        ├── service.EmailService.java
-                  ├── global
-                        ├── initData.Dev.java
-                        ├── Message.Message.java
-                        ├── security
-                                ├── exception.MemberNotFoundException.java
-                                ├── exception.OAuthTypeMatchNotFoundException.java
-                                ├── CustomAuthenticationFailureHandler.java
-                                ├── CustomUserDetailsService.java
-                                ├── DataNotFoundException.java
-                                ├── MemberContext.java
-                                ├── OAuth2UserService.java
-                                ├── SecurityConfig.java
-                                ├── UserNotActiveException.java
-                  ├── home
-                        ├── contorller.HomeController.java
-                        ├── contorller.IntroduceController.java
-                  ├── member
-                        ├── contorller.MemberController.java
-                        ├── contorller.MyPageMemberController.java
-                        ├── contorller.UsernameCheckController.java
-                        ├── entity.Member.java
-                        ├── form.MemberForm.java
-                        ├── repository.MemberRepository.java
-                        ├── service.MemberService.java
-                  ├── order
-                        ├── contorller.OrderController.java
-                        ├── entity.Order.java
-                        ├── entity.OrderItem.java
-                        ├── repository.OrderItemRepository.java
-                        ├── repository.OrderRepository.java
-                        ├── service.OrderService.java
-                  ├── point
-                        ├── contorller.PointController.java
-                        ├── service.PointService.java
-                  ├── product
-                        ├── contorller.ProductController.java
-                        ├── entity.Product.java
-                        ├── repository.ProductRepository.java
-                        ├── service.ProductService.java
-                  ├── review
-                        ├── contorller.ReviewController.java
-                        ├── entity.Review.java
-                        ├── repository.ReviewRepository.java
-                        ├── service.ReviewService.java
-                  ├── volunteer
-                        ├── contorller.VolunteerController.java
-                        ├── entity.Volunteer.java
-                        ├── entity.VolunteerApplication.java
-                        ├── entity.VolunteerReview.java
-                        ├── repository.VolunteerRepository.java
-                        ├── repository.VolunteerApplicationRepository.java
-                        ├── repository.VolunteerReviewRepository.java
-                        ├── service.VolunteerService.java
-                        ├── service.VolunteerApplicationService.java
-                        ├── service.VolunteerReviewService.java
-                  ├── ApiExploer.java
-                  ├── ApiResponse.java
-                  ├── XmlToJsonConverter.java
-           ├── global
-                  ├── util
-                        ├── HtmlUtils.java
-                        ├── Util.java
-    ├── resource
-            ├── static
-                   ├── adopt
-                          ├── 입양신청서폼.docx
-                          ├── 카테고리.svg
-                   ├── images
-                          ├── 샘플데이터 사진 및 프로젝트 로고 사진
-                   ├── javascript
-                          ├── adopt
-                                ├── zipcode.js
-                          ├── article
-                                ├── detail.js
-                          ├── commont
-                                ├── common.js
-                          ├── donation
-                                ├── donationscript.js
-                          ├── home
-                                ├── main.js
-                          ├── member
-                                ├── myProfile.js
-                                ├── agreement.js
-                                ├── login.js
-                                ├── modify.js
-                                ├── signup.js
-                                ├── social_modify.js
-                          ├── product
-                                ├── create.js
-                                ├── detail.js
-                          ├── qa
-                               ├── list.js
-                          ├── volunteer
-                                  ├── create.js
-                                  ├── detail.js
-                                  ├── list.js
-                                  ├── reviewCreate.js
-                   ├── resource
-                         ├── adopt
-                                ├── apply.css
-                                ├── create_review.css
-                                ├── detail.css
-                                ├── list.css
-                                ├── review.css
-                                ├── review_detail.css
-                         ├── article
-                                ├── detail.css
-                                ├── form.css
-                                ├── list.css
-                         ├── common
-                                ├── common.css
-                         ├── donation
-                                ├── donationPage.css
-                         ├── home
-                               ├── main.css
-                         ├── introduce
-                                  ├── agreement.css
-                         ├── member
-                                ├── myPage
-                                      ├── adopt.css
-                                      ├── donation.css
-                                      ├── market.css
-                                      ├── myProfile.css
-                                      ├── volunteer.css
-                                ├── agreement.css
-                                ├── login.css
-                                ├── modify.css
-                                ├── signup.css
-                                ├── social_modify.css
-                         ├── order
-                               ├── checkout.css
-                         ├── points
-                                ├── recharge.css
-                         ├── product
-                                ├── accessory.css
-                                ├── create.css
-                                ├── detail.css
-                                ├── food.css
-                                ├── list.css
-                                ├── main.css
-                         ├── qa
-                              ├── detail.css
-                              ├── form.css
-                              ├── list.css
-                         ├── volunteer
-                                  ├── create.css
-                                  ├── detail.css
-                                  ├── list.css
-                                  ├── modify.css
-                                  ├── review.css
-                                  ├── reviewCreate.css
-                                  ├── reviewDetail.css
-                                  ├── reviewModify.css
-            ├── templates
-                    ├── adopt
-                          ├── adoption_noticeForm.html
-                          ├── create_review_form.html
-                          ├── detail.html
-                          ├── form.html
-                          ├── list.html
-                          ├── review.html
-                          ├── review_detail.html
-                    ├── article
-                            ├── detail.html
-                            ├── form.html
-                            ├── list.html
-                    ├── cart
-                           ├── list.html
-                    ├── donation
-                           ├── donation.html
-                    ├── home
-                           ├── main.html
-                    ├── introduce
-                           ├── agreement.html
-                           ├── anibirth.html
-                    ├── layout
-                          ├── layout.html
-                    ├── member
-                          ├── myPage
-                                 ├── adopt.html
-                                 ├── donation.html
-                                 ├── market.html
-                                 ├── myProfile.html
-                                 ├── volunteer.html
-                          ├── agreement.html
-                          ├── login.html
-                          ├── modify.html
-                          ├── signup.html
-                          ├── social_modify.html
-                    ├── order
-                          ├── checkout.html
-                    ├── points
-                          ├── recharge.html
-                    ├── product
-                          ├── accessory
-                                  ├── high_hit.html
-                                  ├── high_price.html
-                                  ├── high_rating.html
-                                  ├── low_price.html
-                          ├── food
-                                ├── high_hit.html
-                                ├── high_price.html
-                                ├── high_rating.html
-                                ├── low_price.html
-                          ├── list
-                                ├── high_hit.html
-                                ├── high_price.html
-                                ├── high_rating.html
-                                ├── low_price.html
-                          ├── accessory.html
-                          ├── create.html
-                          ├── detail.html
-                          ├── food.html
-                          ├── list.html
-                          ├── main.html
-                          ├── modify.html
-                    ├── qa
-                         ├── detail.html
-                         ├── form.html
-                         ├── list.html
-                    ├── review
-                           ├── modify.html
-                    ├── volunteer
-                            ├── create.html
-                            ├── detail.html
-                            ├── list.html
-                            ├── modify.html
-                            ├── review.html
-                            ├── reviewCreate.html
-                            ├── reviewDetail.html
-                            ├── reviewModify.html
-                    ├── message.html
-            ├── application.yml
-            ├── application-dev.yml
-            ├── application-prod.yml (배포용)
-            ├── application-secret.yml (비공개)
-            ├── application-secret.yml.default
-            ├── application-test.yml (테스트용)
+├─domain
+│  ├─Chat
+│  │  ├─controller
+│  │  │      ChatController.java
+│  │  │
+│  │  ├─dto
+│  │  │      ChatDTO.java
+│  │  │
+│  │  ├─entity
+│  │  │      ChatJoin.java
+│  │  │      ChatMessage.java
+│  │  │      ChatRoom.java
+│  │  │
+│  │  ├─repository
+│  │  │      ChatJoinRepository.java
+│  │  │      ChatMessageRepository.java
+│  │  │      ChatRoomRepository.java
+│  │  │
+│  │  └─serivce
+│  │          ChatService.java
+│  │
+│  ├─Email
+│  │  ├─dto
+│  │  │      EmailDTO.java
+│  │  │
+│  │  └─service
+│  │          EmailService.java
+│  │
+│  ├─Member
+│  │  ├─controller
+│  │  │      ApiV1AdminMemberController.java
+│  │  │      ApiV1MemberController.java
+│  │  │
+│  │  ├─dto
+│  │  │      MemberDTO.java
+│  │  │
+│  │  ├─entity
+│  │  │      Member.java
+│  │  │
+│  │  ├─enums
+│  │  │      MemberGender.java
+│  │  │      MemberRole.java
+│  │  │
+│  │  ├─repository
+│  │  │      MemberRepository.java
+│  │  │
+│  │  ├─request
+│  │  │      AuthcodeRequest.java
+│  │  │      MemberCreate.java
+│  │  │      MemberRequest.java
+│  │  │      PasswordChangeRequest.java
+│  │  │
+│  │  └─service
+│  │          MemberService.java
+│  │
+│  ├─Mentor
+│  │  ├─controller
+│  │  │      ApiV1AdminMentorController.java
+│  │  │      ApiV1MentorController.java
+│  │  │
+│  │  ├─dto
+│  │  │      MatchingDTO.java
+│  │  │      MentorDTO.java
+│  │  │
+│  │  ├─entity
+│  │  │      Mentor.java
+│  │  │      MentorMenteeMatching.java
+│  │  │      MentorReview.java
+│  │  │
+│  │  ├─repository
+│  │  │      MentorMenteeMatchingRepository.java
+│  │  │      MentorRepository.java
+│  │  │      MentorReviewRepository.java
+│  │  │
+│  │  ├─request
+│  │  │      ApproveMentoringRequest.java
+│  │  │      ApproveMentorRequest.java
+│  │  │      MentoringRequest.java
+│  │  │      MentorRegistrationRequest.java
+│  │  │
+│  │  └─service
+│  │          MentorMenteeMatchingService.java
+│  │          MentorService.java
+│  │
+│  ├─notification
+│  │  ├─controller
+│  │  │      ApiV1NotificationController.java
+│  │  │
+│  │  ├─dto
+│  │  │      NotificationDTO.java
+│  │  │
+│  │  ├─entity
+│  │  │      Notification.java
+│  │  │
+│  │  ├─repository
+│  │  │      NotificationRepository.java
+│  │  │
+│  │  └─service
+│  │          NotificationService.java
+│  │
+│  ├─Post
+│  │  ├─Comment
+│  │  │  ├─controller
+│  │  │  │      ApiV1AdminPostCommentController.java
+│  │  │  │      ApiV1PostCommentController.java
+│  │  │  │      ApiV1PostReplyController.java
+│  │  │  │
+│  │  │  ├─dto
+│  │  │  │  │  PostCommentDTO.java
+│  │  │  │  │
+│  │  │  │  ├─request
+│  │  │  │  │      PostCommentCreateRequest.java
+│  │  │  │  │      PostCommentLikeDTO.java
+│  │  │  │  │      PostCommentModifyRequest.java
+│  │  │  │  │
+│  │  │  │  └─response
+│  │  │  │          PostCommentCreateResponse.java
+│  │  │  │          PostCommentModifyResponse.java
+│  │  │  │          PostCommentResponse.java
+│  │  │  │          PostCommentsResponse.java
+│  │  │  │
+│  │  │  ├─entity
+│  │  │  │      PostComment.java
+│  │  │  │
+│  │  │  ├─repository
+│  │  │  │      PostCommentRepository.java
+│  │  │  │
+│  │  │  └─service
+│  │  │          PostCommentService.java
+│  │  │
+│  │  ├─controller
+│  │  │      ApiV1AdminPostController.java
+│  │  │      ApiV1PostController.java
+│  │  │
+│  │  ├─dto
+│  │  │  │  PostDTO.java
+│  │  │  │
+│  │  │  ├─request
+│  │  │  │      PostCreateRequest.java
+│  │  │  │      PostLikeDTO.java
+│  │  │  │      PostModifyRequest.java
+│  │  │  │
+│  │  │  └─response
+│  │  │          PostCreateResponse.java
+│  │  │          PostModifyResponse.java
+│  │  │          PostResponse.java
+│  │  │          PostsResponse.java
+│  │  │
+│  │  ├─entity
+│  │  │      Post.java
+│  │  │
+│  │  ├─repository
+│  │  │      PostRepository.java
+│  │  │
+│  │  └─service
+│  │          PostService.java
+│  │
+│  ├─QnA
+│  │  ├─Comment
+│  │  │  ├─controller
+│  │  │  │      ApiV1AdminQnACommentController.java
+│  │  │  │      ApiV1QnACommentController.java
+│  │  │  │      ApiV1QnAReplyController.java
+│  │  │  │
+│  │  │  ├─dto
+│  │  │  │  │  QnACommentDTO.java
+│  │  │  │  │
+│  │  │  │  ├─request
+│  │  │  │  │      QnACommentCreateRequest.java
+│  │  │  │  │      QnACommentLikeDTO.java
+│  │  │  │  │      QnACommentModifyRequest.java
+│  │  │  │  │
+│  │  │  │  └─response
+│  │  │  │          QnACommentCreateResponse.java
+│  │  │  │          QnACommentModifyResponse.java
+│  │  │  │          QnACommentResponse.java
+│  │  │  │          QnACommentsResponse.java
+│  │  │  │
+│  │  │  ├─entity
+│  │  │  │      QnAComment.java
+│  │  │  │
+│  │  │  ├─repository
+│  │  │  │      QnACommentRepository.java
+│  │  │  │
+│  │  │  └─service
+│  │  │          QnACommentService.java
+│  │  │
+│  │  ├─controller
+│  │  │      ApiV1AdminQnAController.java
+│  │  │      ApiV1QnAController.java
+│  │  │
+│  │  ├─dto
+│  │  │  │  QnADTO.java
+│  │  │  │
+│  │  │  ├─request
+│  │  │  │      QnACreateRequest.java
+│  │  │  │      QnALikeDTO.java
+│  │  │  │      QnAModifyRequest.java
+│  │  │  │
+│  │  │  └─response
+│  │  │          QnACreateResponse.java
+│  │  │          QnAModifyResponse.java
+│  │  │          QnAResponse.java
+│  │  │          QnAsResponse.java
+│  │  │
+│  │  ├─entity
+│  │  │      QnA.java
+│  │  │
+│  │  ├─repository
+│  │  │      QnARepository.java
+│  │  │
+│  │  └─service
+│  │          QnAService.java
+│  │
+│  ├─Report
+│  │  ├─controller
+│  │  │      ApiV1ReportAdminController.java
+│  │  │      ApiV1ReportController.java
+│  │  │
+│  │  ├─dto
+│  │  │  │  ReportDTO.java
+│  │  │  │
+│  │  │  ├─request
+│  │  │  │      ReportRequest.java
+│  │  │  │
+│  │  │  └─summary
+│  │  │          SummaryDTO.java
+│  │  │
+│  │  ├─entity
+│  │  │      Report.java
+│  │  │
+│  │  ├─enums
+│  │  │      ReportReason.java
+│  │  │      ReportStatus.java
+│  │  │
+│  │  ├─repository
+│  │  │      ReportRepository.java
+│  │  │
+│  │  └─service
+│  │          ReportService.java
+│  │
+│  └─TechStack
+│      ├─controller
+│      │      ApiV1TechStackController.java
+│      │
+│      ├─dto
+│      │      TechStackDTO.java
+│      │
+│      └─enums
+│              TechStacks.java
+│
+└─global
+    │  GlobalExceptionHandler.java
+    │
+    ├─Config
+    │      WebMvcConfig.java
+    │      WebSocketConfig.java
+    │
+    ├─ErrorMessages
+    │      ErrorMessages.java
+    │
+    ├─InitData
+    │      Init.java
+    │
+    ├─Jpa
+    │      BaseEntity.java
+    │
+    ├─Jwt
+    │      JwtProvider.java
+    │
+    ├─RsData
+    │      RsData.java
+    │
+    ├─Security
+    │      ApiSecurityConfig.java
+    │      ChattingConfig.java
+    │      JwtAuthorizationFilter.java
+    │      SecurityConfig.java
+    │      SecurityMember.java
+    │      Webconfig.java
+    │
+    ├─TEST
+    │      EmptyMultipartFile.java
+    │
+    └─Util
+        │  Util.java
+        │
+        └─Service
+                ImageService.java
+
+프론트엔드
+public
+│  file.svg
+│  globe.svg
+│  next.svg
+│  vercel.svg
+│  window.svg
+│
+├─fonts
+│      NotoSans-Bold.ttf
+│      NotoSans-Medium.ttf
+│      NotoSans-Regular.ttf
+│
+├─icon
+│      arrow.svg
+│      at_sign.svg
+│      basicimage.svg
+│      basicimage01.svg
+│      bold.svg
+│      card01.svg
+│      card02.svg
+│      card03.svg
+│      chevrons_left.svg
+│      chevrons_right.svg
+│      chevron_left.svg
+│      chevron_right.svg
+│      circle_user.svg
+│      close_eye.svg
+│      ellipsis.svg
+│      face_smile.svg
+│      H1.svg
+│      H2.svg
+│      H3.svg
+│      H4.svg
+│      heart.svg
+│      link.svg
+│      loader.svg
+│      location_arrow.svg
+│      manager_calendrier.svg
+│      manager_search.svg
+│      manager_searchbox.svg
+│      mdi_bell.svg
+│      mdi_eye.svg
+│      modify_pen.svg
+│      more.svg
+│      open_eye.svg
+│      question.svg
+│      sad.svg
+│      search.svg
+│      smile.svg
+│      Star1.svg
+│      syntax.svg
+│      textline.svg
+│      thumbs_up.svg
+│      trash.svg
+│      trash_can.svg
+│      upload.svg
+│      user.svg
+│      x-close.svg
+│      yellow_botton.svg
+│
+└─images
+        background-img.png
+        Background.png
+        card.jpg
+        card01.png
+        card02.png
+        card03.png
+        image2.jpg
+        image3.jpg
+        image4.jpg
+        image44.jpg
+        image5.jpg
+        image6.jpg
+        image7.jpg
+        image8.jpg
+        image9.jpg
+        logo.svg
+        macmockup.png
+        mentormentee.png
+        pixel-car.png
+        Rectangle.png
+        
+src
+├─api
+│      axiosConfig.ts
+│
+├─app
+│  │  layout.tsx
+│  │  page.tsx
+│  │
+│  ├─about
+│  │      page.tsx
+│  │
+│  ├─blog
+│  │      page.tsx
+│  │
+│  ├─chatting
+│  │      page.tsx
+│  │
+│  ├─editor
+│  │      page.tsx
+│  │
+│  ├─manager
+│  │      page.tsx
+│  │
+│  ├─members
+│  │  │  page.tsx
+│  │  │
+│  │  ├─join
+│  │  │      page.tsx
+│  │  │
+│  │  ├─me
+│  │  │      page.tsx
+│  │  │
+│  │  └─password
+│  │          page.tsx
+│  │
+│  ├─mentor
+│  │  │  page.tsx
+│  │  │
+│  │  ├─detail
+│  │  │  └─[id]
+│  │  │          page.tsx
+│  │  │
+│  │  ├─form
+│  │  │      page.tsx
+│  │  │
+│  │  └─mymentor
+│  │          page.tsx
+│  │
+│  ├─post
+│  │  │  page.tsx
+│  │  │
+│  │  └─detail
+│  │          page.tsx
+│  │
+│  └─qna
+│      │  page.tsx
+│      │
+│      ├─detail
+│      │      page.tsx
+│      │
+│      └─my
+│              page.tsx
+│
+├─components
+│  │  divideBar.tsx
+│  │  Footer.tsx
+│  │  Header.tsx
+│  │  MarkdownWithHtml.tsx
+│  │  Tabs.tsx
+│  │
+│  ├─animation
+│  │      loading.tsx
+│  │
+│  ├─birthday
+│  │      Birthday.tsx
+│  │
+│  ├─button
+│  │  │  ApplyButton.tsx
+│  │  │  CheckButton.tsx
+│  │  │  EditButton.tsx
+│  │  │  GenderButton.tsx
+│  │  │  LikeButton.tsx
+│  │  │  LinkButton.tsx
+│  │  │  Loginbutton.tsx
+│  │  │  MentorApplyButton.tsx
+│  │  │  MentorButton.tsx
+│  │  │  ModifyButton.tsx
+│  │  │  MoreButton.tsx
+│  │  │  RemoveButton.tsx
+│  │  │  ReportButton.tsx
+│  │  │  SubmitButton.tsx
+│  │  │  TextLinkButton.tsx
+│  │  │
+│  │  └─EditorActionButtom
+│  │          ActionButton.tsx
+│  │
+│  ├─card
+│  │      CommentCard.tsx
+│  │      LinkCard.tsx
+│  │      MentorCard.tsx
+│  │      PostCard.tsx
+│  │
+│  ├─chatting
+│  │      ChatButton.tsx
+│  │      ChatContainer.tsx
+│  │      ChatFooter.tsx
+│  │      ChatHeader.tsx
+│  │      ChatList.tsx
+│  │      ChatMessages.tsx
+│  │      ChatSection.tsx
+│  │
+│  ├─editortoolbar
+│  │      editortoolbar.tsx
+│  │      fileupload.tsx
+│  │
+│  ├─exception
+│  │      NoSearch.tsx
+│  │
+│  ├─form
+│  │      CommentForm.tsx
+│  │
+│  ├─input
+│  │      TextInput.tsx
+│  │
+│  ├─loadingprovier
+│  │      loadingprovider.tsx
+│  │
+│  ├─manager
+│  │      Pagination.tsx
+│  │      SerchFilter.tsx
+│  │      Sidebar.tsx
+│  │      Table.tsx
+│  │
+│  ├─mentoring
+│  │      Mentoring.tsx
+│  │
+│  ├─modal
+│  │      ReportModal.tsx
+│  │      YesNoModal.tsx
+│  │
+│  ├─pagewrapper
+│  │      pagewrapper.tsx
+│  │
+│  ├─pagination
+│  │      custompagination.tsx
+│  │
+│  ├─profile
+│  │      ProfileImage.tsx
+│  │
+│  ├─search
+│  │      SearchBox.tsx
+│  │
+│  └─tag
+│          tag.tsx
+│
+└─types
+        sockjs-client.d.ts
+        
+styles
+├─components
+│  │  divide-bar.module.scss
+│  │  footer.module.scss
+│  │  header.module.scss
+│  │  tabs.module.scss
+│  │
+│  ├─animation
+│  │      car.module.scss
+│  │      loading.module.scss
+│  │
+│  ├─birthday
+│  │      birthday.module.scss
+│  │
+│  ├─button
+│  │  │  apply-button.module.scss
+│  │  │  check-button.module.scss
+│  │  │  edit-botton.module.scss
+│  │  │  gender-button.module.scss
+│  │  │  like-button.module.scss
+│  │  │  link-button.module.scss
+│  │  │  login-button.module.scss
+│  │  │  mentor-apply-button.module.scss
+│  │  │  mentor-button.module.scss
+│  │  │  modify-button.module.scss
+│  │  │  more-button.module.scss
+│  │  │  remove-button.module.scss
+│  │  │  report-button.module.scss
+│  │  │  submit-button.module.scss
+│  │  │  text-link-button.module.scss
+│  │  │
+│  │  └─editor
+│  │          editoraction-button.module.scss
+│  │
+│  ├─card
+│  │      comment-card.module.scss
+│  │      link-card.module.scss
+│  │      mentor-card.module.scss
+│  │      post-card.module.scss
+│  │
+│  ├─chatting
+│  │      ChatButton.module.scss
+│  │      ChatContainer.module.scss
+│  │      ChatFooter.module.scss
+│  │      ChatHeader.module.scss
+│  │      ChatList.module.scss
+│  │      ChatMessages.module.scss
+│  │
+│  ├─editortoolbar
+│  │      editortoolbar.module.scss
+│  │      fileupload.module.scss
+│  │
+│  ├─exception
+│  │      no-search.module.scss
+│  │
+│  ├─form
+│  │      comment-form.module.scss
+│  │
+│  ├─input
+│  │      text-input.module.scss
+│  │
+│  ├─manager
+│  │      pagination.module.scss
+│  │      serchFilter.module.scss
+│  │      sidebar.module.scss
+│  │      table.module.scss
+│  │
+│  ├─mentoring
+│  │      mentoring.module.scss
+│  │
+│  ├─modal
+│  │      report-modal.module.scss
+│  │      yesno-modal.module.scss
+│  │
+│  ├─pagination
+│  │      pagination.module.scss
+│  │
+│  ├─profile
+│  │      profile.module.scss
+│  │
+│  ├─search
+│  │      searchBox.module.scss
+│  │
+│  └─tag
+│          tag.module.scss
+│
+├─globals
+│      color.scss
+│      font-mixin.scss
+│      font.scss
+│      global.scss
+│
+└─pages
+    │  about.module.scss
+    │  home.module.scss
+    │  home.scss
+    │
+    ├─blog
+    │      blog.module.scss
+    │
+    ├─chatting
+    │      chatting.module.scss
+    │
+    ├─editor
+    │      editor.module.scss
+    │
+    ├─manager
+    │      manager.module.scss
+    │
+    ├─members
+    │      form.module.scss
+    │      join.module.scss
+    │      login.module.scss
+    │      password.module.scss
+    │
+    ├─mentor
+    │      mentor-detail.module.scss
+    │      mentor-form.module.scss
+    │      mentor.module.scss
+    │      mymentor.module.scss
+    │
+    ├─post
+    │      detail.module.scss
+    │      list.module.scss
+    │
+    └─qna
+            detail.module.scss
+            myqna.module.scss
+            qna.module.scss
 ```
 
 ## 🧜‍♀️ 작업 관리 방법
@@ -780,7 +1132,7 @@ AND (:age IS NULL OR a.age LIKE CONCAT('%', :age, '%'))</br>
 
 ## 🧑‍🎓 프로젝트를 마치며..
 
-### 🍋‍🟩 박상민
+### 🍋‍🟩 박승수
 처음 프로젝트를 다같이 기획할 때 주어진 시간에 비해서 많은 양의 기능을 소화해보고자 욕심을 냈던 것 같습니다.
 하지만 팀원 모두가 팀 프로젝트의 경험이 있다보니 깃허브와 같은 협업의 과정에서 크게 시간을 낭비하지 않고 오로지 자신이 맡은 기능 역할에만 몰두할 수 있어
 진행 속도가 굉장히 빠르다고 체감되었습니다. 그 덕분에 제가 맡은 부분은 비교적 빠르게 끝낼 수 있었고, 시간적으로 여유가 있어 조장으로서 팀원들이 구현한 기능과 UI를 조금 더 자세히 검토할 수 있었습니다.
@@ -792,7 +1144,7 @@ AND (:age IS NULL OR a.age LIKE CONCAT('%', :age, '%'))</br>
 
 <br>
 
-### 🐶 김지영
+### 🐶 황혜현
 최종 프로젝트를 기획하면서 약 2달도 안되는 기간에 다 할 수 있을까 라는 걱정이 있었습니다.
 또한, 실력 좋은 팀원들에게 짐이 될 까봐 약간은 무거운 마음으로 프로젝트를 시작했습니다.
 프론트를 하면서 디자인이 제 마음에 충족이 되지 않았지만 어떻게 더 발전시켜야 하는지 모르겠어서 답답하기도 했습니다.
@@ -806,7 +1158,7 @@ AND (:age IS NULL OR a.age LIKE CONCAT('%', :age, '%'))</br>
 
 <br>
 
-### 🚌 김태우
+### 🚌 김진아
 프로젝트를 시작하며 주제선정만 잘되면 이후에 일들은 나아가는데 문제가 없을거라 생각했습니다.
 그래서 주제선정에 소요되는 시간이 오래걸리지 않을까 생각했지만 생각보다 빠르게 주제를 선정할 수 있었고
 프로젝트 계획서를 작성하며 기능 및 UI에 대해 정리할 때 욕심이 생겼습니다.
@@ -820,13 +1172,25 @@ AND (:age IS NULL OR a.age LIKE CONCAT('%', :age, '%'))</br>
 
 <br>
 
-### 👑 박현철
+### 👑 유윤하
 초반에는 할 수 있을까 라는 막연한 고민을 안고 시작하였습니다. 그래도 6개월 동안의 시간에서 실력이 늘면서 이 프로젝트에 열심히 참여할 수 있었고
 실력 좋은 팀원들을 만나 팀원들의 코드를 참고하며 부족한 부분은 팀원들에게 조언을 구하고
 도움을 받으며 해결해 나갈 수 있었습니다. 이번 프로젝트를 하면서 프론트 면에서 많이 부족하다는걸
 느꼈고 더 노력해야겠다고 생각했습니다. 부족하거나 추가해야하는 부분이 있으면 짚어주고 더 잘할 수 있게 이끌어준 조장님과
 모르는게 있을 때 옆에서 도와주고 같이 아이디어를 생각해준 팀원들에게 감사하고 좋은 의미와 퀄리티 있는 사이트를 제작 할 수 있어서
 의미 있는 시간이 되었습니다. 팀원들 모두 고생하셨습니다.^0^!
+
+<br>
+
+### 🚌 유지훈
+
+<br>
+
+### 👑 이상수
+
+<br>
+
+### 🚌 이은철
 
 
 
