@@ -88,8 +88,8 @@ public class ApiV1PostController {
 
         Post post = this.postService.getPost(id);
 
-        if (post == null || post.getIsDraft()) {
-            return RsData.of("404", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
+        if (post == null) {
+            return RsData.of("404", "%d 번 게시물은 존재하지 않습니다.".formatted(id));
         }
 
         List<String> techStacks = TechStacks.printAllTechStacks();
@@ -106,26 +106,12 @@ public class ApiV1PostController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("")
     public RsData<PostCreateResponse> create(@Valid @RequestBody PostCreateRequest postCreateRequest,
-                                             Principal principal,
-                                             @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
-                                             @RequestParam(value = "files", required = false) MultipartFile[] files) {
+                                             Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
 
         String loggedInUser = principal.getName();
-
-        // 썸네일 등록
-        String thumbnailPath = null;
-        if (thumbnail != null && !thumbnail.isEmpty()) {
-            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
-        }
-
-        // 여러 파일 등록
-        List<String> filePaths = new ArrayList<>();
-        if (files != null && files.length > 0) {
-            filePaths = imageService.saveFiles("posts/files", files);
-        }
 
         Post post = postService.write(
                 postCreateRequest.getSubject(),
@@ -133,8 +119,7 @@ public class ApiV1PostController {
                 postCreateRequest.getTechStacks(),
                 loggedInUser,  // 로그인한 사용자의 이메일을 작성자로 설정
                 postCreateRequest.getIsDraft(),
-                thumbnailPath,
-                filePaths
+                postCreateRequest.getThumbnail()
         );
 
         return RsData.of("200", "게시글 등록 성공", new PostCreateResponse(post));
@@ -161,17 +146,16 @@ public class ApiV1PostController {
         if (!post.getAuthor().getEmail().equals(loggedInUser)) {
             return RsData.of("403", "본인만 게시글을 수정할 수 있습니다.", null);
         }
-//
-//        post = this.postService.update(
-//                post
-//                , postModifyRequest.getContent()
-//                , postModifyRequest.getSubject()
-//                , postModifyRequest.getTechStacks()
-//                , loggedInUser
-//                , postModifyRequest.getIsDraft()
-//                , postModifyRequest.getThumbnail()
-//                , filePaths
-//        );
+
+        post = this.postService.update(
+                post
+                , postModifyRequest.getContent()
+                , postModifyRequest.getSubject()
+                , postModifyRequest.getTechStacks()
+                , loggedInUser
+                , postModifyRequest.getIsDraft()
+                , postModifyRequest.getThumbnail()
+        );
 
         return RsData.of("200", "게시글 수정 성공", new PostModifyResponse(post));
     }
@@ -186,8 +170,8 @@ public class ApiV1PostController {
 
         Post post = this.postService.getPost(id);
 
-        if (post == null || post.getIsDraft()) {
-            return RsData.of("404", "%d 번 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
+        if (post == null) {
+            return RsData.of("404", "%d 번 게시물은 존재하지 않습니다.".formatted(id));
         }
 
         String loggedInUser = principal.getName();
@@ -216,78 +200,6 @@ public class ApiV1PostController {
         return RsData.of("200", "저장할 사진이 없습니다.");
     }
 
-    // 임시 저장된 게시글 이어서 수정 작성
-    @PreAuthorize("isAuthenticated()")
-    @PatchMapping("/draft/{id}")
-    public RsData<PostModifyResponse> continueDraft(@PathVariable("id") Long id, Principal principal,
-                                                    @Valid @RequestBody PostModifyRequest postModifyRequest,
-                                                    @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
-                                                    @RequestParam(value = "files", required = false) MultipartFile[] files ){
-        if (principal == null) {
-            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
-        }
-
-        Post post = this.postService.getPost(id);
-
-        if (post == null || !post.getIsDraft()) {
-            return RsData.of("404", "%d 번 임시 저장 게시물이 존재하지 않거나, 삭제되었습니다.".formatted(id), null);
-        }
-
-        String loggedInUser = principal.getName();
-        if (!post.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.ONLY_OWN_DRAFT, null);
-        }
-
-        // 썸네일 수정
-        String thumbnailPath = post.getThumbnail();
-        if (thumbnail != null && !thumbnail.isEmpty()) {
-            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
-        }
-
-        // 파일 수정
-        List<String> filePaths = post.getFilePaths();
-        if (files != null && files.length > 0) {
-            List<String> newFilePaths = imageService.saveFiles("posts/files", files);
-            filePaths.addAll(newFilePaths);  // 기존 파일 경로에 새 파일 경로 추가
-        }
-
-        post = this.postService.continueDraft(
-                id,
-                postModifyRequest.getSubject(),
-                postModifyRequest.getContent(),
-                loggedInUser,
-                postModifyRequest.getIsDraft(),
-                thumbnailPath,
-                filePaths
-        );
-
-        return RsData.of("200", "임시 저장된 게시글 이어서 작성 성공", new PostModifyResponse(post));
-    }
-
-    // 임시 저장된 게시물 삭제
-    @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/draft/{id}")
-    public RsData<PostResponse> deleteDraft(@PathVariable("id") Long id, Principal principal) {
-        if (principal == null) {
-            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
-        }
-
-        Post post = this.postService.getPost(id);
-
-        if (post == null || !post.getIsDraft()) {
-            return RsData.of("404", "%d 번 임시 저장 게시물이 존재하지 않습니다.".formatted(id), null);
-        }
-
-        String loggedInUser = principal.getName();
-        if (!post.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.ONLY_OWN_DRAFT, null);
-        }
-
-        this.postService.deleteDraft(id);
-        return RsData.of("200", "%d 번 임시 저장 게시물 삭제 성공".formatted(id), null);
-    }
-
-    // 좋아요
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/like")
     public RsData<PostDTO> like(@PathVariable("id") Long id, Principal principal) {

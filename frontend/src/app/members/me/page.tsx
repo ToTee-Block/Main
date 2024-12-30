@@ -78,7 +78,18 @@ export default function ProfileForm() {
 
   const handleImageDelete = async () => {
     try {
-      const response = await apiClient.delete("/api/v1/members/profile-image");
+      const formData = new FormData();
+      formData.append("profileImg", new File([], ""));
+
+      const response = await apiClient.post(
+        `/api/v1/members/profileImg/${user.email}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       if (response.data.resultCode === "200") {
         setUser((prev) => (prev ? { ...prev, profileImg: null } : null));
         setError(null);
@@ -208,7 +219,7 @@ export default function ProfileForm() {
           <ProfileImage
             profileImage={
               user.profileImg
-                ? `http://localhost:8081/file/${user.profileImg}`
+                ? `/uploaded/${user.profileImg}`
                 : "/icon/user.svg"
             }
             onImageUpload={handleImageUpload}

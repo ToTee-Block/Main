@@ -71,9 +71,7 @@ const Header: React.FC = () => {
           try {
             const response = await fetchUserProfile();
             if (response.resultCode === "200" && response.data.profileImg) {
-              setProfileImageUrl(
-                `http://localhost:8081/file/${response.data.profileImg}`
-              );
+              setProfileImageUrl(`/uploaded/${response.data.profileImg}`);
             } else {
               setProfileImageUrl("/icon/user.svg");
             }
