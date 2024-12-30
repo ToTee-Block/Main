@@ -1,6 +1,8 @@
 package com.example.Main.domain.Post.controller;
 
 import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.Member.enums.MemberGender;
+import com.example.Main.domain.Member.request.MemberCreate;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.dto.request.PostCreateRequest;
@@ -14,7 +16,6 @@ import com.example.Main.domain.Post.service.PostService;
 import com.example.Main.domain.TechStack.enums.TechStacks;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
-import com.example.Main.global.Util.Markdown.MarkdownService;
 import com.example.Main.global.Util.Service.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +39,6 @@ import java.util.Map;
 public class ApiV1PostController {
     private final PostService postService;
     private final MemberService memberService;
-    private final MarkdownService markdownService;
     private final ImageService imageService;
 
     // 다건조회 - ver.전체
@@ -114,8 +115,6 @@ public class ApiV1PostController {
 
         String loggedInUser = principal.getName();
 
-        String htmlContent = markdownService.convertMarkdownToHtml(postCreateRequest.getContent());
-
         // 썸네일 등록
         String thumbnailPath = null;
         if (thumbnail != null && !thumbnail.isEmpty()) {
@@ -130,7 +129,8 @@ public class ApiV1PostController {
 
         Post post = postService.write(
                 postCreateRequest.getSubject(),
-                htmlContent,
+                postCreateRequest.getContent(),
+                postCreateRequest.getTechStacks(),
                 loggedInUser,  // 로그인한 사용자의 이메일을 작성자로 설정
                 postCreateRequest.getIsDraft(),
                 thumbnailPath,
@@ -162,27 +162,14 @@ public class ApiV1PostController {
             return RsData.of("403", "본인만 게시글을 수정할 수 있습니다.", null);
         }
 
-        String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
-
-        // 썸네일 수정
-        String thumbnailPath = post.getThumbnail();
-        if (thumbnail != null && !thumbnail.isEmpty()) {
-            thumbnailPath = imageService.saveImage("posts/thumbnails", thumbnail);
-        }
-
-        // 파일 수정
-        List<String> filePaths = post.getFilePaths();
-        if (files != null && files.length > 0) {
-            List<String> newFilePaths = imageService.saveFiles("posts/files", files);
-            filePaths.addAll(newFilePaths);
-        }
         post = this.postService.update(
                 post
-                , htmlContent
+                , postModifyRequest.getContent()
                 , postModifyRequest.getSubject()
+                , postModifyRequest.getTechStacks()
                 , loggedInUser
                 , postModifyRequest.getIsDraft()
-                , thumbnailPath
+                , postModifyRequest.getThumbnail()
                 , filePaths
         );
 
@@ -205,41 +192,28 @@ public class ApiV1PostController {
 
         String loggedInUser = principal.getName();
         if (!post.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.POST_NOT_YOUR_OWN, null);
+            return RsData.of("403", ErrorMessages.NOT_YOUR_OWN, null);
         }
 
         this.postService.deletePost(id);
         return RsData.of("200", "%d 번 게시물 삭제 성공".formatted(id), null);
     }
 
-    // 임시 저장된 게시물 목록 전체 조회
-    @GetMapping("/draftsAll")
-    public RsData<PostsResponse> getDrafts() {
-        List<PostDTO> draftPosts = this.postService.getDrafts();
-
-        if (draftPosts.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_DRAFT_POSTS, null);
+    // 사진 저장
+    @PreAuthorize("isAuthenticated")
+    @PatchMapping("/image")
+    private RsData save(@RequestParam(value = "image")MultipartFile image) {
+        String savedPath = null;
+        if (!image.isEmpty()) {
+            try {
+                savedPath = this.imageService.saveImage("post", image);
+                return RsData.of("200", "사진 저장 성공", savedPath);
+            } catch (Exception e) {
+                return RsData.of("500", "사진 저장 실패", e);
+            }
         }
 
-        return RsData.of("200", "임시 저장된 게시글 목록 조회 성공", new PostsResponse(draftPosts));
-    }
-
-    // 임시 저장된 게시물 목록 조회
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/drafts")
-    public RsData<PostsResponse> getDrafts(Principal principal) {
-        if (principal == null) {
-            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
-        }
-
-        String loggedInUser = principal.getName();
-        List<PostDTO> draftPosts = this.postService.getDraftsByAuthor(loggedInUser);
-
-        if (draftPosts.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_DRAFT_POSTS, null);
-        }
-
-        return RsData.of("200", "임시 저장된 게시글 목록 조회 성공", new PostsResponse(draftPosts));
+        return RsData.of("200", "저장할 사진이 없습니다.");
     }
 
     // 임시 저장된 게시글 이어서 수정 작성
@@ -264,8 +238,6 @@ public class ApiV1PostController {
             return RsData.of("403", ErrorMessages.ONLY_OWN_DRAFT, null);
         }
 
-        String htmlContent = markdownService.convertMarkdownToHtml(postModifyRequest.getContent());
-
         // 썸네일 수정
         String thumbnailPath = post.getThumbnail();
         if (thumbnail != null && !thumbnail.isEmpty()) {
@@ -281,8 +253,8 @@ public class ApiV1PostController {
 
         post = this.postService.continueDraft(
                 id,
-                htmlContent,
                 postModifyRequest.getSubject(),
+                postModifyRequest.getContent(),
                 loggedInUser,
                 postModifyRequest.getIsDraft(),
                 thumbnailPath,

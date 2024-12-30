@@ -1,51 +1,67 @@
 .uploadWrapper {
-    padding: 10 10px;
-    width: 812px;
-    height: 42px;
-    border: 1px solid var(--gray-200);
-    border-radius: 10px;
-    background-color: var(--background);
-    box-shadow: 0 0 5px rgba(231, 182, 238, 0.2), 0 4px 6px rgba(231, 182, 238, 0.2);
-    display: flex;
-    align-items: center; 
-    justify-content: center;
-    margin-bottom: 12px;
-} 
+  padding: 20px;
+  width: fit-content;
+  min-height: 42px;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  background-color: var(--background);
+  box-shadow: 0 0 5px rgba(231, 182, 238, 0.2),
+    0 4px 6px rgba(231, 182, 238, 0.2);
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
 
-  .uploadContent {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
   }
-  
-  .uploadIcon {
-    display: flex;
-    align-items: center;
-  
-    .icon {
-      color: var(--secondary-color);
-    }
-  }
-  
-  .browseFiles {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 12px;
-    background-color: var(--background);
-    border: 1px solid var(--secondary-color);
-    border-radius: 8px;
-    font-size: var(--font-size-XXXXS);
+}
+
+.imgBox {
+  width: 370px;
+  height: 200px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.uploadContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.uploadIcon {
+  display: flex;
+  align-items: center;
+
+  .icon {
     color: var(--secondary-color);
-    transition: all 0.2s ease;
-  
-    &:hover {
-      background-color: var(--secondary-color);
-      color: var(--text-white);
-    }
   }
-  
-  .hiddenInput {
-    display: none;
+}
+
+.browseFiles {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  background-color: var(--background);
+  border: 1px solid var(--secondary-color);
+  border-radius: 8px;
+  font-size: var(--font-size-XXXXS);
+  color: var(--secondary-color);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-white);
   }
+}
+
+.hiddenInput {
+  display: none;
+}

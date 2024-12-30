@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Set;
+
 @Getter
 @Setter
 public class PostModifyRequest {
@@ -14,7 +16,9 @@ public class PostModifyRequest {
     @NotBlank(message = "내용은 필수 입력 항목입니다.")
     private String content;
 
-    private MultipartFile thumbnail;
+    private Set<String> techStacks;
+
+    private String thumbnail;
 
     private MultipartFile[] filePaths;
 

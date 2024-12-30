@@ -20,6 +20,13 @@ const PostCard: React.FC<PostCardProps> = ({
   date,
   imageUrl,
 }) => {
+  const removeImgTags = (content: string) => {
+    // 이미지 제거
+    let result = content.replace(/<img[^>]*>/g, "");
+    result = result.replace(/!\[([^\]]*)\]\([^\)]+\)/g, "");
+    return result;
+  };
+
   return (
     <Link href={href}>
       <div className={styles.PostCard}>
@@ -29,11 +36,13 @@ const PostCard: React.FC<PostCardProps> = ({
         <div className={styles.content}>
           <h3 className={styles.title}>{title}</h3>
           <div className={styles.description}>
-            <MarkdownWithHtml markdownContent={description} />
+            <MarkdownWithHtml markdownContent={removeImgTags(description)} />
           </div>
           <div className={styles.textBox}>
             <span className={styles.user}>{user}</span>
-            <span className={styles.date}>{date}</span>
+            <span className={styles.date}>
+              {new Date(date).toISOString().split("T")[0]}
+            </span>
           </div>
         </div>
       </div>

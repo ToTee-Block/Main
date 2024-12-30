@@ -6,7 +6,6 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/pages/blog/blog.module.scss";
 import SearchBox from "@/components/search/SearchBox";
-import LinkButton from "@/components/button/LinkButton";
 import PostCard from "@/components/card/PostCard";
 import Tag from "@/components/tag/tag";
 import DivideBar from "@/components/divideBar";
@@ -28,13 +27,10 @@ interface Me {
 
 const Post: React.FC = () => {
   const [me, setMe] = useState<Me>();
-  const [activeTab, setActiveTab] = useState<string>("전체");
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [stacks, setStacks] = useState<string[]>();
-  const [selectedStacks, setSelectedStacks] = useState<Array<boolean>>(
-    Array(stacks?.length).fill(false)
-  );
-  const [entirePosts, setEntirePosts] = useState<any[]>([]); // 타입을 배열로 지정
+  const [selectedStacks, setSelectedStacks] = useState<string[]>(["전체"]);
+  const [entirePosts, setEntirePosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -42,6 +38,7 @@ const Post: React.FC = () => {
   const handleSubmit = () => {
     // sessionStorage에 데이터를 저장
     sessionStorage.setItem("postingType", "posts");
+    sessionStorage.setItem("id", "");
 
     // 페이지 이동
     router.push("/editor");
@@ -81,6 +78,7 @@ const Post: React.FC = () => {
           if (resultCode === "200") {
             setStacks(["전체", ...data.stacks, "임시저장"]);
             setEntirePosts(data.posts.content);
+            console.log(data.posts.content);
           } else if (resultCode === "401") {
             setError("로그인이 필요합니다.");
             location.href = "/members";
@@ -94,7 +92,7 @@ const Post: React.FC = () => {
     };
 
     fetchRecentPosts();
-  }, [activeTab]);
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -104,73 +102,28 @@ const Post: React.FC = () => {
     return <div>{error}</div>;
   }
 
-  const posts = stacks.reduce((acc, stack) => {
-    if (stack === "전체") {
-      acc[stack] =
-        entirePosts.length > 0
-          ? entirePosts
-              .filter((post) => post.isDraft === false)
-              .map((post) => ({
-                key: post.id,
-                href: `/post/detail?id=${post.id}`,
-                title: post.subject,
-                description: post.content,
-                user: post.authorName,
-                date: new Date(post.createdDate).toISOString().split("T")[0],
-                imageUrl: "/images/Rectangle.png",
-              }))
-          : [];
-    } else if (stack === "임시저장") {
-      acc[stack] =
-        entirePosts.length > 0
-          ? entirePosts
-              .filter((post) => post.isDraft === true)
-              .map((post) => ({
-                key: post.id,
-                href: `/post/detail?id=${post.id}`,
-                title: post.subject,
-                description: post.content,
-                user: post.authorName,
-                date: new Date(post.createdDate).toISOString().split("T")[0],
-                imageUrl: "/images/Rectangle.png",
-              }))
-          : [];
-    }
-    // stack에 해당하는 techStacks이 포함된 게시물만 필터링
-    else {
-      acc[stack] =
-        entirePosts.length > 0
-          ? entirePosts
-              .filter(
-                (post) =>
-                  (post.techStacks ?? []).includes(stack) &&
-                  post.isDraft === false
-              )
-              .map((post) => ({
-                key: post.id,
-                href: `/post/detail?id=${post.id}`,
-                title: post.subject,
-                description: post.content,
-                user: post.authorName,
-                date: new Date(post.createdDate).toISOString().split("T")[0],
-                imageUrl: "/images/Rectangle.png",
-              }))
-          : [];
-    }
-    return acc;
-  }, {});
-
-  const handleTagToggle = (index: number): void => {
+  const handleTagToggle = (tagName: string): void => {
     setSelectedStacks((prev) => {
-      const newState = [...prev];
-      if (index === 0) {
-        if (prev[0]) {
-          return prev.map(() => false);
-        }
-        return prev.map((_, i) => i === 0);
+      let newState = [...prev];
+      if (tagName === "전체") {
+        return ["전체"];
+      } else if (tagName === "임시저장") {
+        return ["임시저장"];
       } else {
-        newState[0] = false;
-        newState[index] = !newState[index];
+        if (
+          newState.indexOf("전체") !== -1 ||
+          newState.indexOf("임시저장") !== -1
+        ) {
+          newState = newState.filter(
+            (item) => item !== "전체" && item !== "임시저장"
+          );
+        }
+        if (newState.includes(tagName)) {
+          newState = newState.filter((item) => item !== tagName);
+          if (newState.length === 0) newState = ["전체"];
+        } else {
+          newState.push(tagName);
+        }
         return newState;
       }
     });
@@ -197,22 +150,84 @@ const Post: React.FC = () => {
           </div>
         </div>
       </div>
+
       <div className={styles.container}>
         <div className={styles.containerItemBox}>
-          {posts[activeTab]?.length === 0 ? (
+          {selectedStacks[0] === "전체" ? (
+            entirePosts.filter((post) => post.isDraft === false).length ===
+            0 ? (
+              <NoSearch></NoSearch>
+            ) : (
+              entirePosts
+                .filter((post) => post.isDraft === false)
+                .map((post, index) => (
+                  <PostCard
+                    key={index}
+                    href={`/post/detail?id=${post.id}`}
+                    title={post.subject}
+                    description={post.content}
+                    user={post.authorName}
+                    date={post.createdDate}
+                    imageUrl={
+                      post.thumbnail
+                        ? `http://localhost:8081/file/${post.thumbnail}`
+                        : "/images/Rectangle.png"
+                    }
+                  />
+                ))
+            )
+          ) : selectedStacks[0] === "임시저장" ? (
+            entirePosts.filter((post) => post.isDraft === true).length === 0 ? (
+              <NoSearch></NoSearch>
+            ) : (
+              entirePosts
+                .filter((post) => post.isDraft === true)
+                .map((post, index) => (
+                  <PostCard
+                    key={index}
+                    href={`/post/detail?id=${post.id}`}
+                    title={post.subject}
+                    description={post.content}
+                    user={post.authorName}
+                    date={post.createdDate}
+                    imageUrl={
+                      post.thumbnail
+                        ? `http://localhost:8081/file/${post.thumbnail}`
+                        : "/images/Rectangle.png"
+                    }
+                  />
+                ))
+            )
+          ) : entirePosts.filter(
+              (post) =>
+                selectedStacks.every((stack) =>
+                  post.techStacks?.includes(stack)
+                ) && post.isDraft === false
+            ).length === 0 ? (
             <NoSearch></NoSearch>
           ) : (
-            posts[activeTab].map((post, index) => (
-              <PostCard
-                key={index}
-                href={post.href}
-                title={post.title}
-                description={post.description}
-                user={post.user}
-                date={post.date}
-                imageUrl={post.imageUrl}
-              />
-            ))
+            entirePosts
+              .filter(
+                (post) =>
+                  selectedStacks.every((stack) =>
+                    post.techStacks?.includes(stack)
+                  ) && post.isDraft === false
+              )
+              .map((post, index) => (
+                <PostCard
+                  key={index}
+                  href={`/post/detail?id=${post.id}`}
+                  title={post.subject}
+                  description={post.content}
+                  user={post.authorName}
+                  date={post.createdDate}
+                  imageUrl={
+                    post.thumbnail
+                      ? `http://localhost:8081/file/${post.thumbnail}`
+                      : "/images/Rectangle.png"
+                  }
+                />
+              ))
           )}
         </div>
       </div>
@@ -220,7 +235,7 @@ const Post: React.FC = () => {
       <Pagination
         currentPage={currentPage}
         onPageChange={setCurrentPage}
-        totalPages={Math.ceil(posts[activeTab].length / 16)}
+        totalPages={Math.ceil(entirePosts.length / 16)}
       />
     </div>
   );

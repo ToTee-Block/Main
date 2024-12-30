@@ -252,7 +252,7 @@ const Detail: React.FC = () => {
             <></>
           ) : (
             <>
-              <ModifyButton to={"#"}></ModifyButton>
+              <ModifyButton type={"qnas"} id={qna?.id}></ModifyButton>
               <RemoveButton
                 setModalVisible={() => setModalVisibleDelete(true)}
               ></RemoveButton>
@@ -263,7 +263,11 @@ const Detail: React.FC = () => {
           {/* <span>{qna?.comments.length}개의 답변이 있습니다.</span> */}
           <CommentForm
             disabled={loginStatus}
-            myProfileImg={me?.profileImg}
+            myProfileImg={
+              me?.profileImg
+                ? `http://localhost:8081/file/${me?.profileImg}`
+                : "/images/Rectangle.png"
+            }
             comment={comment}
             setComment={setComment}
             postComment={postComment}

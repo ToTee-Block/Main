@@ -41,12 +41,12 @@ public class ApiV1QnACommentController {
     public RsData<QnACommentsResponse> getComments(@PathVariable("qnAId") Long qnAId) {
         QnA qnA = qnAService.getQnA(qnAId);
         if (qnA == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         List<QnACommentDTO> comments = commentService.getCommentsByQnAId(qnAId);
         if (comments.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_COMMENTS, null);
+            return RsData.of("404", ErrorMessages.COMMENT_NOT_FOUND, null);
         }
 
         return RsData.of("200", "댓글 조회 성공 (QnA 제목: " + qnA.getSubject() + ")", new QnACommentsResponse(comments));
@@ -57,12 +57,12 @@ public class ApiV1QnACommentController {
     public RsData<QnACommentDTO> getComment(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId) {
         QnA qnA = qnAService.getQnA(qnAId);
         if (qnA == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         QnAComment comment = commentService.getComment(commentId).orElse(null);
         if (comment == null || !comment.getQnA().getId().equals(qnAId)) {
-            return RsData.of("404", ErrorMessages.COMMENT_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         return RsData.of("200", "댓글 조회 성공 (QnA 제목: " + qnA.getSubject() + ")", new QnACommentDTO(comment));
@@ -79,7 +79,7 @@ public class ApiV1QnACommentController {
         String loggedInUserEmail = principal.getName();
         QnA qnA = qnAService.getQnA(qnAId);
         if (qnA == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         List<QnACommentDTO> myQnAComments = commentService.getQnACommentsByUserAndQnAId(loggedInUserEmail, qnAId);
@@ -106,7 +106,7 @@ public class ApiV1QnACommentController {
         QnAComment comment = commentService.addComment(qnAId, userEmail, commentCreateRequest.getContent(), parentCommentId);
 
         if (comment == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         QnACommentCreateResponse response = new QnACommentCreateResponse(comment);
@@ -140,11 +140,11 @@ public class ApiV1QnACommentController {
         }
 
         if (!comment.getQnA().getId().equals(qnAId)) {
-            return RsData.of("404", ErrorMessages.QNA_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         if (!comment.getAuthor().getEmail().equals(userEmail)) {
-            return RsData.of("403", ErrorMessages.FORBIDDEN, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
         comment = commentService.updateComment(commentId, commentModifyRequest.getContent(), userEmail);
@@ -170,11 +170,11 @@ public class ApiV1QnACommentController {
         }
 
         if (!comment.getQnA().getId().equals(qnAId)) {
-            return RsData.of("404", ErrorMessages.QNA_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         if (!comment.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.FORBIDDEN, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
         commentService.deleteComment(commentId);
@@ -197,7 +197,7 @@ public class ApiV1QnACommentController {
         }
 
         if (!comment.getQnA().getId().equals(qnAId)) {
-            return RsData.of("404", ErrorMessages.COMMENT_NOT_BELONG_TO_QNA, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         Member member = memberService.getMemberByEmail(loggedInUser);

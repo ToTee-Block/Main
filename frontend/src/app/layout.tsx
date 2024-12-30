@@ -5,8 +5,9 @@ import '@/styles/globals/global.scss';
 import Header from '@/src/components/Header';
 import Footer from '@/src/components/Footer';
 import PageWrapper from '@/components/pagewrapper/pagewrapper';
-import Loading from "@/components/loading";
+import Loading from "@/components/animation/loading";
 import ChatSection from "@/src/components/chatting/ChatSection";
+import LoadingProvider from "@/components/loadingprovier/loadingprovider";
 
 export const metadata: Metadata = {
   title: "Totee Block",
@@ -24,6 +25,7 @@ export const metadata: Metadata = {
         <Header />
         <ChatSection />
         <PageWrapper>
+          <LoadingProvider />
         <Suspense fallback={<Loading />}>
           {children}
           </Suspense>
