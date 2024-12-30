@@ -18,7 +18,8 @@ const LOGOUT_EVENT = "onLogout";
 interface Notification {
   id: number;
   message: string;
-  isRead: boolean;
+  read: boolean;
+  createdAt: string;
 }
 
 const Header: React.FC = () => {
@@ -31,16 +32,27 @@ const Header: React.FC = () => {
   const [hasNewNotification, setHasNewNotification] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState("/icon/user.svg");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [expandedNotificationId, setExpandedNotificationId] = useState<
+    number | null
+  >(null);
 
   const checkNewNotifications = useCallback(async () => {
     try {
-      const response = await fetchNotifications();
-      if (response.data && Array.isArray(response.data)) {
-        setNotifications(response.data);
-        setHasNewNotification(response.data.some((notif) => !notif.isRead));
-      }
+      const fetchedNotificationsData = await fetchNotifications();
+      const fetchedNotifications: Notification[] = fetchedNotificationsData.map(
+        (notif: any) => ({
+          id: notif.id,
+          message: notif.message,
+          read: notif.read,
+          createdAt: notif.createdAt,
+        })
+      );
+      setNotifications(fetchedNotifications);
+      setHasNewNotification(fetchedNotifications.some((notif) => !notif.read));
     } catch (error) {
-      console.error("Failed to fetch notifications:", error);
+      console.error("알림을 가져오는데 실패했습니다:", error);
+      setNotifications([]);
+      setHasNewNotification(false);
     }
   }, []);
 
@@ -117,17 +129,21 @@ const Header: React.FC = () => {
     if (hasNewNotification) {
       setHasNewNotification(false);
       notifications.forEach((notif) => {
-        if (!notif.isRead) {
+        if (!notif.read) {
           markNotificationAsRead(notif.id).then(() => {
             setNotifications((prevNotifications) =>
               prevNotifications.map((n) =>
-                n.id === notif.id ? { ...n, isRead: true } : n
+                n.id === notif.id ? { ...n, read: true } : n
               )
             );
           });
         }
       });
     }
+  };
+
+  const toggleNotificationContent = (id: number) => {
+    setExpandedNotificationId((prevId) => (prevId === id ? null : id));
   };
 
   const handleLogout = async () => {
@@ -248,10 +264,18 @@ const Header: React.FC = () => {
                       <div
                         key={notification.id}
                         className={`${styles.notificationItem} ${
-                          !notification.isRead ? styles.unread : ""
-                        }`}
+                          expandedNotificationId === notification.id
+                            ? styles.fullText
+                            : ""
+                        } ${!notification.read ? styles.unread : ""}`}
+                        onClick={() =>
+                          toggleNotificationContent(notification.id)
+                        }
                       >
                         {notification.message}
+                        {!notification.read && (
+                          <span className={styles.unreadDot} />
+                        )}
                       </div>
                     ))
                   ) : (
