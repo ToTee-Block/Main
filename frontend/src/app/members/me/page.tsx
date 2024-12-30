@@ -110,6 +110,8 @@ export default function ProfileForm() {
       if (response.resultCode === "200") {
         const userData: UserData = response.data;
         setUser(userData);
+        console.log(response);
+        console.log(userData);
 
         if (userData.birthDate) {
           const [year, month, day] = userData.birthDate.split("-");
