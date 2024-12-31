@@ -72,7 +72,7 @@ public class PostService {
     }
 
     // 작성
-    public Post write(String subject, String content, Set<String> techStacks, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
+    public Post write(String subject, String content, Set<String> techStacks, String userEmail, boolean isDraft, String thumbnailPath) {
         Member member = memberService.getMemberByEmail(userEmail);
 
         Post post = Post.builder()
@@ -82,14 +82,13 @@ public class PostService {
                 .author(member)
                 .isDraft(isDraft)
                 .thumbnail(thumbnailPath)
-                .filePaths(filePaths)
                 .build();
         this.postRepository.save(post);
         return post;
     }
 
     // 수정
-    public Post update(Post post, String content, String subject, Set<String> techStacks, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
+    public Post update(Post post, String content, String subject, Set<String> techStacks, String userEmail, boolean isDraft, String thumbnailPath) {
         Member member = memberService.getMemberByEmail(userEmail);
         post.setSubject(subject);
         post.setContent(content);
@@ -97,7 +96,6 @@ public class PostService {
         post.setAuthor(member);
         post.setIsDraft(isDraft);
         post.setThumbnail(thumbnailPath);
-        post.setFilePaths(filePaths);
         this.postRepository.save(post);
         return post;
     }
@@ -133,56 +131,6 @@ public class PostService {
         return new PostDTO(post);
     }
 
-
-
-    // 임시 저장된 게시물 목록 조회
-    public List<PostDTO> getDrafts() {
-        List<Post> draftPosts = postRepository.findByIsDraftTrue(Sort.by(Sort.Order.desc("createdDate")));
-        return draftPosts.stream()
-                .map(PostDTO::new)
-                .collect(Collectors.toList());
-    }
-
-    // 임시 저장된 게시글 전체 조회
-    public Post continueDraft(Long postId, String content, String subject, String userEmail, boolean isDraft, String thumbnailPath, List<String> filePaths) {
-        Post post = this.getPost(postId);
-
-        if (post == null || !post.getIsDraft()) {
-            throw new IllegalArgumentException("임시 저장된 게시글이 존재하지 않거나, 삭제된 게시글입니다.");
-        }
-
-        Member member = memberService.getMemberByEmail(userEmail);
-        post.setContent(content);
-        post.setSubject(subject);
-        post.setAuthor(member);
-        post.setIsDraft(isDraft);
-        post.setThumbnail(thumbnailPath);
-        post.setFilePaths(filePaths);
-        this.postRepository.save(post);
-        return post;
-    }
-
-    // 본인이 임시저장한 게시글 조회
-    public List<PostDTO> getDraftsByAuthor(String authorEmail) {
-        List<Post> draftPosts = postRepository.findByAuthor_EmailAndIsDraftTrue(authorEmail, Sort.by(Sort.Order.desc("createdDate")));
-
-        return draftPosts.stream()
-                .map(PostDTO::new)
-                .collect(Collectors.toList());
-    }
-
-
-
-    // 임시 저장된 게시물 삭제
-    public void deleteDraft(Long id) {
-        Optional<Post> optionalPost = this.postRepository.findById(id);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-            if (post.getIsDraft()) {
-                this.postRepository.delete(post);
-            }
-        }
-    }
     //  좋아요 추가
     public Post likePost(Long postId, String memberEmail) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));

@@ -68,8 +68,6 @@ public class Post extends BaseEntity {
     @Column(length = 1024)
     private String thumbnail;
 
-    private List<String> filePaths;
-
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Report> reports;
 }

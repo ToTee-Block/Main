@@ -52,7 +52,7 @@ export default function EditorPage() {
         const data = response.data.data;
         if (resultCode === "200") {
           // 서버에서 반환된 이미지 URL
-          const imageUrl = `http://localhost:8081/file/${data}`;
+          const imageUrl = `/uploaded/${data}`;
 
           // 고유한 키 생성 (랜덤 문자열 사용)
           const imageKey = `image-${Math.random()

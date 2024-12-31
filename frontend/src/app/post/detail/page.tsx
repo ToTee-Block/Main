@@ -217,6 +217,7 @@ const Detail: React.FC = () => {
         );
 
         const resultCode = response.data.resultCode;
+        const msg = response.data.msg;
         const data = response.data.data;
         if (resultCode == "200") {
           setStacks(data.techStacks);
@@ -226,6 +227,9 @@ const Detail: React.FC = () => {
           setError("올바른 게시물이 아닙니다.");
         } else if (resultCode == "500") {
           setError(response.data.msg);
+        } else {
+          console.log(response);
+          console.log(msg);
         }
         setLoading(false);
       } catch (error) {
