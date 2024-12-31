@@ -1240,46 +1240,23 @@ AND (:age IS NULL OR a.age LIKE CONCAT('%', :age, '%'))</br>
 <details>
 <summary> ❗이은철 </summary>
 
-#### <1> <b>toast ui 적용 오류</b>
+#### <1> <b> 게시글에 대해서 삭제 처리를 하기위해 참조되는 댓글을 삭제 하는데 트랜잭션 관련 오류 </b>
 
-```문제``` toast ui 활용시 제대로 된 form양식이 적용되지 않았으며 그 후에도 이미지 업로드시 base64 형식으로 저장되는점 등등의 여러 문제가 발생하였다.
+```문제```  삭제하려 할 때 Post를 참조하는 댓글이 존재하여 외래 키 제약 조건을 위반하는 문제
 </br></br>
-```해결``` 양식을 적용하기 위해 구글링을 하면서 editor 구성에 대한 정보를 검색해 script를 구성하였고
-그리고 나서 글쓰기 페이지에 toast ui가 적용되었지만 이미지 업로드 시에 base64형식으로 파일이 저장되어
-상세페이지에 이미지가 나타나지 않았고 hooks: {
-async addImageBlobHook(blob, callback) { const filename = await response.text();
-const imageUrl = `/gen/${filename}`;
-callback(imageUrl, "image alt attribute");
-}
-이와같은 코드를 적용시켜 블롭형식으로 파일저장시 이름을 바꾸어주었다.
-</br>
+```해결``` 트랜지션만 단순하게 설정하는것이아니라 게시글 삭제 기능을 수행할때
+해당 게시글의 댓글을 먼저 삭제하고 게시글을 삭제하도록 설정하였다.
+@Transactional 어노테이션을 사용하여 트랜잭션 관리를 통해 Post와 관련된 PostComment들을 삭제한 후 Post를 삭제할 수 있다.
+또한
 
-#### <2> <b>공공데이터 API 활용</b>
+`@OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+@OrderBy("createdDate DESC")
+private List<PostComment> comments;`
 
-```문제``` 공공데이터 API를 활용하여 입양리스트를 구성하며 json방식이 아닌 xml방식으로만 가져올 수 있어서 문제가 생겼다.
+이 설정을 통해 트랜잭션 처리와 함께 사용하여, 외래키 제약 조건 위반 없이 자동으로 관계가 정리되고,
+추가적인 삭제 처리 없이도 Post의 삭제가 정상적으로 처리되었다.
 </br></br>
-```해결``` xml 방식으로 데이터를 가져오다 보니 정보를 읽어드리고 가져올 수 있는 수에서 에러가 발생했고 이를<br>
-String json = XmlToJsonConverter.convert(xml);
-System.out.println("JSON Response: " + json); </br>
-json형식으로 변환후 db에 저장시키며 데이터를 활용할 수 있었다
-</br></br></br>
 
-#### <3> <b>카테고리 활용</b>
-
-```문제``` 공공데이터 API를 활용하면서 카테고리를 모든 정보에 적용 시킬 수 없었고 상위,하위 카테고리로 구성하여 문제가 복잡하였다.
-</br></br>
-```해결``` jpa를 사용하여 카테고리 선택 시 조건에 맞는 데이터를 가져오려 했지만 animal엔티티에 카테고리 기능을 연결시키는 어려움이 있었고
-@Query("""</br>
-SELECT a FROM Animal a</br>
-WHERE (:kw IS NULL OR a.species LIKE CONCAT('%', :kw, '%'))</br>
-AND (:classification IS NULL OR a.classification LIKE CONCAT('%', :classification, '%'))</br>
-AND (:gender IS NULL OR a.gender LIKE CONCAT('%', :gender, '%'))</br>
-AND (:weight IS NULL OR a.weight LIKE CONCAT('%', :weight, '%'))</br>
-AND (:age IS NULL OR a.age LIKE CONCAT('%', :age, '%'))</br>
-""")</br>
-쿼리문을 활용해 직접적으로 조건에 맞는 데이터를 각 카테고리의 name과 연결시켜 검색되도록 하였다
-</br></br></br>
-</details>
 
 ## 🫸 개선해야 할 점
 
