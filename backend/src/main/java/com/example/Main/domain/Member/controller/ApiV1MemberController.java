@@ -200,15 +200,12 @@ public class ApiV1MemberController {
         if (checkAuthUserRD != null) return checkAuthUserRD;
 
         // 프로필 사진 저장
-        String savedProfileImg = null;
+        String savedProfileImg = "";
         if (!image.isEmpty()) {
             savedProfileImg = this.imageService.saveImage("user", image);
-            // 멤버 엔티티 업데이트
-            member.setProfileImg(savedProfileImg);
-            memberService.save(member);  // 변경사항을 데이터베이스에 저장
-        } else {
-            savedProfileImg = member.getProfileImg();
         }
+        member.setProfileImg(savedProfileImg);
+        memberService.save(member);
 
         return RsData.of("200", "프로필 이미지 변경 성공", savedProfileImg);
     }

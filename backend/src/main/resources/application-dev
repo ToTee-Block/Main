@@ -26,4 +26,4 @@ spring:
       static-locations: file:C:\\Users\\LENOVO\\Desktop\\project\\uploads\\  (프로젝트 파일 주소에 uploads 폴더만 추가하면됨)
 
 custom:
-  fileDirPath: [FILE_DIR_PATH] # 사진 저장 기본 경로 : OS가 윈도우인 경우 예시) "C:\\Users\\81152\\IdeaProjects\\image"
+  fileDirPath: frontend/public/uploaded # 사진 저장 기본 경로

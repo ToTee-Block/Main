@@ -170,7 +170,7 @@ const Post: React.FC = () => {
                     date={post.createdDate}
                     imageUrl={
                       post.thumbnail
-                        ? `http://localhost:8081/file/${post.thumbnail}`
+                        ? `/uploaded/${post.thumbnail}`
                         : "/images/Rectangle.png"
                     }
                   />
@@ -192,7 +192,7 @@ const Post: React.FC = () => {
                     date={post.createdDate}
                     imageUrl={
                       post.thumbnail
-                        ? `http://localhost:8081/file/${post.thumbnail}`
+                        ? `/uploaded/${post.thumbnail}`
                         : "/images/Rectangle.png"
                     }
                   />
@@ -223,7 +223,7 @@ const Post: React.FC = () => {
                   date={post.createdDate}
                   imageUrl={
                     post.thumbnail
-                      ? `http://localhost:8081/file/${post.thumbnail}`
+                      ? `/uploaded/${post.thumbnail}`
                       : "/images/Rectangle.png"
                   }
                 />

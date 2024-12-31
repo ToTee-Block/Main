@@ -10,9 +10,11 @@ interface TagProps {
 }
 
 export default function Tag({ tags, selectedTags, onTagToggle }: TagProps) {
+  const removeEmptyStrings = (tags) => tags.filter((item) => item !== "");
+
   return (
     <div className={styles.tagList}>
-      {tags.map((tag, index) => (
+      {removeEmptyStrings(tags).map((tag, index) => (
         <label
           key={index}
           className={`${styles.tag} ${

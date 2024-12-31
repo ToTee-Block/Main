@@ -54,11 +54,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ thumbNail, setThumbNail }) => {
     <div className={styles.uploadWrapper}>
       <div className={styles.imgBox}>
         <img
-          src={
-            thumbNail
-              ? `http://localhost:8081/file/${thumbNail}`
-              : "/images/Rectangle.png"
-          }
+          src={thumbNail ? `/uploaded/${thumbNail}` : "/images/Rectangle.png"}
           alt="썸네일 이미지"
         />
       </div>
