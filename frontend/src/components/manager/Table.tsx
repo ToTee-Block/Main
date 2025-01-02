@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "@/styles/components/manager/table.module.scss";
+import Link from "next/link";
 
 interface TableItem {
   id: number;
@@ -10,10 +11,24 @@ interface TableItem {
   role?: string;
 }
 
+interface ReportItem {
+  reportId: number;
+  reporterName: string;
+  target: {
+    targetId: number;
+    url: string;
+    authorName: string;
+    subject: string;
+  };
+  reason: string;
+  status: string;
+  createdDate: string;
+}
+
 interface TableProps {
-  data: TableItem[];
-  onApprove?: (mentorId: number, memberId: number) => void;
-  onReject?: (mentorId: number, memberId: number) => void;
+  data: (TableItem | ReportItem)[] | undefined;
+  onApprove?: (id: number) => void;
+  onReject?: (id: number) => void;
   onDelete?: (id: number) => void;
   currentPage: number;
   itemsPerPage?: number;
@@ -41,24 +56,30 @@ const Table: React.FC<TableProps> = ({
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
       2,
       "0"
-    )}-${String(date.getDate()).padStart(2, "0")}`;
+    )}-${String(date.getDate()).padStart(2, "0")} ${String(
+      date.getHours()
+    ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  };
+
+  const isReportItem = (item: TableItem | ReportItem): item is ReportItem => {
+    return "reportId" in item;
   };
 
   const renderStatusButtons = (id: number) => {
-    if (activeTab === "mentors") {
+    if (activeTab === "mentors" || activeTab === "reports") {
       return (
         <div className={styles.statusCell}>
           <button
             className={styles.approveStatus}
-            onClick={() => onApprove?.(id, id)}
+            onClick={() => onApprove?.(id)}
           >
-            승인
+            {activeTab === "mentors" ? "승인" : "처리"}
           </button>
           <button
             className={styles.rejectStatus}
-            onClick={() => onReject?.(id, id)}
+            onClick={() => onReject?.(id)}
           >
-            거부
+            {activeTab === "mentors" ? "거부" : "반려"}
           </button>
         </div>
       );
@@ -76,21 +97,51 @@ const Table: React.FC<TableProps> = ({
     }
   };
 
-  const renderTableRow = (item: TableItem, index: number) => {
-    return (
-      <tr key={item.id}>
-        <td>{getItemNumber(index)}</td>
-        <td>{item.email}</td>
-        <td>{item.name}</td>
-        <td>{formatDate(item.createdDate)}</td>
-        {activeTab === "members" && <td>{item.role}</td>}
-        {activeTab === "posts" && <td>{item.url}</td>}
-        <td>{renderStatusButtons(item.id)}</td>
-      </tr>
-    );
+  const renderTableRow = (item: TableItem | ReportItem, index: number) => {
+    if (isReportItem(item)) {
+      return (
+        <tr key={item.reportId}>
+          <td>{getItemNumber(index)}</td>
+          <td>{item.reporterName}</td>
+          <td>{item.target.authorName}</td>
+          <td>
+            <Link href={item.target.url} className={styles.linkText}>
+              {item.target.subject}
+            </Link>
+          </td>
+          <td>{item.reason}</td>
+          <td>{item.status}</td>
+          <td>{formatDate(item.createdDate)}</td>
+          <td>{renderStatusButtons(item.reportId)}</td>
+        </tr>
+      );
+    } else {
+      return (
+        <tr key={item.id}>
+          <td>{getItemNumber(index)}</td>
+          <td>{item.email}</td>
+          <td>{item.name}</td>
+          <td>{formatDate(item.createdDate)}</td>
+          {activeTab === "members" && <td>{item.role}</td>}
+          {activeTab === "posts" && (
+            <td>
+              {item.url ? (
+                <Link href={item.url} className={styles.linkText}>
+                  {item.url}
+                </Link>
+              ) : (
+                "N/A"
+              )}
+            </td>
+          )}
+          <td>{renderStatusButtons(item.id)}</td>
+        </tr>
+      );
+    }
   };
 
   const renderEmptyRows = () => {
+    if (!data) return null;
     const emptyRowsCount = itemsPerPage - data.length;
     return emptyRowsCount > 0
       ? Array(emptyRowsCount)
@@ -103,14 +154,26 @@ const Table: React.FC<TableProps> = ({
               <td>&nbsp;</td>
               {activeTab === "members" && <td>&nbsp;</td>}
               {activeTab === "posts" && <td>&nbsp;</td>}
+              {activeTab === "reports" && (
+                <>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                  <td>&nbsp;</td>
+                </>
+              )}
               <td>
                 <div className={styles.statusCell}>
-                  {activeTab === "mentors" ? (
+                  {(activeTab === "mentors" || activeTab === "reports") && (
                     <>
-                      <button className={styles.approveStatus}>승인</button>
-                      <button className={styles.rejectStatus}>거부</button>
+                      <button className={styles.approveStatus}>
+                        {activeTab === "mentors" ? "승인" : "처리"}
+                      </button>
+                      <button className={styles.rejectStatus}>
+                        {activeTab === "mentors" ? "거부" : "반려"}
+                      </button>
                     </>
-                  ) : (
+                  )}
+                  {activeTab !== "mentors" && activeTab !== "reports" && (
                     <button className={styles.rejectStatus}>삭제</button>
                   )}
                 </div>
@@ -120,17 +183,34 @@ const Table: React.FC<TableProps> = ({
       : null;
   };
 
+  if (!data) {
+    return <div>데이터를 불러오는 중...</div>;
+  }
+
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table} data-tab={activeTab}>
         <thead>
           <tr>
             <th>No</th>
-            <th>Id</th>
-            <th>Name</th>
-            <th>create DATE</th>
-            {activeTab === "members" && <th>TYPE</th>}
-            {activeTab === "posts" && <th>URL</th>}
+            {activeTab === "reports" ? (
+              <>
+                <th>신고자</th>
+                <th>작성자</th>
+                <th>제목</th>
+                <th>사유</th>
+                <th>상태</th>
+                <th>신고일</th>
+              </>
+            ) : (
+              <>
+                <th>Id</th>
+                <th>Name</th>
+                <th>create DATE</th>
+                {activeTab === "members" && <th>TYPE</th>}
+                {activeTab === "posts" && <th>URL</th>}
+              </>
+            )}
             <th>STATUS</th>
           </tr>
         </thead>
