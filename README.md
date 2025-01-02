@@ -163,6 +163,31 @@
 <br>
 
 ### 🍋‍🟩 유윤하
+-**UI**  메인, 상세, 멘토, QnA, 에디터
+-**기능**
+1. 공통
+    - 페이지 전환 로딩 애니메이션 구현
+    - 푸터 자동차 애니메이션 구현
+    - global.scss 구현
+2. 메인페이지
+    - 전체 UI 디자인 구현
+    - 메인 섹션 레이아웃
+    - 멘토 카드 컴포넌트 디자인
+3. 멘토
+    - 상세페이지 디자인
+    - 멘토 리스트 레이아웃
+    - 멘토 정보 조회 페이지
+4. 소개페이지
+   -전체 UI 디자인 구현
+5. QnA
+    - 상세페이지 디자인
+    - 질문 섹션 레이아웃
+6. 에디터
+    - 마크다운 에디터 구현
+    - 드래그 앤 드롭 이미지 업로드
+    - 실시간 미리보기 기능
+    - 에디터/프리뷰 분할 레이아웃
+    - 마크다운 문법 스타일링
 
 <br>
 
@@ -1138,47 +1163,30 @@ styles
 </br></br></br>
 </details>
 
-<details>
-<summary> ❗유윤하 </summary>
+<details> 
+<summary> ❗유윤하 </summary> 
 
-#### <1> <b>toast ui 적용 오류</b>
+#### <1> <b> 마크다운 에디터 이미지 드래그 앤 드롭 시 미리보기 렌더링 문제 </b>
 
-```문제``` toast ui 활용시 제대로 된 form양식이 적용되지 않았으며 그 후에도 이미지 업로드시 base64 형식으로 저장되는점 등등의 여러 문제가 발생하였다.
+```문제```  
+마크다운 에디터에 이미지를 드래그 앤 드롭했을 때 텍스트 영역에는 이미지 마크다운 구문이 삽입되지만, 미리보기 화면에서 이미지가 표시되지 않는 문제가 발생했습니다.
 </br></br>
-```해결``` 양식을 적용하기 위해 구글링을 하면서 editor 구성에 대한 정보를 검색해 script를 구성하였고
-그리고 나서 글쓰기 페이지에 toast ui가 적용되었지만 이미지 업로드 시에 base64형식으로 파일이 저장되어
-상세페이지에 이미지가 나타나지 않았고 hooks: {
-async addImageBlobHook(blob, callback) { const filename = await response.text();
-const imageUrl = `/gen/${filename}`;
-callback(imageUrl, "image alt attribute");
-}
-이와같은 코드를 적용시켜 블롭형식으로 파일저장시 이름을 바꾸어주었다.
-</br>
+```해결```  
+ReactMarkdown 컴포넌트의 img 태그 렌더링을 커스터마이징하여 이미지 표시 문제를 해결했습니다. 드래그 앤 드롭된 이미지 파일에 대해 URL.createObjectURL로 임시 URL을 생성하고, 이를 상태로 관리하여 미리보기에서 이미지를 정상적으로 표시할 수 있도록 했습니다.
 
-#### <2> <b>공공데이터 API 활용</b>
+```typescript
+const handleDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
+  const file = e.dataTransfer.files[0];
+  if (file?.type.startsWith("image/")) {
+    const imageUrl = URL.createObjectURL(file);
+    const imageKey = `image-${Date.now()}`;
+    setImages(prev => ({ …prev, [imageKey]: imageUrl }));
+  }
+}; 
+```
 
-```문제``` 공공데이터 API를 활용하여 입양리스트를 구성하며 json방식이 아닌 xml방식으로만 가져올 수 있어서 문제가 생겼다.
-</br></br>
-```해결``` xml 방식으로 데이터를 가져오다 보니 정보를 읽어드리고 가져올 수 있는 수에서 에러가 발생했고 이를<br>
-String json = XmlToJsonConverter.convert(xml);
-System.out.println("JSON Response: " + json); </br>
-json형식으로 변환후 db에 저장시키며 데이터를 활용할 수 있었다
-</br></br></br>
+이를 통해 드래그 앤 드롭된 이미지가 에디터와 미리보기 양쪽에서 정상적으로 표시되도록 구현했습니다.
 
-#### <3> <b>카테고리 활용</b>
-
-```문제``` 공공데이터 API를 활용하면서 카테고리를 모든 정보에 적용 시킬 수 없었고 상위,하위 카테고리로 구성하여 문제가 복잡하였다.
-</br></br>
-```해결``` jpa를 사용하여 카테고리 선택 시 조건에 맞는 데이터를 가져오려 했지만 animal엔티티에 카테고리 기능을 연결시키는 어려움이 있었고
-@Query("""</br>
-SELECT a FROM Animal a</br>
-WHERE (:kw IS NULL OR a.species LIKE CONCAT('%', :kw, '%'))</br>
-AND (:classification IS NULL OR a.classification LIKE CONCAT('%', :classification, '%'))</br>
-AND (:gender IS NULL OR a.gender LIKE CONCAT('%', :gender, '%'))</br>
-AND (:weight IS NULL OR a.weight LIKE CONCAT('%', :weight, '%'))</br>
-AND (:age IS NULL OR a.age LIKE CONCAT('%', :age, '%'))</br>
-""")</br>
-쿼리문을 활용해 직접적으로 조건에 맞는 데이터를 각 카테고리의 name과 연결시켜 검색되도록 하였다
 </br></br></br>
 </details>
 
