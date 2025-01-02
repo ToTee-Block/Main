@@ -35,7 +35,7 @@ public class ChatJoin extends BaseEntity {
     @OneToMany(mappedBy = "chatSender")
     private List<ChatMessage> chatMessages;
 
-    @Column(nullable = false)
-    private int unreadMessageCount = 0; // 읽지 않은 메시지 수
+    @Column(name = "unread_message_count", nullable = false, columnDefinition = "integer default 0")
+    private int unreadMessageCount;
 
 }
