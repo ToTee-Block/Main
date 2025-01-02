@@ -1,6 +1,7 @@
 package com.example.Main.domain.Chat.controller;
 
 import com.example.Main.domain.Chat.dto.ChatDTO;
+import com.example.Main.domain.Chat.dto.ChatNotificationDTO;
 import com.example.Main.domain.Chat.entity.ChatMessage;
 import com.example.Main.domain.Chat.entity.ChatRoom;
 import com.example.Main.domain.Chat.serivce.ChatService;
@@ -9,7 +10,6 @@ import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.entity.Mentor;
 import com.example.Main.domain.Mentor.service.MentorService;
 import com.example.Main.global.Jwt.JwtProvider;
-import com.sun.tools.javac.Main;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -68,22 +67,6 @@ public class ChatController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(chatRooms);
     }
-
-
-    /* create 타이밍 : 나중에 멘토등록 승인되면 그 멘토의 방이 만들어지게 하기 */
-//    @PostMapping("/chat/rooms")
-//    public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody, Principal principal) {
-//        String roomName = requestBody.get("name");
-//        if (roomName == null || roomName.isBlank()) {
-//            return ResponseEntity.badRequest().body(Map.of("message", "Room name cannot be empty"));
-//        }
-//        Member creator = memberService.getMemberByEmail(principal.getName());
-//        var newRoom = chatService.createRoom(roomName, creator);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-//                "id", newRoom.getId(),
-//                "name", newRoom.getName()
-//        ));
-//    }
 
     @PostMapping("/chat/rooms")
     public ResponseEntity<Map<String, Object>> createChatRoom(@RequestBody Map<String, String> requestBody, Principal principal) {
@@ -142,7 +125,6 @@ public class ChatController {
         }
     }
 
-
     @PreAuthorize("isAuthenticated()")
     @MessageMapping("/message")
     public void receiveMessage(ChatDTO chatDTO, Principal principal) {
@@ -178,10 +160,22 @@ public class ChatController {
                 contentType       // 이미지 또는 텍스트 타입
         );
 
+        // 메시지를 해당 채팅방에 전송
         templates.convertAndSend(destination, enrichedChatDTO);
         System.out.println("Message broadcasted to: " + destination);
-    }
 
+        // 메시지를 받은 후 알림을 전송
+        ChatNotificationDTO chatNotificationDTO = new ChatNotificationDTO(
+                chatDTO.getRoomId(),
+                member.getEmail(),
+                chatDTO.getMessage(),
+                contentType,
+                LocalDateTime.now()
+        );
+
+        String notificationDestination = "/sub/chatroom/notification/" + chatDTO.getRoomId();
+        templates.convertAndSend(notificationDestination, chatNotificationDTO);
+    }
 
 
     @PreAuthorize("isAuthenticated()")
@@ -232,6 +226,7 @@ public class ChatController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
     @PostMapping("/chat/{roomId}/upload")
     public ResponseEntity<?> uploadImage(@PathVariable("roomId") Long roomId, @RequestParam("image") MultipartFile file) {
         try {
