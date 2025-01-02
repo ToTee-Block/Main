@@ -105,7 +105,10 @@ const Table: React.FC<TableProps> = ({
           <td>{item.reporterName}</td>
           <td>{item.target.authorName}</td>
           <td>
-            <Link href={item.target.url} className={styles.linkText}>
+            <Link
+              href={`/post/detail?id=${item.target.targetId}`}
+              className={styles.linkText}
+            >
               {item.target.subject}
             </Link>
           </td>
@@ -126,7 +129,10 @@ const Table: React.FC<TableProps> = ({
           {activeTab === "posts" && (
             <td>
               {item.url ? (
-                <Link href={item.url} className={styles.linkText}>
+                <Link
+                  href={`/post/detail?id=${item.id}`}
+                  className={styles.linkText}
+                >
                   {item.url}
                 </Link>
               ) : (

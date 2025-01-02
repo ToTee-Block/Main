@@ -27,7 +27,7 @@ public interface QnARepository extends JpaRepository<QnA, Long> {
             "AND q.isDraft = false " +
             "AND a = :author " +
             "ORDER BY q.createdDate DESC")
-    Page<QnA> searchQnAsByAuthor(String searchTerm, Pageable pageable, Member author);
+    Page<QnA> searchQnAsByAuthor(@Param("searchTerm") String searchTerm, Pageable pageable, Member author);
 
     // 제목, 내용, 작성자 이름으로 검색하는 메소드
     // ver - 전체 / 최신순
@@ -37,7 +37,7 @@ public interface QnARepository extends JpaRepository<QnA, Long> {
             "OR LOWER(a.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
             "AND q.isDraft = false " +
             "ORDER BY q.createdDate DESC")
-    Page<QnA> searchRecentQnAs(String searchTerm, Pageable pageable);
+    Page<QnA> searchRecentQnAs(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     // 제목과 내용에 키워드가 포함된 게시물 검색
     @Query("SELECT q FROM QnA q " +
@@ -49,5 +49,5 @@ public interface QnARepository extends JpaRepository<QnA, Long> {
     List<QnA> findByIsDraftTrue(Sort sort);
 
     // 본인이 임시저장한 게시글 조회
-    List<QnA> findByAuthor_EmailAndIsDraftTrue(String authorEmail, Sort sort);
+    List<QnA> findByAuthor_EmailAndIsDraftTrue(@Param("authorEmail") String authorEmail, Sort sort);
 }
