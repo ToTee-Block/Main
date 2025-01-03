@@ -73,7 +73,7 @@ const Table: React.FC<TableProps> = ({
             className={styles.approveStatus}
             onClick={() => onApprove?.(id)}
           >
-            {activeTab === "mentors" ? "승인" : "처리"}
+            {activeTab === "mentors" ? "승인" : "글 삭제"}
           </button>
           <button
             className={styles.rejectStatus}
@@ -172,7 +172,7 @@ const Table: React.FC<TableProps> = ({
                   {(activeTab === "mentors" || activeTab === "reports") && (
                     <>
                       <button className={styles.approveStatus}>
-                        {activeTab === "mentors" ? "승인" : "처리"}
+                        {activeTab === "mentors" ? "승인" : "글 삭제"}
                       </button>
                       <button className={styles.rejectStatus}>
                         {activeTab === "mentors" ? "거부" : "반려"}

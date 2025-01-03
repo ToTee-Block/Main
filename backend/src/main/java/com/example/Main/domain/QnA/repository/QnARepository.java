@@ -27,7 +27,10 @@ public interface QnARepository extends JpaRepository<QnA, Long> {
             "AND q.isDraft = false " +
             "AND a = :author " +
             "ORDER BY q.createdDate DESC")
-    Page<QnA> searchQnAsByAuthor(@Param("searchTerm") String searchTerm, Pageable pageable, Member author);
+    Page<QnA> searchQnAsByAuthor(@Param("searchTerm") String searchTerm,
+                                 Pageable pageable,
+                                 @Param("author") Member author);
+
 
     // 제목, 내용, 작성자 이름으로 검색하는 메소드
     // ver - 전체 / 최신순

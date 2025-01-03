@@ -37,10 +37,10 @@ export default function MentorDetail() {
     }
   }, [id]);
 
-  const fetchMentorData = async (mentorId: string) => {
+  const fetchMentorData = async (memberId: string) => {
     try {
       const response = await apiClient.get(
-        `/api/v1/mentors/profile/${mentorId}`
+        `/api/v1/mentors/profile/${memberId}`
       );
       if (response.data.resultCode === "200") {
         setMentor(response.data.data);
