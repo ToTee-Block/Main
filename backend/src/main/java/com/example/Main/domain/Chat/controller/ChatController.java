@@ -173,9 +173,11 @@ public class ChatController {
                 LocalDateTime.now()
         );
 
+        // 각 방에 맞는 알림 전송
         String notificationDestination = "/sub/chatroom/notification/" + chatDTO.getRoomId();
         templates.convertAndSend(notificationDestination, chatNotificationDTO);
     }
+
 
 
     @PreAuthorize("isAuthenticated()")

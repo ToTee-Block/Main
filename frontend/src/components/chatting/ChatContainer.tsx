@@ -4,6 +4,7 @@ import ChatList from "./ChatList";
 import ChatMessages from "./ChatMessages";
 import ChatFooter from "./ChatFooter";
 import ChatHeader from "./ChatHeader";
+import ChatButton from "./ChatButton";
 import { Client } from "@stomp/stompjs";
 
 interface Message {
@@ -27,7 +28,14 @@ interface RoomDetails {
   createdAt: string;
 }
 
+interface Notification {
+  roomId: string;
+  unreadCount: number;
+}
+
 const ChatContainer = () => {
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [activeRoom, setActiveRoom] = useState<string | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatHistory>({});
   const [rooms, setRooms] = useState<RoomDetails[]>([]);
@@ -35,12 +43,11 @@ const ChatContainer = () => {
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const subscriptionRef = useRef<string | null>(null);
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
-  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
 
-  // 드래그 시작
+  // 드래그
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (chatContainerRef.current) {
       const rect = chatContainerRef.current.getBoundingClientRect();
@@ -48,21 +55,15 @@ const ChatContainer = () => {
       setIsDragging(true);
     }
   };
-
-  // 드래그 이동
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging && chatContainerRef.current) {
       chatContainerRef.current.style.left = `${e.clientX - dragOffset.x}px`;
       chatContainerRef.current.style.top = `${e.clientY - dragOffset.y}px`;
     }
   };
-
-  // 드래그 종료
   const handleMouseUp = () => {
     setIsDragging(false);
   };
-
-  // 이벤트 리스너 추가 및 제거
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("mousemove", handleMouseMove);
@@ -81,7 +82,6 @@ const ChatContainer = () => {
   const getCurrentTime = (): string =>
     new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const getCurrentDate = (): string => new Date().toISOString().split("T")[0];
-
   useEffect(() => {
     const email = localStorage.getItem("userId"); // 예: 'userId'에 이메일이 저장되어 있다고 가정
     if (email) {
@@ -124,6 +124,17 @@ const ChatContainer = () => {
       client.onConnect = () => {
         console.log("Connected to WebSocket");
         setStompClient(client);
+
+        // 기존 WebSocket 연결 후처리 로직
+        client.subscribe("/sub/chatroom/notifications", (message) => {
+          try {
+            const updatedNotifications = JSON.parse(message.body);
+            setNotifications((prev) => [...prev, ...updatedNotifications]);
+            console.log("Received notifications:", updatedNotifications);
+          } catch (error) {
+            console.error("Error parsing notification message:", error);
+          }
+        });
       };
 
       client.onStompError = (frame) => {
@@ -136,6 +147,28 @@ const ChatContainer = () => {
     };
 
     initializeClient();
+  }, []);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch("http://localhost:8081/chat/notifications", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Failed to fetch notifications");
+        const data = await res.json();
+        setNotifications(data);
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      }
+    };
+
+    fetchNotifications();
   }, []);
 
   // 채팅방 세부 정보와 과거 메시지 가져오기
@@ -209,13 +242,20 @@ const ChatContainer = () => {
   const handleRoomSelect = (roomId: string) => {
     if (!stompClient) return;
 
+    // 현재 활성 채팅방 설정
     setActiveRoom(roomId);
 
+    // 선택한 채팅방의 알림 상태 초기화 (읽지 않은 메시지 수 0)
+    setNotifications((prev) =>
+      prev.map((n) => (n.roomId === roomId ? { ...n, unreadCount: 0 } : n))
+    );
+
+    // 이전 구독 해제
     if (subscriptionRef.current) {
       stompClient.unsubscribe(subscriptionRef.current);
     }
 
-    // 새로운 방 구독
+    // 새 채팅방 구독 및 메시지 처리
     const subscription = stompClient.subscribe(
       `/sub/chatroom/${roomId}`,
       (messageOutput) => {
@@ -224,10 +264,12 @@ const ChatContainer = () => {
         console.log("Received message:", data);
         console.log("currentUserEmail:", currentUserEmail);
         console.log("Message senderEmail:", data.senderEmail);
+
         // 메시지 타입 구분: 발신자와 현재 사용자가 같으면 'sent', 다르면 'received'
         const messageType =
-          data.senderEmail === currentUserEmail ? "sent" : "received"; // senderEmail을 currentUserEmail과 비교
+          data.senderEmail === currentUserEmail ? "sent" : "received";
 
+        // 채팅 기록 업데이트
         setChatHistory((prev) => ({
           ...prev,
           [roomId]: [
@@ -237,7 +279,7 @@ const ChatContainer = () => {
               senderId: data.senderId,
               senderName: data.senderName,
               senderProfile: data.senderProfile,
-              type: messageType, // 메시지 타입 구분
+              type: messageType,
               contentType: data.contentType,
               time: new Date(data.sendTime).toLocaleTimeString([], {
                 hour: "2-digit",
@@ -250,37 +292,43 @@ const ChatContainer = () => {
       }
     );
 
+    // 새 구독 ID 저장
     subscriptionRef.current = subscription.id;
 
+    // 채팅방 세부 정보 및 메시지 로드
     fetchRoomDetailsAndMessages(roomId);
   };
 
   return (
-    <div
-      className={styles.chatContainer}
-      ref={chatContainerRef}
-      onMouseDown={handleMouseDown}
-    >
-      <ChatList
-        activeRoom={activeRoom}
-        rooms={rooms}
-        onRoomSelect={handleRoomSelect}
-      />
-      <div className={styles.chatContent}>
-        {activeRoom ? (
-          <>
-            <ChatHeader roomDetails={roomDetails} />
-            <ChatMessages
-              roomName={roomDetails?.name || ""}
-              messages={chatHistory[activeRoom] || []}
-            />
-            <ChatFooter onSend={handleSendMessage} activeRoom={activeRoom} />
-          </>
-        ) : (
-          <p className={styles.noRoomSelected}>채팅방을 선택하세요</p>
-        )}
+    <>
+      <ChatButton notifications={notifications} />
+      <div
+        className={styles.chatContainer}
+        ref={chatContainerRef}
+        onMouseDown={handleMouseDown}
+      >
+        <ChatList
+          activeRoom={activeRoom}
+          rooms={rooms}
+          notifications={notifications}
+          onRoomSelect={handleRoomSelect}
+        />
+        <div className={styles.chatContent}>
+          {activeRoom ? (
+            <>
+              <ChatHeader roomDetails={roomDetails} />
+              <ChatMessages
+                roomName={roomDetails?.name || ""}
+                messages={chatHistory[activeRoom] || []}
+              />
+              <ChatFooter onSend={handleSendMessage} activeRoom={activeRoom} />
+            </>
+          ) : (
+            <p className={styles.noRoomSelected}>채팅방을 선택하세요</p>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

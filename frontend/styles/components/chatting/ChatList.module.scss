@@ -27,6 +27,7 @@
   font-size: 14px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* 흐릿한 선 추가 */
   width: 100%;
+  position: relative; /* 알림 배지 위치 조정을 위해 추가 */
   &:hover {
     background-color: #f1f1f1;
   }
@@ -38,10 +39,21 @@
 }
 
 .status {
-  width: 8px;
-  height: 8px;
+  width: 18px; /* 알림 배지 크기 확장 */
+  height: 18px; /* 배지 크기 동일 */
   border-radius: 50%;
   background-color: red; /* 읽지 않은 메시지가 있을 때 빨간색 */
-  flex-shrink: 0;
-  margin-left: 10px;
+  color: white;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute; /* 방 리스트 내에 배지 위치 */
+  top: 5px; /* 위쪽 위치 조정 */
+  right: 5px; /* 오른쪽 위치 조정 */
+  font-weight: bold;
+}
+
+.status::before {
+  content: attr(data-count); /* unreadCount 값 표시 */
 }
