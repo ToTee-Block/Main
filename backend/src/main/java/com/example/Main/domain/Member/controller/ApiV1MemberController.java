@@ -60,22 +60,16 @@ public class ApiV1MemberController {
         String name = memberCreate.getName();
         LocalDate birthDate = memberCreate.getBirthDate();
         MemberGender gender = memberCreate.getGender();
-        MultipartFile profileImg = new EmptyMultipartFile();  // TODO: json으로 파일 처리를 못해서 빈 객체 생성. 추후에 post요청으로 받은 file로 변경하기
-
-        // 프로필 사진 저장
-        String savedProfileImg = null;
-        if (!profileImg.isEmpty()) {
-            savedProfileImg = this.imageService.saveImage("user", profileImg, 200, 200);
-        }
 
         // 회원가입
-        MemberDTO memberDTO = this.memberService.join(email, password, name, birthDate, gender, savedProfileImg, MemberRole.USER);
+        MemberDTO memberDTO = this.memberService.join(email, password, name, birthDate, gender, null, MemberRole.USER);
 
         if (memberDTO == null) {
             return RsData.of("400", "이미 존재하는 사용자입니다.");
         }
         return RsData.of("200", "회원가입 성공", memberDTO);
     }
+
 
     @PostMapping("/login")
     public RsData login(@Valid @RequestBody MemberRequest memberRequest, HttpServletResponse res) {

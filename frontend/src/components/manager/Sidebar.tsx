@@ -36,9 +36,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
         </li>
         <li
           className={`${styles.menuItem} ${
-            activeTab === "reportManagement" ? styles.active : ""
+            activeTab === "reports" ? styles.active : ""
           }`}
-          onClick={() => onTabChange("reportManagement")}
+          onClick={() => onTabChange("reports")}
         >
           신고글 관리
         </li>

@@ -16,13 +16,13 @@ public class SummaryDTO {
         if (target instanceof Post) {
             Post post = (Post) target;
             this.targetId = post.getId();
-            this.url = post.getId() != null ? "http://localhost:8081/api/v1/posts/" + post.getId() : "";
+            this.url = "post";
             this.authorName = post.getAuthor() != null ? post.getAuthor().getName() : "Unknown";
             this.subject = post.getSubject();
         } else if (target instanceof QnA) {
             QnA qnA = (QnA) target;
             this.targetId = qnA.getId();
-            this.url = qnA.getId() != null ? "http://localhost:8081/api/v1/qnas/" + qnA.getId() : "";
+            this.url = "qna";
             this.authorName = qnA.getAuthor() != null ? qnA.getAuthor().getName() : "Unknown";
             this.subject = qnA.getSubject();
         } else {
