@@ -13,11 +13,14 @@ import com.example.Main.domain.QnA.Comment.entity.QnAComment;
 import com.example.Main.domain.QnA.Comment.service.QnACommentService;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
+import com.example.Main.global.Security.SecurityMember;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -25,24 +28,25 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/qna/{qnAId}/comments")
+@RequestMapping(value = "/api/v1/qnas/{qnAId}/comments")
 public class ApiV1QnACommentController {
 
     private final QnACommentService commentService;
     private final MemberService memberService;
     private final QnAService qnAService;
+    private final NotificationService notificationService;
 
     // 특정 QnA의 댓글 목록 조회 (다건 조회)
     @GetMapping
     public RsData<QnACommentsResponse> getComments(@PathVariable("qnAId") Long qnAId) {
         QnA qnA = qnAService.getQnA(qnAId);
         if (qnA == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         List<QnACommentDTO> comments = commentService.getCommentsByQnAId(qnAId);
         if (comments.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_COMMENTS, null);
+            return RsData.of("404", ErrorMessages.COMMENT_NOT_FOUND, null);
         }
 
         return RsData.of("200", "댓글 조회 성공 (QnA 제목: " + qnA.getSubject() + ")", new QnACommentsResponse(comments));
@@ -53,12 +57,12 @@ public class ApiV1QnACommentController {
     public RsData<QnACommentDTO> getComment(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId) {
         QnA qnA = qnAService.getQnA(qnAId);
         if (qnA == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         QnAComment comment = commentService.getComment(commentId).orElse(null);
         if (comment == null || !comment.getQnA().getId().equals(qnAId)) {
-            return RsData.of("404", ErrorMessages.COMMENT_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         return RsData.of("200", "댓글 조회 성공 (QnA 제목: " + qnA.getSubject() + ")", new QnACommentDTO(comment));
@@ -75,7 +79,7 @@ public class ApiV1QnACommentController {
         String loggedInUserEmail = principal.getName();
         QnA qnA = qnAService.getQnA(qnAId);
         if (qnA == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         List<QnACommentDTO> myQnAComments = commentService.getQnACommentsByUserAndQnAId(loggedInUserEmail, qnAId);
@@ -89,30 +93,41 @@ public class ApiV1QnACommentController {
     // QnA 댓글 작성
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public RsData<QnACommentCreateResponse> postCommentCreate(@PathVariable("qnAId") Long qnAId,
-                                                              @Valid @RequestBody QnACommentCreateRequest commentCreateRequest,
-                                                              Principal principal) {
+    public RsData<QnACommentCreateResponse> QnACommentCreate(@PathVariable("qnAId") Long qnAId,
+                                                             @Valid @RequestBody QnACommentCreateRequest commentCreateRequest,
+                                                             Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
 
         String userEmail = principal.getName();
-        Long parentCommentId = commentCreateRequest.getParentCommentId();
+        Long parentCommentId = commentCreateRequest.getParentId();
 
         QnAComment comment = commentService.addComment(qnAId, userEmail, commentCreateRequest.getContent(), parentCommentId);
 
         if (comment == null) {
-            return RsData.of("404", ErrorMessages.QNA_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         QnACommentCreateResponse response = new QnACommentCreateResponse(comment);
+
+        // QnA 게시물 작성자에게 알림 전송
+        QnA qnA = comment.getQnA();
+        Member qnAAuthor = qnA.getAuthor();
+        if (qnAAuthor != null && !qnAAuthor.getEmail().equals(userEmail)) {
+            notificationService.sendNotification(
+                    qnAAuthor.getId().toString(),
+                    "QnA 게시물 '%s'에 댓글이 달렸습니다.".formatted(qnA.getSubject())
+            );
+        }
+
         return RsData.of("201", "댓글 작성 성공", response);
     }
 
     // QnA 댓글 수정
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{commentId}")
-    public RsData<QnACommentModifyResponse> postCommentModify(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId, @Valid @RequestBody QnACommentModifyRequest commentModifyRequest, Principal principal) {
+    public RsData<QnACommentModifyResponse> QnACommentModify(@PathVariable("qnAId") Long qnAId, @PathVariable("commentId") Long commentId, @Valid @RequestBody QnACommentModifyRequest commentModifyRequest, Principal principal) {
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -125,11 +140,11 @@ public class ApiV1QnACommentController {
         }
 
         if (!comment.getQnA().getId().equals(qnAId)) {
-            return RsData.of("404", ErrorMessages.QNA_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         if (!comment.getAuthor().getEmail().equals(userEmail)) {
-            return RsData.of("403", ErrorMessages.FORBIDDEN, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
         comment = commentService.updateComment(commentId, commentModifyRequest.getContent(), userEmail);
@@ -143,7 +158,6 @@ public class ApiV1QnACommentController {
     public RsData<String> deleteComment(@PathVariable("qnAId") Long qnAId,
                                         @PathVariable("commentId") Long commentId,
                                         Principal principal) {
-
         if (principal == null) {
             return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
@@ -156,15 +170,11 @@ public class ApiV1QnACommentController {
         }
 
         if (!comment.getQnA().getId().equals(qnAId)) {
-            return RsData.of("404", ErrorMessages.QNA_ID_MISMATCH, null);
-        }
-
-        if (commentService.hasReplies(comment)) {
-            return RsData.of("400", ErrorMessages.COMMENT_HAS_REPLIES, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         if (!comment.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.FORBIDDEN, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
         commentService.deleteComment(commentId);
@@ -187,7 +197,7 @@ public class ApiV1QnACommentController {
         }
 
         if (!comment.getQnA().getId().equals(qnAId)) {
-            return RsData.of("404", ErrorMessages.COMMENT_NOT_BELONG_TO_QNA, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         Member member = memberService.getMemberByEmail(loggedInUser);

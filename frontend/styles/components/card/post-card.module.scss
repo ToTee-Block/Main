@@ -2,7 +2,7 @@
 
 .PostCard {
   flex: 1;
-  min-width: 390px;
+  width: 390px;
   height: 352px;
   display: flex;
   flex-direction: column;
@@ -21,6 +21,7 @@
   img {
     width: 100%;
     height: 100%;
+    object-fit: cover;
   }
 }
 
@@ -40,6 +41,15 @@
   @include font-XS-B;
   height: 100%;
   padding: 10px 0px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  & > * {
+    display: inline;
+  }
 }
 
 .textBox {

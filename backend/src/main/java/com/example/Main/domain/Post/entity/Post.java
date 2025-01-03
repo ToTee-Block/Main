@@ -2,8 +2,9 @@ package com.example.Main.domain.Post.entity;
 
 import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.Member.entity.Member;
-import com.example.Main.domain.TechStack.enums.TechStacks;
+import com.example.Main.domain.Report.entity.Report;
 import com.example.Main.global.Jpa.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -21,13 +22,16 @@ import java.util.Set;
 @SuperBuilder
 @ToString(callSuper = true)
 public class Post extends BaseEntity {
+    @Column(length = 1024)
     private String subject;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne
     private Member author;
 
+    @ElementCollection
     private Set<String> techStacks;
 
     @Column(name = "is_draft")
@@ -35,7 +39,7 @@ public class Post extends BaseEntity {
 
     private int likes;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
             name = "post_likes",
             joinColumns = @JoinColumn(name = "post_id"),
@@ -56,7 +60,14 @@ public class Post extends BaseEntity {
     }
 
     // 댓글 목록
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdDate DESC")
+    @JsonManagedReference  // 순환 참조 방지를 위해 부모 객체에 적용
     private List<PostComment> comments;
+
+    @Column(length = 1024)
+    private String thumbnail;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Report> reports;
 }

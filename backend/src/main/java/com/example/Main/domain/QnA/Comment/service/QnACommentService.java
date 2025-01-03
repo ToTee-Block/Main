@@ -11,6 +11,7 @@ import com.example.Main.global.ErrorMessages.ErrorMessages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,7 @@ public class QnACommentService {
     public List<QnACommentDTO> getCommentsByQnAId(Long qnAId) {
         QnA qnA = qnAService.getQnA(qnAId);
         if (qnA == null) {
-            throw new IllegalArgumentException(ErrorMessages.QNA_NOT_FOUND);
+            throw new IllegalArgumentException(ErrorMessages.NOT_FOUND);
         }
 
         List<QnAComment> comments = commentRepository.findByQnA(qnA, Sort.by(Sort.Order.desc("createdDate")));
@@ -85,7 +86,7 @@ public class QnACommentService {
 
         QnA qnA = qnAService.getQnA(qnAId);
         if (qnA == null) {
-            throw new IllegalArgumentException(ErrorMessages.QNA_NOT_FOUND);
+            throw new IllegalArgumentException(ErrorMessages.NOT_FOUND);
         }
 
         QnAComment parentComment = null;
@@ -118,7 +119,7 @@ public class QnACommentService {
         QnAComment comment = commentOpt.get();
 
         if (!comment.getAuthor().getEmail().equals(userEmail)) {
-            throw new IllegalArgumentException(ErrorMessages.FORBIDDEN);
+            throw new IllegalArgumentException(ErrorMessages.REPLY_NOT_YOUR_OWN);
         }
 
         comment.setContent(content);
@@ -126,22 +127,27 @@ public class QnACommentService {
     }
 
     // 댓글 삭제
+    @Transactional
     public boolean deleteComment(Long commentId) {
-        Optional<QnAComment> commentOpt = commentRepository.findById(commentId);
-
-        if (commentOpt.isEmpty()) {
-            throw new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND);
-        }
-
-        QnAComment comment = commentOpt.get();
-
-        if (hasReplies(comment)) {
-            throw new IllegalArgumentException(ErrorMessages.COMMENT_HAS_REPLIES);
-        }
+        QnAComment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
 
         commentRepository.delete(comment);
+
         return true;
     }
+
+    // 댓글 삭제 : 관리자
+    @Transactional
+    public boolean deleteCommentByAdmin(Long commentId) {
+        QnAComment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException(ErrorMessages.COMMENT_NOT_FOUND));
+
+        commentRepository.delete(comment);
+
+        return true;
+    }
+
 
     public boolean hasReplies(QnAComment comment) {
         List<QnAComment> replies = commentRepository.findByParentCommentId(comment.getId(), Sort.by(Sort.Order.desc("createdDate")));

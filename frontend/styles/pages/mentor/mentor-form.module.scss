@@ -1,7 +1,7 @@
 @import "../../globals/font-mixin.scss";
 
 .container {
-  width: 1000px;
+  width: 100%;
   margin: auto;
   display: flex;
   flex-direction: column;
@@ -89,7 +89,9 @@
 }
 
 .formBox {
-  width: 100%;
+  width: 1000px;
+  min-height: 200px;
+  height: auto;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -127,12 +129,13 @@
 }
 .textarea {
   width: 952px;
-  height: 100px;
+  height: 300px;
+  height: auto;
   border: 1px solid var(--gray-300);
   background-color: var(--gray-100);
   @include font-XXS-B;
   border-radius: 8px;
-  resize: none;
+  resize: vertical;
   padding: 15px 0 0 12px;
 
   &::placeholder {

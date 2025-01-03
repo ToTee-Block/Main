@@ -2,8 +2,8 @@
 
 .container {
   width: 100%;
-  max-width: 2500px;
-  margin: auto;
+  max-width: 1680px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -12,19 +12,29 @@
 .header {
   display: flex;
   justify-content: flex-start;
-  width: 100%;
+  width: 1680px;
 }
 
 .title {
   @include font-XXXL-B;
   color: var(--text-blue);
+  white-space: nowrap;
 }
 
 .tagSection {
+  width: 1680px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+
+  .tagBox {
+    width: 816px;
+    margin-bottom: 12px;
+    min-height: 48px;
+    max-height: 96px;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
 }
 
 .searchWrapper {
@@ -32,7 +42,6 @@
   gap: 16px;
   align-items: center;
 }
-
 
 .mentorGrid {
   display: grid;
@@ -46,13 +55,19 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
+  cursor: pointer;
 }
 
 .profileImage {
   width: 259.95px;
   height: 259.95px;
   border-radius: 50%;
-  background-color: var(--gray-200);
+
+  & > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .mentorInfo {
@@ -84,7 +99,8 @@
   gap: 8px;
 }
 
-.company, .name {
+.company,
+.name {
   @include font-XXS-M;
   font-size: 18px;
 }
@@ -100,7 +116,7 @@
 .linkWrapper {
   text-decoration: none;
   color: inherit;
-  
+
   &:hover {
     text-decoration: none;
   }

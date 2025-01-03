@@ -3,15 +3,23 @@ package com.example.Main.domain.Post.service;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.repository.MemberRepository;
 import com.example.Main.domain.Member.service.MemberService;
+import com.example.Main.domain.Post.Comment.repository.PostCommentRepository;
 import com.example.Main.domain.Post.dto.PostDTO;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.repository.PostRepository;
+import com.example.Main.domain.Report.entity.Report;
+import com.example.Main.domain.Report.repository.ReportRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +28,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final MemberService memberService;
+    private final PostCommentRepository postCommentRepository;
+    private final ReportRepository reportRepository;
+
 
     // 게시글 전체 조회
     public List<PostDTO> getList() {
@@ -47,7 +58,7 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    // 본인이 작성한 게시글 조회
+    // 작성자별 게시글 조회
     public Page<PostDTO> searchPostsByAuthor(int page, int size, String keyword, Member author) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Post> searchedPosts = this.postRepository.searchPostsByAuthor(keyword, pageable, author);
@@ -61,122 +72,115 @@ public class PostService {
     }
 
     // 작성
-    public Post write(String subject, String content, String userEmail, boolean isDraft) {
+    public Post write(String subject, String content, Set<String> techStacks, String userEmail, boolean isDraft, String thumbnailPath) {
         Member member = memberService.getMemberByEmail(userEmail);
 
         Post post = Post.builder()
                 .subject(subject)
                 .content(content)
+                .techStacks(techStacks)
                 .author(member)
                 .isDraft(isDraft)
+                .thumbnail(thumbnailPath)
                 .build();
         this.postRepository.save(post);
         return post;
     }
 
     // 수정
-    public Post update(Post post, String content, String subject, String userEmail, boolean isDraft) {
+    public Post update(Post post, String content, String subject, Set<String> techStacks, String userEmail, boolean isDraft, String thumbnailPath) {
         Member member = memberService.getMemberByEmail(userEmail);
         post.setSubject(subject);
         post.setContent(content);
+        post.setTechStacks(techStacks);
         post.setAuthor(member);
         post.setIsDraft(isDraft);
+        post.setThumbnail(thumbnailPath);
         this.postRepository.save(post);
         return post;
     }
 
     // 삭제
-    public void delete(Post post) {
-        this.postRepository.delete(post);
-    }
+    @Transactional
+    public void deletePost(Long postId) {
+        List<Report> reports = reportRepository.findByPostId(postId);
+        reportRepository.deleteAll(reports);
 
-    // 임시 저장된 게시물 목록 조회
-    public List<PostDTO> getDrafts() {
-        List<Post> draftPosts = postRepository.findByIsDraftTrue(Sort.by(Sort.Order.desc("createdDate")));
-        return draftPosts.stream()
-                .map(PostDTO::new)
-                .collect(Collectors.toList());
-    }
+        postCommentRepository.deleteByPostId(postId);
 
-    // 임시 저장된 게시글 전체 조회
-    public Post continueDraft(Long postId, String content, String subject, String userEmail, boolean isDraft) {
-        Post post = this.getPost(postId);
-
-        if (post == null || !post.getIsDraft()) {
-            throw new IllegalArgumentException("임시 저장된 게시글이 존재하지 않거나, 삭제된 게시글입니다.");
-        }
-
-        Member member = memberService.getMemberByEmail(userEmail);
-        post.setContent(content);
-        post.setSubject(subject);
-        post.setAuthor(member);
-        post.setIsDraft(isDraft);
-        this.postRepository.save(post);
-        return post;
-    }
-
-    // 본인이 임시저장한 게시글 조회
-    public List<PostDTO> getDraftsByAuthor(String authorEmail) {
-        List<Post> draftPosts = postRepository.findByAuthor_EmailAndIsDraftTrue(authorEmail, Sort.by(Sort.Order.desc("createdDate")));
-
-        return draftPosts.stream()
-                .map(PostDTO::new)
-                .collect(Collectors.toList());
+        Optional<Post> postOptional = postRepository.findById(postId);
+        postOptional.ifPresent(postRepository::delete);
     }
 
 
+    // 삭제 : 관리자용
+    @Transactional
+    public PostDTO deletePostByAdmin(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+        List<Report> reports = reportRepository.findByPost(post);
+        reportRepository.deleteAll(reports);
 
-    // 임시 저장된 게시물 삭제
-    public void deleteDraft(Long id) {
-        Optional<Post> optionalPost = this.postRepository.findById(id);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-            if (post.getIsDraft()) {
-                this.postRepository.delete(post);
-            }
-        }
+        postCommentRepository.deleteByPostId(postId);
+
+        postRepository.delete(post);
+
+        // 지연 로딩된 컬렉션을 초기화하여 안전하게 반환
+        Hibernate.initialize(post.getComments());
+        Hibernate.initialize(post.getAuthor());
+        return new PostDTO(post);
     }
+
     //  좋아요 추가
-    public void likePost(Long postId, String memberEmail) {
+    public Post likePost(Long postId, String memberEmail) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
         Member member = memberRepository.findByEmail(memberEmail).orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
         // 좋아요 추가
         post.addLike(member);
         postRepository.save(post);
+
+        return post;
     }
 
     // 좋아요 취소
-    public void unlikePost(Long postId, String memberEmail) {
+    public Post unlikePost(Long postId, String memberEmail) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
         Member member = memberRepository.findByEmail(memberEmail).orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
         post.removeLike(member);
         postRepository.save(post);
+
+        return post;
     }
 
     // 검색기능
-    public Page<PostDTO> searchRecentPosts(int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<PostDTO> searchRecentPosts(@Param("keyword") String keyword, Pageable pageable) {
         Page<Post> searchedPosts = this.postRepository.searchRecentPosts(keyword, pageable);
 
-        // Post 엔티티를 PostDTO로 변환
         List<PostDTO> recentPosts = searchedPosts.getContent().stream()
-                .map(PostDTO::new)  // Post 객체를 PostDTO로 변환
+                .map(PostDTO::new)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(recentPosts, pageable, searchedPosts.getTotalElements());
     }
 
-    public Page<PostDTO> searchHotPosts(int page, int size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size);
+
+    public Page<PostDTO> searchHotPosts(@Param("keyword") String keyword, Pageable pageable) {
         Page<Post> searchedPosts = this.postRepository.searchHotPosts(keyword, pageable);
 
-        // Post 엔티티를 PostDTO로 변환
         List<PostDTO> hotPosts = searchedPosts.getContent().stream()
-                .map(PostDTO::new)  // Post 객체를 PostDTO로 변환
+                .map(PostDTO::new)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(hotPosts, pageable, searchedPosts.getTotalElements());
+    }
+
+
+    public Page<PostDTO> getAdminPostList(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> posts = postRepository.findAllByIsDraftFalseOrderByCreatedDateDesc(pageable);
+
+        return posts.map(PostDTO::new);
     }
 }

@@ -3,15 +3,19 @@ package com.example.Main.domain.Mentor.dto;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Mentor.entity.Mentor;
 import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @ToString
 @Getter
 public class MentorDTO {
     private final Long id;
+
+    private final String email;
 
     private final String name;
 
@@ -31,14 +35,16 @@ public class MentorDTO {
 
     private Boolean matchingStatus;
 
-    /*private List<MentorTechStack> techStacks;*/
+    private final Long memberID;
+
+    private List<String> techStacks;
 
 
     public MentorDTO(Mentor mentor) {
         Member member = mentor.getMember();
         this.name = member.getName();
-        this.profileImg = member.getProfileImg();
-
+        this.profileImg = mentor.getProfileImg();
+        this.email = member.getEmail();
         this.id = mentor.getId();
         this.createdDate = mentor.getCreatedDate();
         this.modifiedDate = mentor.getModifiedDate();
@@ -47,15 +53,16 @@ public class MentorDTO {
         this.portfolio = mentor.getPortfolio();;
         this.approved = mentor.getApproved();
         this.matchingStatus = mentor.getMatchingStatus();
-        /*this.techStacks = mentor.getTechStacks();*/
+        this.techStacks = mentor.getTechStacks();
+        this.memberID = member.getId();
     }
 
     public MentorDTO(MentorMenteeMatching matching) {    // 매칭에서 멘토의 정보를 가져올때, 로그인한 나와 이루어진 매칭인지 확인: matchingStatus
         Mentor mentor = matching.getMentor();
         Member member = mentor.getMember();
         this.name = member.getName();
-        this.profileImg = member.getProfileImg();
-
+        this.profileImg = mentor.getProfileImg();
+        this.email = member.getEmail();
         this.id = mentor.getId();
         this.createdDate = mentor.getCreatedDate();
         this.modifiedDate = mentor.getModifiedDate();
@@ -64,5 +71,6 @@ public class MentorDTO {
         this.portfolio = mentor.getPortfolio();;
         this.approved = mentor.getApproved();
         this.matchingStatus = matching.getApproved();
+        this.memberID = member.getId();
     }
 }

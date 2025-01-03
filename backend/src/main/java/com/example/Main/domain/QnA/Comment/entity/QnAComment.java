@@ -26,11 +26,12 @@ public class QnAComment extends BaseEntity {
     private Member author;
 
     @ManyToOne
+    @JoinColumn(name = "qna_id")
     private QnA qnA;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "comment_likes",
+            name = "qna_comment_likes",
             joinColumns = @JoinColumn(name = "comment_id"),
             inverseJoinColumns = @JoinColumn(name = "member_id")
     )
@@ -52,6 +53,8 @@ public class QnAComment extends BaseEntity {
     @JoinColumn(name = "parent_comment_id")
     private QnAComment parentComment;
 
-    @OneToMany(mappedBy = "parentComment")
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QnAComment> replies = new ArrayList<>();
+
 }

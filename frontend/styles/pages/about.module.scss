@@ -1,9 +1,8 @@
 @import "../globals/font-mixin.scss";
 
 .about_page {
-  width: 1000px;
-  height: 1600px;
-  margin: auto;
+  width: 100%;
+  justify-content: center;
 
   .mockup_section {
     width: 100%;
@@ -11,6 +10,7 @@
     background-color: var(--secondary-color);
     display: flex;
     justify-content: center;
+    margin: 0 auto;
 
     .mockup_container {
       width: 1000px;
@@ -33,8 +33,9 @@
       }
 
       .text_animation_container {
-        width: 400px;
+        width: 700px;
         height: 100px;
+        white-space: nowrap;
         display: flex;
         overflow: hidden;
 
@@ -66,7 +67,7 @@
   }
 
   .structure_section {
-    width: 1000px;
+    width: 100%;
     margin: 0 auto;
     padding: 100px 0;
 
@@ -87,32 +88,38 @@
     }
 
     .mentor_mentee_structure {
-      width: 1000px;
+      width: 100%;
       display: flex;
       justify-content: center;
 
       img {
-        width: auto;
-        height: auto;
-        max-width: 700px;
+        width: 100%;
+        height: 500px;
+        max-width: 1200px;
       }
     }
   }
 
   .feature_section {
-    width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: 32px;
 
     .company_structure {
       width: 100%;
       height: 400px;
       background-color: rgba(0, 0, 0, 0.8);
       background-blend-mode: overlay;
-      
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
       .overlay_content {
         width: 100%;
         display: flex;
         flex-direction: column;
+        align-items: center;
+        margin-top: -40px;
       }
 
       .section_title {
@@ -134,9 +141,11 @@
       }
 
       .feature_list {
-        width: 1000px;
+        width: 100%;
+        max-width: 1200px;
         display: flex;
         justify-content: center;
+        gap: 70px;
 
         .feature_item {
           text-align: center;

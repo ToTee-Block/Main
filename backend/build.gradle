@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.5'
+	id 'org.springframework.boot' version '3.2.1'
 	id 'io.spring.dependency-management' version '1.1.6'
 }
 
@@ -51,10 +51,14 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
 	// email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-	// flexmark 마크다운 라이브러리
-	implementation 'com.vladsch.flexmark:flexmark-all:0.62.2'
+	// websocketconfig
+	implementation 'org.springframework:spring-messaging'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+tasks.withType(JavaCompile) {
+	options.compilerArgs << "-parameters"
 }

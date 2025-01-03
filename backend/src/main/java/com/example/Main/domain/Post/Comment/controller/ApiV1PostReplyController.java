@@ -1,5 +1,6 @@
 package com.example.Main.domain.Post.Comment.controller;
 
+import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Post.Comment.dto.PostCommentDTO;
 import com.example.Main.domain.Post.Comment.dto.request.PostCommentCreateRequest;
 import com.example.Main.domain.Post.Comment.dto.request.PostCommentModifyRequest;
@@ -7,8 +8,9 @@ import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.Post.Comment.service.PostCommentService;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
-import com.example.Main.global.RsData.RsData;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
+import com.example.Main.global.RsData.RsData;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,11 +21,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/post/{postId}/comments/{commentId}/replies")
+@RequestMapping(value = "/api/v1/posts/{postId}/comments/{commentId}/replies")
 public class ApiV1PostReplyController {
 
     private final PostCommentService commentService;
     private final PostService postService;
+    private final NotificationService notificationService;
 
     // 대댓글 조회
     @GetMapping
@@ -31,13 +34,13 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         List<PostCommentDTO> replies = commentService.getRepliesByParentCommentId(commentId);
 
         if (replies.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_REPLIES, null);
+            return RsData.of("404", ErrorMessages.REPLY_NOT_FOUND, null);
         }
 
         return RsData.of("200", "대댓글 조회 성공", replies);
@@ -50,12 +53,12 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment parentComment = commentService.getComment(commentId).orElse(null);
         if (parentComment == null) {
-            return RsData.of("404", ErrorMessages.REPLY_PARENT_COMMENT_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.REPLY_NOT_FOUND, null);
         }
 
         PostComment reply = commentService.getComment(replyId).orElse(null);
@@ -82,7 +85,7 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment parentComment = commentService.getComment(commentId).orElse(null);
@@ -117,7 +120,7 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment parentComment = commentService.getComment(parentCommentId).orElse(null);
@@ -126,13 +129,23 @@ public class ApiV1PostReplyController {
         }
 
         if (!parentComment.getPost().getId().equals(postId)) {
-            return RsData.of("404", ErrorMessages.POST_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         PostComment replyComment = commentService.addComment(postId, userEmail, content, parentCommentId);
 
         if (replyComment == null || !replyComment.getPost().getId().equals(postId)) {
             return RsData.of("404", ErrorMessages.INVALID_COMMENT_OPERATION, null);
+        }
+
+        // 부모 댓글 작성자에게 알림 전송
+        Member replyAuthor = parentComment.getAuthor();
+        if (replyAuthor != null && !replyAuthor.getEmail().equals(userEmail)) {
+
+            notificationService.sendNotification(
+                    replyAuthor.getId().toString(),
+                    "대댓글이 달렸습니다. "
+            );
         }
 
         return RsData.of("201", "대댓글 작성 성공", new PostCommentDTO(replyComment));
@@ -153,7 +166,7 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment parentComment = commentService.getComment(commentId).orElse(null);
@@ -171,7 +184,7 @@ public class ApiV1PostReplyController {
         }
 
         if (!reply.getAuthor().getEmail().equals(loggedInUserEmail)) {
-            return RsData.of("403", ErrorMessages.REPLY_CANNOT_BE_MODIFIED, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
         reply = commentService.updateComment(replyId, commentModifyRequest.getContent(), loggedInUserEmail);
@@ -193,7 +206,7 @@ public class ApiV1PostReplyController {
 
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment parentComment = commentService.getComment(commentId).orElse(null);
@@ -211,12 +224,9 @@ public class ApiV1PostReplyController {
         }
 
         if (!reply.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.REPLY_CANNOT_BE_DELETED, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
-        if (commentService.hasReplies(reply)) {
-            return RsData.of("400", ErrorMessages.REPLY_CANNOT_BE_DELETED, null);
-        }
         commentService.deleteComment(replyId);
         return RsData.of("200", "%d 번 대댓글 삭제 성공".formatted(replyId), null);
     }

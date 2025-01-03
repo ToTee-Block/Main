@@ -12,6 +12,7 @@ import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.Post.Comment.service.PostCommentService;
 import com.example.Main.domain.Post.entity.Post;
 import com.example.Main.domain.Post.service.PostService;
+import com.example.Main.domain.notification.service.NotificationService;
 import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
 import jakarta.validation.Valid;
@@ -24,24 +25,25 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/post/{postId}/comments")
+@RequestMapping(value = "/api/v1/posts/{postId}/comments")
 public class ApiV1PostCommentController {
 
     private final PostCommentService commentService;
     private final MemberService memberService;
     private final PostService postService;
+    private final NotificationService notificationService;
 
     // 특정 게시글의 댓글 목록 조회 (다건 조회)
     @GetMapping
     public RsData<PostCommentsResponse> getComments(@PathVariable("postId") Long postId) {
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", com.example.Main.global.ErrorMessages.ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", com.example.Main.global.ErrorMessages.ErrorMessages.NOT_FOUND, null);
         }
 
         List<PostCommentDTO> comments = commentService.getCommentsByPostId(postId);
         if (comments.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_COMMENTS, null);
+            return RsData.of("404", ErrorMessages.COMMENT_NOT_FOUND, null);
         }
 
         return RsData.of("200", "댓글 조회 성공 (게시글 제목: " + post.getSubject() + ")", new PostCommentsResponse(comments));
@@ -52,12 +54,12 @@ public class ApiV1PostCommentController {
     public RsData<PostCommentDTO> getComment(@PathVariable("postId") Long postId, @PathVariable("commentId") Long commentId) {
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         PostComment comment = commentService.getComment(commentId).orElse(null);
         if (comment == null || !comment.getPost().getId().equals(postId)) {
-            return RsData.of("404", ErrorMessages.COMMENT_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         return RsData.of("200", "댓글 조회 성공 (게시글 제목: " + post.getSubject() + ")", new PostCommentDTO(comment));
@@ -74,12 +76,12 @@ public class ApiV1PostCommentController {
         String loggedInUserEmail = principal.getName();
         Post post = postService.getPost(postId);
         if (post == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_FOUND, null);
+            return RsData.of("404", ErrorMessages.NOT_FOUND, null);
         }
 
         List<PostCommentDTO> myPostComments = commentService.getPostsCommentsByUserAndPostId(loggedInUserEmail, postId);
         if (myPostComments.isEmpty()) {
-            return RsData.of("404", ErrorMessages.NO_COMMENTS, null);
+            return RsData.of("404", ErrorMessages.COMMENT_NOT_FOUND, null);
         }
 
         return RsData.of("200", "본인이 작성한 댓글 조회 성공", new PostCommentsResponse(myPostComments));
@@ -92,20 +94,30 @@ public class ApiV1PostCommentController {
                                                                @Valid @RequestBody PostCommentCreateRequest commentCreateRequest,
                                                                Principal principal) {
         if (principal == null) {
-            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
+            return RsData.of("401", ErrorMessages.UNAUTHORIZED);
         }
 
-        String userEmail = principal.getName();
-        Long parentCommentId = commentCreateRequest.getParentCommentId();
-
-        PostComment comment = commentService.addComment(postId, userEmail, commentCreateRequest.getContent(), parentCommentId);
-
-        if (comment == null) {
-            return RsData.of("404", ErrorMessages.POST_NOT_EXIST, null);
+        Member author = this.memberService.getMemberByEmail(principal.getName());
+        if (author == null) {
+            return RsData.of("401", "존재하는 사용자가 아닙니다.");
         }
 
-        PostCommentCreateResponse response = new PostCommentCreateResponse(comment);
-        return RsData.of("201", "댓글 작성 성공", response);
+        Post post = this.postService.getPost(postId);
+        if (post == null) {
+            return RsData.of("400", ErrorMessages.NOT_EXIST);
+        }
+
+        PostComment comment = commentService.addComment(commentCreateRequest.getContent(), post, author);
+
+        // 게시물 작성자에게 알림 전송
+        Member postAuthor = post.getAuthor();
+        if (postAuthor != null && !postAuthor.getId().equals(author.getId())) {
+            notificationService.sendNotification(
+                    postAuthor.getId().toString(),
+                    "게시물 '%s'에 댓글이 달렸습니다.".formatted(post.getSubject())
+            );
+        }
+        return RsData.of("201", "댓글 작성 성공", new PostCommentCreateResponse(comment));
     }
 
     // 게시글 댓글 수정
@@ -124,11 +136,11 @@ public class ApiV1PostCommentController {
         }
 
         if (!comment.getPost().getId().equals(postId)) {
-            return RsData.of("404", ErrorMessages.POST_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         if (!comment.getAuthor().getEmail().equals(userEmail)) {
-            return RsData.of("403", ErrorMessages.FORBIDDEN, null);
+            return RsData.of("403", ErrorMessages.NOT_YOUR_OWN, null);
         }
 
         comment = commentService.updateComment(commentId, commentModifyRequest.getContent(), userEmail);
@@ -154,15 +166,11 @@ public class ApiV1PostCommentController {
         }
 
         if (!comment.getPost().getId().equals(postId)) {
-            return RsData.of("404", ErrorMessages.POST_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         if (!comment.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", ErrorMessages.FORBIDDEN, null);
-        }
-
-        if (commentService.hasReplies(comment)) {
-            return RsData.of("400", ErrorMessages.COMMENT_HAS_REPLIES, null);
+            return RsData.of("403", ErrorMessages.REPLY_NOT_YOUR_OWN, null);
         }
 
         commentService.deleteComment(commentId);
@@ -185,7 +193,7 @@ public class ApiV1PostCommentController {
         }
 
         if (!comment.getPost().getId().equals(postId)) {
-            return RsData.of("404", ErrorMessages.COMMENT_ID_MISMATCH, null);
+            return RsData.of("404", ErrorMessages.ID_MISMATCH, null);
         }
 
         Member member = memberService.getMemberByEmail(loggedInUser);

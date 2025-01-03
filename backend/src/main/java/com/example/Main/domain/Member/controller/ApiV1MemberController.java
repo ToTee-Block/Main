@@ -9,7 +9,6 @@ import com.example.Main.domain.Member.request.AuthcodeRequest;
 import com.example.Main.domain.Member.request.MemberCreate;
 import com.example.Main.domain.Member.request.MemberRequest;
 import com.example.Main.domain.Member.request.PasswordChangeRequest;
-import com.example.Main.domain.Member.request.PasswordChangeRequest;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
@@ -25,9 +24,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -63,22 +60,16 @@ public class ApiV1MemberController {
         String name = memberCreate.getName();
         LocalDate birthDate = memberCreate.getBirthDate();
         MemberGender gender = memberCreate.getGender();
-        MultipartFile profileImg = new EmptyMultipartFile();  // TODO: json으로 파일 처리를 못해서 빈 객체 생성. 추후에 post요청으로 받은 file로 변경하기
-
-        // 프로필 사진 저장
-        String savedProfileImg = null;
-        if (!profileImg.isEmpty()) {
-            savedProfileImg = this.imageService.saveImage("user", profileImg, 200, 200);
-        }
 
         // 회원가입
-        MemberDTO memberDTO = this.memberService.join(email, password, name, birthDate, gender, savedProfileImg, MemberRole.USER);
+        MemberDTO memberDTO = this.memberService.join(email, password, name, birthDate, gender, null, MemberRole.USER);
 
         if (memberDTO == null) {
             return RsData.of("400", "이미 존재하는 사용자입니다.");
         }
         return RsData.of("200", "회원가입 성공", memberDTO);
     }
+
 
     @PostMapping("/login")
     public RsData login(@Valid @RequestBody MemberRequest memberRequest, HttpServletResponse res) {
@@ -203,15 +194,12 @@ public class ApiV1MemberController {
         if (checkAuthUserRD != null) return checkAuthUserRD;
 
         // 프로필 사진 저장
-        String savedProfileImg = null;
+        String savedProfileImg = "";
         if (!image.isEmpty()) {
             savedProfileImg = this.imageService.saveImage("user", image);
-            // 멤버 엔티티 업데이트
-            member.setProfileImg(savedProfileImg);
-            memberService.save(member);  // 변경사항을 데이터베이스에 저장
-        } else {
-            savedProfileImg = member.getProfileImg();
         }
+        member.setProfileImg(savedProfileImg);
+        memberService.save(member);
 
         return RsData.of("200", "프로필 이미지 변경 성공", savedProfileImg);
     }

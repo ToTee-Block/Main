@@ -27,6 +27,8 @@ public class QnADTO {
 
     private final String authorEmail;
 
+    private final String authorName;
+
     private final LocalDateTime createdDate;
 
     @LastModifiedDate
@@ -46,6 +48,7 @@ public class QnADTO {
         this.subject = qna.getSubject();
         this.content = qna.getContent();
         this.authorEmail = qna.getAuthor() != null ? qna.getAuthor().getEmail() : "Unknown";
+        this.authorName = qna.getAuthor() != null ? qna.getAuthor().getName() : "Unknown";
         this.createdDate = qna.getCreatedDate();
         this.modifiedDate = qna.getModifiedDate();
         this.isDraft = qna.getIsDraft();

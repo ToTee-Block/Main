@@ -4,7 +4,6 @@ import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.QnA.dto.QnADTO;
 import com.example.Main.domain.QnA.dto.request.QnACreateRequest;
-import com.example.Main.domain.QnA.dto.request.QnALikeDTO;
 import com.example.Main.domain.QnA.dto.request.QnAModifyRequest;
 import com.example.Main.domain.QnA.dto.response.QnACreateResponse;
 import com.example.Main.domain.QnA.dto.response.QnAModifyResponse;
@@ -12,23 +11,28 @@ import com.example.Main.domain.QnA.dto.response.QnAResponse;
 import com.example.Main.domain.QnA.dto.response.QnAsResponse;
 import com.example.Main.domain.QnA.entity.QnA;
 import com.example.Main.domain.QnA.service.QnAService;
+import com.example.Main.domain.TechStack.enums.TechStacks;
+import com.example.Main.global.ErrorMessages.ErrorMessages;
 import com.example.Main.global.RsData.RsData;
-import com.example.Main.global.Util.Markdown.MarkdownService;
+import com.example.Main.global.Security.SecurityMember;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/qna")
+@RequestMapping(value = "/api/v1/qnas")
 public class ApiV1QnAController {
     private final QnAService qnAService;
     private final MemberService memberService;
-    private final MarkdownService markdownService;
 
     // 검색
     @GetMapping("/search")
@@ -43,15 +47,41 @@ public class ApiV1QnAController {
         return RsData.of("200", "검색 성공", new QnAsResponse(qnADTOs));
     }
 
-    // 다건 조회
+    // 다건조회 - ver.전체
     @GetMapping("")
-    public RsData<QnAsResponse> list() {
-        List<QnADTO> qnADTOs = this.qnAService.getList();
-        return RsData.of("200", "QnA 게시글 다건 조회 성공", new QnAsResponse(qnADTOs));
+    public RsData list(@RequestParam(value = "page", defaultValue = "0")int page,
+                       @RequestParam(value = "size", defaultValue = "10") int size,
+                       @RequestParam(value = "kw", defaultValue = "") String keyword) {
+        Page<QnADTO> qnAs = this.qnAService.searchRecentQnAs(page, size, keyword);
+
+        return RsData.of("200", "게시글 다건 조회 성공", qnAs);
+    }
+
+    // 다건조회 - ver.특정사용자
+    @GetMapping("/{authorEmail}")
+    public RsData getMyQnAs(@RequestParam(value = "page", defaultValue = "0")int page,
+                             @RequestParam(value = "size", defaultValue = "10") int size,
+                             @RequestParam(value = "kw", defaultValue = "") String keyword,
+                             @PathVariable(value = "authorEmail") String authorEmail) {
+        Member author = this.memberService.getMemberByEmail(authorEmail);
+        if (author == null) {
+            return RsData.of("400", "존재하지 않는 사용자입니다.");
+        }
+
+        Map<String, Object> returnMap = new HashMap<>();
+
+        List<String> wholeTechStacks = TechStacks.printAllTechStacks();
+        Page<QnADTO> entireQnAs = qnAService.searchQnAsByAuthor(page, size, keyword, author);
+
+        returnMap.put("stacks", wholeTechStacks);
+        returnMap.put("qnAs", entireQnAs);
+
+
+        return RsData.of("200", "본인이 작성한 QnA 조회 성공", returnMap);
     }
 
     // 단건 조회
-    @GetMapping("/{id}")
+    @GetMapping("/detail/{id}")
     public RsData<QnAResponse> getQnA(@PathVariable("id") Long id) {
         QnA qna = this.qnAService.getQnA(id);
 
@@ -60,24 +90,6 @@ public class ApiV1QnAController {
 
         QnADTO qnADTO = new QnADTO(qna);
         return RsData.of("200", "QnA 게시글 단건 조회 성공", new QnAResponse(qnADTO));
-    }
-
-    // 본인이 작성한 게시글 조회
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/myqnas")
-    public RsData<QnAsResponse> getMyQnAs(Principal principal) {
-        if (principal == null) {
-            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
-        }
-        String loggedInUser = principal.getName();
-
-        List<QnADTO> myQnAs = qnAService.getQnAsByAuthor(loggedInUser);
-
-        if (myQnAs.isEmpty()) {
-            return RsData.of("404", "본인이 작성한 QnA 게시물이 없습니다.", null);
-        }
-
-        return RsData.of("200", "본인이 작성한 QnA 게시글 조회 성공", new QnAsResponse(myQnAs));
     }
 
     // QnA 게시글 생성
@@ -90,10 +102,9 @@ public class ApiV1QnAController {
         }
         String loggedInUser = principal.getName();
 
-        String htmlContent = markdownService.convertMarkdownToHtml(qnACreateRequest.getContent());
         QnA qna = qnAService.write(
                 qnACreateRequest.getSubject(),
-                htmlContent,
+                qnACreateRequest.getContent(),
                 loggedInUser,
                 qnACreateRequest.getIsDraft()
         );
@@ -119,33 +130,63 @@ public class ApiV1QnAController {
             return RsData.of("403", "본인만 QnA 게시글을 수정할 수 있습니다.", null);
         }
 
-        String htmlContent = markdownService.convertMarkdownToHtml(qnAModifyRequest.getContent());
 
-        qna = this.qnAService.update(qna, htmlContent, qnAModifyRequest.getSubject(), loggedInUser, qnAModifyRequest.getIsDraft());
+        qna = this.qnAService.update(
+                qna,
+                qnAModifyRequest.getSubject(),
+                qnAModifyRequest.getContent(),
+                loggedInUser,
+                qnAModifyRequest.getIsDraft());
 
         return RsData.of("200", "QnA 게시글 수정 성공", new QnAModifyResponse(qna));
     }
 
-    // QnA 게시글 삭제
+    // QNA 삭제
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public RsData<QnAResponse> delete(@PathVariable("id") Long id, Principal principal) {
         if (principal == null) {
-            return RsData.of("401", "로그인 후 사용 가능합니다.", null);
+            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
         }
-        QnA qna = this.qnAService.getQnA(id);
 
-        if (qna == null || qna.getIsDraft()) {
-            return RsData.of("500", "%d 번 QnA 게시물은 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
+        QnA qnA = this.qnAService.getQnA(id);
+
+        if (qnA == null || qnA.getIsDraft()) {
+            return RsData.of("404", "%d 번 QnA 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
         }
+
         String loggedInUser = principal.getName();
-        if (!qna.getAuthor().getEmail().equals(loggedInUser)) {
-            return RsData.of("403", "본인만 QnA 게시글을 삭제할 수 있습니다.", null);
+        if (!qnA.getAuthor().getEmail().equals(loggedInUser)) {
+            return RsData.of("403", ErrorMessages.NOT_YOUR_OWN, null);
         }
 
-        this.qnAService.delete(qna);
-        QnADTO qnADTO = new QnADTO(qna);
-        return RsData.of("200", "%d 번 QnA 게시물 삭제 성공".formatted(id), new QnAResponse(qnADTO));
+        this.qnAService.deleteQnA(id);
+        return RsData.of("200", "%d 번 QnA 삭제 성공".formatted(id), null);
+    }
+
+    // 관리자용 게시글 삭제
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/{id}")
+    public RsData<QnAResponse> deleteQnAByAdmin(@PathVariable("id") Long id, @AuthenticationPrincipal SecurityMember loggedInUser) {
+        if (loggedInUser == null) {
+            return RsData.of("401", ErrorMessages.UNAUTHORIZED, null);
+        }
+
+        String role = loggedInUser.getAuthorities().toString();
+        if (!role.contains("ROLE_ADMIN")) {
+            return RsData.of("403", ErrorMessages.ONLY_ADMIN, null);
+        }
+
+        QnA qnA = this.qnAService.getQnA(id);
+
+        if (qnA == null || qnA.getIsDraft()) {
+            return RsData.of("404", "%d 번 QnA 존재하지 않거나 임시 저장된 게시물입니다.".formatted(id), null);
+        }
+
+        this.qnAService.deleteQnAByAdmin(id);
+
+        QnADTO qnADTO = new QnADTO(qnA);
+        return RsData.of("200", "%d 번 QnA 삭제 성공 (관리자 삭제)".formatted(id), new QnAResponse(qnADTO));
     }
 
     // 임시 저장된 QnA 게시물 목록 전체 조회
@@ -198,12 +239,11 @@ public class ApiV1QnAController {
             return RsData.of("403", "본인만 임시 저장 QnA 게시글을 이어서 작성할 수 있습니다.", null);
         }
 
-        String htmlContent = markdownService.convertMarkdownToHtml(qnAModifyRequest.getContent());
 
         qna = this.qnAService.continueDraft(
                 id,
-                htmlContent,
                 qnAModifyRequest.getSubject(),
+                qnAModifyRequest.getContent(),
                 loggedInUser,
                 qnAModifyRequest.getIsDraft()
         );
@@ -238,7 +278,6 @@ public class ApiV1QnAController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/like")
     public RsData<QnAResponse> like(@PathVariable("id") Long id,
-                                    @RequestBody QnALikeDTO qnALikeDTO,
                                     Principal principal) {
         if (principal == null) {
             return RsData.of("401", "로그인 후 사용 가능합니다.", null);

@@ -4,6 +4,7 @@ import com.example.Main.domain.QnA.Comment.entity.QnAComment;
 import com.example.Main.domain.Member.entity.Member;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,7 +15,10 @@ public class QnACommentDTO {
     private final Long id;
     private final String content;
     private final String authorEmail;
+    private final String authorName;
+    private final String profileImg;
     private final int likes;
+    private final LocalDateTime createdDate;
     private final List<String> likedByEmails;
     private final Long qnAId;
     private final Long parentCommentId;
@@ -24,8 +28,11 @@ public class QnACommentDTO {
         this.id = comment.getId();
         this.content = comment.getContent();
         this.authorEmail = comment.getAuthor().getEmail();
-
+        this.authorName = comment.getAuthor().getName();
+        this.profileImg = comment.getAuthor().getProfileImg();
         this.likes = comment.getLikes();
+        this.createdDate = comment.getCreatedDate();
+
         Set<Member> likedByMembersSet = comment.getLikedByMembers() != null ? comment.getLikedByMembers() : Set.of();
         this.likedByEmails = likedByMembersSet.stream()
                 .map(member -> member.getEmail())

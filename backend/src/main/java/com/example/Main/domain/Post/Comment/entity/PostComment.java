@@ -30,17 +30,19 @@ public class PostComment extends BaseEntity {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "comment_likes",
+            name = "post_comment_likes",
             joinColumns = @JoinColumn(name = "comment_id"),
             inverseJoinColumns = @JoinColumn(name = "member_id")
     )
     private Set<Member> likedByMembers = new HashSet<>();
 
     private int likes;
+
     @ManyToOne
     @JoinColumn(name = "parent_comment_id")
     private PostComment parentComment;
-    @OneToMany(mappedBy = "parentComment")
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostComment> replies = new ArrayList<>();
 
     // 좋아요 추가

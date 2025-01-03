@@ -1,0 +1,47 @@
+@import "../../globals/font-mixin.scss";
+
+.Modal {
+  @include font-S-B;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 280px;
+  padding: 24px 10px 12px 10px;
+  border: 1px solid var(--gray-color);
+  border-radius: 8px;
+  background-color: var(--background);
+
+  .content {
+    display: flex;
+    justify-content: center;
+
+    & > span {
+      text-align: center;
+      word-break: keep-all;
+      line-height: 1.3;
+    }
+  }
+
+  .actions {
+    & > button {
+      @include font-XS-B;
+      padding: 12px 24px;
+      border-radius: 6px;
+    }
+
+    button:first-child {
+      color: #303f9f;
+      border: 1px solid #303f9f;
+      margin-right: 24px;
+    }
+
+    button:nth-child(2) {
+      background-color: var(--primary-color);
+    }
+  }
+}

@@ -1,6 +1,5 @@
 package com.example.Main.domain.Mentor.controller;
 
-import com.example.Main.domain.Member.dto.MemberDTO;
 import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.service.MemberService;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
@@ -26,8 +25,7 @@ public class ApiV1AdminMentorController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("")    // 멘토 목록 - 아직 허가되지 않은 멘토 목록
     public RsData mentorRequestList(@RequestParam(value = "page", defaultValue = "0") int page) {
-        Page<Mentor> mentors = this.mentorService.getApprovedFalse(page);
-
+        Page<MentorDTO> mentors = this.mentorService.getApprovedFalseDTOs(page);
         return RsData.of("200", "멘토 신청 리스트", mentors);
     }
 
@@ -35,13 +33,13 @@ public class ApiV1AdminMentorController {
     @PostMapping("/approve")    // 멘토 허가
     public RsData mentorPermit(@Valid @RequestBody MentoringRequest mentoringRequest) {
         // 멤버와 멘토로서 검증
-        Member member = this.memberService.getMemberById(mentoringRequest.getMentorId());
+        Mentor mentor = this.mentorService.getMentorById(mentoringRequest.getMentorId());
+        if (mentor == null) {
+            return RsData.of("400", "존재하는 멘토가 아닙니다.");
+        }
+        Member member = this.memberService.getMemberById(mentor.getMember().getId());
         if (member == null) {
             return RsData.of("400", "존재하는 멤버가 아닙니다.");
-        }
-        Mentor mentor = this.mentorService.getMentorById(member.getMentorQualify().getId());
-        if (mentor == null) {
-            return RsData.of("400", "존재하는 멘토가 아닙니다.", new MemberDTO(member));
         }
 
         // approve가 true일 때

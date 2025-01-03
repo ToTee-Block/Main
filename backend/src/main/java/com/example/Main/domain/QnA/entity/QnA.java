@@ -1,8 +1,11 @@
 package com.example.Main.domain.QnA.entity;
 
 import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.Post.Comment.entity.PostComment;
 import com.example.Main.domain.QnA.Comment.entity.QnAComment;
+import com.example.Main.domain.Report.entity.Report;
 import com.example.Main.global.Jpa.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -19,19 +22,24 @@ import java.util.Set;
 @SuperBuilder
 @ToString(callSuper = true)
 public class QnA extends BaseEntity {
-
+    @Column(length = 1024)
     private String subject;
+
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne
     private Member author;
+
+    @ElementCollection
+    private Set<String> techStacks;
 
     @Column(name = "is_draft")
     private Boolean isDraft;
 
     private int likes;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(
             name = "qna_likes",
             joinColumns = @JoinColumn(name = "qna_id"),
@@ -52,7 +60,11 @@ public class QnA extends BaseEntity {
     }
 
     // 댓글 목록
-    @OneToMany(mappedBy = "qnA", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "qnA")
     @OrderBy("createdDate DESC")
+    @JsonManagedReference  // 순환 참조 방지를 위해 부모 객체에 적용
     private List<QnAComment> comments;
+
+    @OneToMany(mappedBy = "qnA", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Report> reports;
 }

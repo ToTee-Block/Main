@@ -1,0 +1,16 @@
+@import "../../globals/font-mixin.scss";
+
+.removeBtn {
+  @include font-XXXS-B;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: var(--text-danger-light-color);
+  color: var(--text-white);
+
+  &:hover {
+    filter: brightness(0.8);
+  }
+}

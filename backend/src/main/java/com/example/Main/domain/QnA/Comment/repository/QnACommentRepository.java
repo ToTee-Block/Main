@@ -21,4 +21,6 @@ public interface QnACommentRepository extends JpaRepository<QnAComment, Long> {
 
     // 댓글에 본인이 작성한 대댓글 조회
     List<QnAComment> findByParentCommentIdAndAuthorEmail(Long parentCommentId, String authorEmail);
+
+    void deleteByQnAId(Long qnAId);
 }

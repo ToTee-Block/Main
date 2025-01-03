@@ -1,0 +1,201 @@
+@import "../../globals/font-mixin.scss";
+
+.container {
+  width: 100%;
+  max-width: 1680px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.titleWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.title {
+  @include font-XXL-B;
+  color: var(--text-blue);
+  white-space: nowrap;
+}
+
+.titleLine {
+  width: 500px;
+  height: 6px;
+  background-color: var(--dark-blue-color);
+}
+
+.utilSection {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 100px;
+
+  .airBox {
+    flex-grow: 1;
+  }
+}
+.searchWrapper {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+.qnaItem {
+  max-width: 1200px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  border-bottom: 1px solid var(--gray-400);
+  padding: 24px 0 10px;
+
+  &:hover {
+    background-color: var(--background);
+  }
+}
+
+.numberWrapper {
+  padding: 0 40px;
+  flex-shrink: 0;
+  width: 120px;
+}
+
+.number {
+  @include font-XL-B;
+  font-size: 50px;
+  color: var(--gray-400);
+}
+
+.questionWrapper {
+  flex-grow: 1;
+  padding-left: 24px;
+}
+
+.question {
+  @include font-S-M;
+  font-size: 28px;
+  color: var(--foreground);
+}
+
+.metaWrapper {
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.date {
+  @include font-XXXS-R;
+  color: var(--text-black);
+}
+
+.author {
+  @include font-XXS-B;
+  color: var(--text-black);
+}
+
+.paginationWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  :global {
+    .pageCounter {
+      width: 1680px;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -32px;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+  }
+}
+
+.markdownContent {
+  h1,
+  h2,
+  h3,
+  h4,
+  p {
+    line-height: 1.6; /* 행간 설정 */
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  h4 {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    line-height: 1.7; /* 문단의 행간 */
+    white-space: pre-line;
+  }
+
+  a {
+    color: var(--text-secondary-color);
+    text-decoration: underline;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  // 취소선
+  .markdownStrike,
+  del {
+    text-decoration: line-through !important;
+  }
+
+  // Bold 적용을 위한 스타일
+  strong {
+    font-weight: var(--font-weight-Bold);
+  }
+
+  hr {
+    width: 100%;
+    height: 1px;
+    background-color: var(--gray-300);
+    border: none;
+    margin: 24px 0;
+  }
+}

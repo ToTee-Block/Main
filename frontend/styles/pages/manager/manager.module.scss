@@ -1,0 +1,11 @@
+.container {
+  display: flex;
+  margin: 32px 120px;
+}
+
+.content {
+  background-color: var(--background-gray-color);
+  min-width: 1201px;
+  min-height: 866px;
+  padding: 24px;
+}

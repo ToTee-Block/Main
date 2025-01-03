@@ -1,0 +1,309 @@
+@import "../../globals/font-mixin.scss";
+
+.editorContainer {
+  display: flex;
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  background-color: var(--background);
+  padding-bottom: 32px;
+  gap: 50px;
+}
+
+.editorSection {
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px;
+  width: 840px;
+  height: 1200px;
+  background-color: var(--gray-50);
+  margin-bottom: 32px;
+}
+
+.editorContent {
+  display: flex;
+  flex-direction: column;
+  width: 840px;
+  height: 1200px;
+  flex: 1;
+}
+
+.titleInput {
+  width: 816px;
+  border: none;
+  @include font-XL-B;
+  color: var(--text-black);
+  background-color: transparent;
+  margin-bottom: 12px;
+
+  &::placeholder {
+    color: var(--text-gray);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.divider {
+  width: 64px;
+  height: 6px;
+  background-color: var(--text-blue);
+  margin-bottom: 12px;
+}
+
+.tagSection {
+  width: 816px;
+  margin-bottom: 12px;
+  min-height: 48px;
+  max-height: 140px;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+.editorTextarea {
+  width: 816px;
+  flex: 1;
+  min-height: 668px;
+  padding: 16px;
+  border: none;
+  resize: none;
+  @include font-XXS-B;
+  line-height: 1.5;
+  background-color: var(--background);
+  border-radius: 4px;
+  color: var(--text-black);
+  overflow-y: scroll !important;
+  scrollbar-gutter: stable;
+  display: block;
+
+  // 마크다운 구문 스타일링
+  &[data-has-placeholder="true"] {
+    // 헤딩
+    &[value*="# "],
+    &[value*="## "],
+    &[value*="### "],
+    &[value*="#### "] {
+      & + .placeholder-text {
+        color: var(--gray-400);
+        background-color: var(--gray-50);
+        padding: 0 4px;
+        margin: 0 2px;
+        border-radius: 2px;
+      }
+    }
+
+    // 굵게
+    &[value*="**"] {
+      & + .placeholder-text {
+        color: var(--gray-400);
+        background-color: var(--gray-50);
+      }
+    }
+
+    // 취소선
+    &[value*="~~"] {
+      & + .placeholder-text {
+        color: var(--gray-400);
+        background-color: var(--gray-50);
+      }
+    }
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: var(--text-gray);
+  }
+}
+
+.previewSection {
+  width: 830px;
+  background-color: var(--background);
+  overflow-y: scroll;
+
+  .previewContent {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 1200px;
+  }
+
+  .previewTitle {
+    width: 100%;
+    border: none;
+    @include font-XL-B;
+    color: var(--text-black);
+    background-color: transparent;
+    margin: 0 0 12px;
+    pointer-events: none;
+  }
+
+  .divider {
+    width: 64px;
+    height: 6px;
+    background-color: var(--text-black);
+    margin-bottom: 30px;
+  }
+
+  .markdownContent {
+    width: 100%;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      line-height: 1.6; /* 행간 설정 */
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    h4 {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 15px;
+      line-height: 1.7; /* 문단의 행간 */
+      white-space: pre-line;
+    }
+
+    a {
+      color: var(--text-secondary-color);
+      text-decoration: underline;
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    // 취소선
+    .markdownStrike,
+    del {
+      text-decoration: line-through !important;
+    }
+
+    // Bold 적용을 위한 스타일
+    strong {
+      font-weight: var(--font-weight-Bold);
+    }
+
+    hr {
+      width: 100%;
+      height: 1px;
+      background-color: var(--gray-300);
+      border: none;
+      margin: 24px 0;
+    }
+
+    img {
+      max-width: 100%;
+    }
+  }
+}
+
+.actionButtons {
+  width: 816px;
+  padding: 24px 0;
+  margin-top: auto;
+}
+
+.markdownImage {
+  max-width: 100%;
+  height: auto;
+  margin: 16px 0;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.createPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 100%;
+  height: 100%;
+  padding: 25px;
+  background-color: var(--opacity-2);
+  border-radius: 4px;
+  z-index: 2;
+
+  .innerBox {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    background-color: var(--gray-400);
+    border-radius: 4px;
+  }
+
+  .thumbNailSection {
+    display: flex;
+    gap: 30px;
+  }
+
+  .actionButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    width: 100%;
+    padding-right: 24px;
+
+    .draftButton,
+    .submitButton {
+      width: 80px;
+      height: 40px;
+      border-radius: 6px;
+      cursor: pointer;
+      @include font-XXS-B;
+      transition: all 0.3s ease;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .draftButton {
+      background-color: var(--gray-200);
+      color: var(--text-black);
+      border: none;
+
+      &:hover {
+        background-color: var(--dark-blue-color);
+        color: var(--text-white);
+      }
+    }
+
+    .submitButton {
+      background-color: var(--primary-color);
+      color: var(--text-black);
+      border: 1px solid var(--primary-color);
+
+      &:hover {
+        background-color: var(--secondary-color);
+        color: var(--primary-color);
+        border-color: var(--secondary-color);
+      }
+    }
+  }
+}

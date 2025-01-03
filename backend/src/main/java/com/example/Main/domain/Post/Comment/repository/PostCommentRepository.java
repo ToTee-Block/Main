@@ -22,4 +22,6 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
     // 댓글에 본인이 작성한 대댓글 조회
     List<PostComment> findByParentCommentIdAndAuthorEmail(Long parentCommentId, String authorEmail);
 
+    // 특정 게시글에 달린 모든 댓글 삭제
+    void deleteByPostId(Long postId);
 }
