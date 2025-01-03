@@ -38,6 +38,8 @@ public class Mentor extends BaseEntity {
    @Column(columnDefinition = "text")
    private String portfolio;
 
+   private String profileImg;
+
    /*내 멘티들*/
    @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
    private List<MentorMenteeMatching> myMentees;
