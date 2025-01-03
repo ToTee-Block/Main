@@ -36,7 +36,7 @@ public class MemberService {
     private final JwtProvider jwtProvider;
 
     public MemberDTO join(String email, String password, String name, LocalDate birthDate, MemberGender gender, String profileImg, MemberRole role) {
-        if (this.memberRepository.findByEmail(email).isPresent()) {
+        if (!this.memberRepository.findByEmail(email).isEmpty()) {
             return null;
         }
 

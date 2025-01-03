@@ -46,13 +46,19 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
+  cursor: pointer;
 }
 
 .profileImage {
   width: 259.95px;
   height: 259.95px;
   border-radius: 50%;
-  background-color: var(--gray-200);
+
+  & > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .mentorInfo {
