@@ -1,9 +1,11 @@
 package com.example.Main.domain.Mentor.service;
 
 import com.example.Main.domain.Member.entity.Member;
+import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
 import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
 import com.example.Main.domain.Mentor.repository.MentorMenteeMatchingRepository;
+import com.example.Main.domain.Mentor.repository.MentorRepository;
 import com.example.Main.domain.notification.service.NotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +13,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class MentorMenteeMatchingService {
     private final MentorMenteeMatchingRepository matchingRepository;
     private final NotificationService notificationService;
+    private final MentorRepository mentorRepository;
 
 // ------ MENTOR ------
     public MentorMenteeMatching requestMentoring(Member mentee, Mentor mentor) {
@@ -82,5 +86,21 @@ public class MentorMenteeMatchingService {
     public MentorMenteeMatching getMatchingByMentorAndMenteeId(Long mentorId, Long menteeId) {
         return matchingRepository.findByMentor_IdAndMentee_Id(mentorId, menteeId)
                 .orElse(null);
+    }
+
+    public List<MentorDTO> getMentorsSortedByMatchCount() {
+        List<Mentor> allMentors = mentorRepository.findAll();
+        return allMentors.stream()
+                .map(mentor -> {
+                    MentorDTO dto = new MentorDTO(mentor);
+                    dto.setMatchCount(countMatchesByMentor(mentor));
+                    return dto;
+                })
+                .sorted((m1, m2) -> Integer.compare(m2.getMatchCount(), m1.getMatchCount()))
+                .collect(Collectors.toList());
+    }
+
+    public int countMatchesByMentor(Mentor mentor) {
+        return matchingRepository.countByMentorAndApprovedTrue(mentor);
     }
 }

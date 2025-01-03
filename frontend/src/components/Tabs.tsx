@@ -20,7 +20,7 @@ const Tabs: React.FC = () => {
   useEffect(() => {
     const fetchMentors = async () => {
       try {
-        const response = await apiClient.get("/api/v1/mentors");
+        const response = await apiClient.get("/api/v1/mentors/hot");
         if (response.data.resultCode === "200") {
           setMentors(response.data.data);
         }
@@ -48,31 +48,7 @@ const Tabs: React.FC = () => {
           }`}
           onClick={() => setActiveTab("all")}
         >
-          전체
-        </button>
-        <button
-          className={`${styles.button} ${
-            activeTab === "full" ? styles.active : ""
-          }`}
-          onClick={() => setActiveTab("full")}
-        >
-          Full-Stack
-        </button>
-        <button
-          className={`${styles.button} ${
-            activeTab === "front" ? styles.active : ""
-          }`}
-          onClick={() => setActiveTab("front")}
-        >
-          Front-end
-        </button>
-        <button
-          className={`${styles.button} ${
-            activeTab === "back" ? styles.active : ""
-          }`}
-          onClick={() => setActiveTab("back")}
-        >
-          Back-end
+          인기순
         </button>
       </div>
 
