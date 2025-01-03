@@ -6,7 +6,7 @@ import apiClient, { fetchUserProfile } from "@/api/axiosConfig";
 import styles from "@/styles/pages/post/detail.module.scss";
 import classNames from "classnames";
 import DivideBar from "@/components/divideBar";
-import StackCTGY from "@/components/category/StackCTGY";
+import Tag from "@/components/tag/tag";
 import LikeButton from "@/components/button/LikeButton";
 import ReportButton from "@/components/button/ReportButton";
 import ModifyButton from "@/components/button/ModifyButton";
@@ -217,6 +217,7 @@ const Detail: React.FC = () => {
         );
 
         const resultCode = response.data.resultCode;
+        const msg = response.data.msg;
         const data = response.data.data;
         if (resultCode == "200") {
           setStacks(data.techStacks);
@@ -226,6 +227,9 @@ const Detail: React.FC = () => {
           setError("올바른 게시물이 아닙니다.");
         } else if (resultCode == "500") {
           setError(response.data.msg);
+        } else {
+          console.log(response);
+          console.log(msg);
         }
         setLoading(false);
       } catch (error) {
@@ -252,7 +256,13 @@ const Detail: React.FC = () => {
           <div className={styles.titleBox}>
             <h1 className={styles.title}>{post?.subject}</h1>
             <DivideBar width={300}></DivideBar>
-            <StackCTGY stacks={stacks} disabled={true}></StackCTGY>
+            <div className={styles.tagSection}>
+              <Tag
+                tags={post?.techStacks}
+                selectedTags={post?.techStacks}
+                onTagToggle={null}
+              />
+            </div>
           </div>
           <div className={styles.contentBox}>
             <div className={classNames(styles.content, styles.markdownContent)}>
@@ -270,7 +280,7 @@ const Detail: React.FC = () => {
             <></>
           ) : (
             <>
-              <ModifyButton to={"#"}></ModifyButton>
+              <ModifyButton type={"posts"} id={post?.id}></ModifyButton>
               <RemoveButton
                 setModalVisible={() => setModalVisibleDelete(true)}
               ></RemoveButton>

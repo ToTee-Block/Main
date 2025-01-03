@@ -42,6 +42,7 @@ export default function MentorDetail() {
       const response = await apiClient.get(
         `/api/v1/mentors/profile/${mentorId}`
       );
+      console.log(response);
       if (response.data.resultCode === "200") {
         setMentor(response.data.data);
       } else {

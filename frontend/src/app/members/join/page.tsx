@@ -46,15 +46,13 @@ export default function Join() {
       gender,
     };
 
-    try {
-      // 회원가입 API 호출
-      const response = await apiClient.post("/api/v1/members/join", formData);
+    const response = await apiClient.post("/api/v1/members/join", formData);
+    if (response.data.resultCode === "200") {
       console.log("회원가입 성공:", response.data);
       alert("회원가입 성공!");
-      router.push("/members"); // 로그인 페이지로 이동
-    } catch (err: any) {
-      console.error("회원가입 실패:", err.response?.data || err.message);
-      setError(err.response?.data?.message || "회원가입에 실패했습니다.");
+      router.push("/members");
+    } else {
+      setError(response.data.message || "이미 존재하는 이메일 입니다다.");
     }
   };
 

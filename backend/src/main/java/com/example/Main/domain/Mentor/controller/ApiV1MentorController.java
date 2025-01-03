@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/mentors")
 public class ApiV1MentorController {
     private final MentorService mentorService;
-    private final JwtProvider jwtProvider;
     private final MemberService memberService;
     private final MentorMenteeMatchingService matchingService;
     private final NotificationService notificationService;

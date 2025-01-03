@@ -75,22 +75,25 @@ export default function Login() {
 
       try {
         // 사용자 정보 요청
-        const userResponse = await apiClient.get<UserResponse>("/api/v1/members/me", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
+        const userResponse = await apiClient.get<UserResponse>(
+          "/api/v1/members/me",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
           }
-        });
+        );
 
         if (userResponse.data.data.name) {
           const { name } = userResponse.data.data;
           localStorage.setItem("name", name);
 
           // 로그인 이벤트 발생
-          const loginEvent = new CustomEvent('onLogin', {
-            detail: { 
+          const loginEvent = new CustomEvent("onLogin", {
+            detail: {
               userId: email,
-              name: name
-            }
+              name: name,
+            },
           });
           window.dispatchEvent(loginEvent);
         } else {
@@ -99,17 +102,17 @@ export default function Login() {
       } catch (userError) {
         console.error("사용자 정보 조회 실패:", userError);
         // 사용자 정보 조회 실패 시에도 로그인은 유지
-        const loginEvent = new CustomEvent('onLogin', {
-          detail: { 
+        const loginEvent = new CustomEvent("onLogin", {
+          detail: {
             userId: email,
-            name: email.split('@')[0] // 이메일의 @ 앞부분을 이름으로 사용
-          }
+            name: email.split("@")[0], // 이메일의 @ 앞부분을 이름으로 사용
+          },
         });
         window.dispatchEvent(loginEvent);
       }
 
       console.log("로그인 처리 완료");
-      router.push("/");
+      window.location.href = "/";
     } catch (err) {
       console.error("로그인 중 오류 발생:", err);
     } finally {

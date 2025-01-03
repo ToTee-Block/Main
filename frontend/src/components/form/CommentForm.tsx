@@ -25,8 +25,8 @@ const CommentForm: React.FC<CommentFormProps> = ({
           <img
             src={
               disabled && myProfileImg !== ""
-                ? myProfileImg
-                : "/images/Rectangle.png"
+                ? `/uploaded/${myProfileImg}`
+                : "/icon/user.svg"
             }
             alt={
               disabled ? "로그인된 사용자 프로필 이미지" : "기본 프로필 이미지"

@@ -1,10 +1,18 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw"; // HTML 태그를 처리하는 플러그인
+import rehypeRaw from "rehype-raw";
+import rehypeExternalLinks from "rehype-external-links";
 
 const MarkdownWithHtml = ({ markdownContent }: { markdownContent: string }) => {
   return (
-    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{markdownContent}</ReactMarkdown>
+    <ReactMarkdown
+      rehypePlugins={[
+        rehypeRaw,
+        [rehypeExternalLinks, { target: "_blank", rel: "noopener noreferrer" }],
+      ]}
+    >
+      {markdownContent}
+    </ReactMarkdown>
   );
 };
 
