@@ -59,10 +59,10 @@ export default function MentorSearch() {
           // page: currentPage - 1,
           // size: 15,
           // tags: selectedTags,
-          // query: searchQuery,
         },
       });
       if (response.data.resultCode === "200") {
+        console.log(response.data.data);
         setMentors(response.data.data);
         setTotalPages(response.data.totalPages);
       }
@@ -109,11 +109,13 @@ export default function MentorSearch() {
         <h1 className={styles.title}>ToTee Mentor</h1>
       </div>
       <div className={styles.tagSection}>
-        <Tag
-          tags={tags}
-          selectedTags={selectedTags}
-          onTagToggle={handleTagToggle}
-        />
+        <div className={styles.tagBox}>
+          <Tag
+            tags={tags}
+            selectedTags={selectedTags}
+            onTagToggle={handleTagToggle}
+          />
+        </div>
         <div className={styles.searchWrapper}>
           <Link href="/mentor/mymentor" className={styles.linkWrapper}>
             <MentorButton>My Mentor</MentorButton>
@@ -127,7 +129,7 @@ export default function MentorSearch() {
           <div
             key={mentor.id}
             className={styles.mentorCard}
-            onClick={() => router.push(`/mentor/detail/${mentor.id}`)}
+            onClick={() => router.push(`/mentor/detail/${mentor.memberID}`)}
           >
             <div className={styles.profileImage}>
               <img
