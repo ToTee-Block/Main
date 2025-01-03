@@ -15,20 +15,116 @@ export default function MentorForm() {
   const [bio, setBio] = useState("");
   const [portfolio, setPortfolio] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [profileImge, setProfileImage] = useState<string | null>(null);
+  const [tempMentorId, setTempMentorId] = useState<number | null>(null);
 
-  const techTags = Array(16).fill("Text");
+  const techTags = [
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "Vue",
+    "Angular",
+    "Node.js",
+    "Python",
+    "Java",
+    "Spring",
+    "C++",
+    "C#",
+    "PHP",
+    "Ruby",
+    "Swift",
+    "Kotlin",
+    "Go"
+  ];
+
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const memberResponse = await apiClient.get("/api/v1/members/me");
+      const memberId = memberResponse.data.data.id;
+
+      // 멘토 프로필 이미지 업로드를 위한 FormData
+      const formData = new FormData();
+      formData.append("profileImg", file);
+
+      const response = await apiClient.post(
+        `/api/v1/mentors/profileImg/${memberId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.resultCode === "200") {
+        setProfileImage(response.data.data);
+        setErrorMessage("");
+      } else {
+        setErrorMessage(response.data.msg || "이미지 업로드에 실패했습니다");
+      }
+    } catch (err: any) {
+      console.error("Image upload error:", err);
+      setErrorMessage(`이미지 업로드에 실패했습니다: ${err.message}`);
+    }
+  };
+
+  const handleImageDelete = async () => {
+    try {
+      const memberResponse = await apiClient.get("/api/v1/members/me");
+      const memberId = memberResponse.data.data.id;
+
+      // 멘토 프로필 이미지 삭제를 위한 빈 FormData
+      const formData = new FormData();
+      formData.append("profileImg", new File([], ""));
+
+      const response = await apiClient.post(
+        `/api/v1/mentors/profileImg/${memberId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      
+      if (response.data.resultCode === "200") {
+        setProfileImage(null);
+        setErrorMessage("");
+      } else {
+        throw new Error(response.data.message || "이미지 삭제에 실패했습니다");
+      }
+    } catch (err: any) {
+      console.error("Image delete error:", err);
+      setErrorMessage(`이미지 삭제에 실패했습니다: ${err.message}`);
+    }
+  };
 
   const handleApplyClick = async () => {
     setIsApplyDisabled(true);
     setErrorMessage("");
     try {
+      // 선택된 태그들을 기술 스택 배열로 변환
+      const selectedTechStacks = selectedTags
+        .map((selected, index) => selected ? techTags[index] : null)
+        .filter((tag): tag is string => tag !== null);
+
       const response = await apiClient.post("/api/v1/mentors/registration", {
         oneLineBio,
         bio,
         portfolio,
+        techStacks: selectedTechStacks
       });
+
       if (response.data.resultCode === "200") {
         alert("멘토 등록 신청이 성공적으로 접수되었습니다.");
+        // mentorId를 저장하여 이미지 업로드에 사용
+        if (response.data.data.id) {
+          setTempMentorId(response.data.data.id);
+        }
       } else {
         setErrorMessage(response.data.msg || "멘토 등록 신청에 실패했습니다.");
       }
@@ -65,7 +161,7 @@ export default function MentorForm() {
       <div className={styles.profileContainer}>
         <div className={styles.imageWrapper}>
           <Image
-            src="/icon/user.svg"
+            src={profileImge ? `/uploaded/${profileImge}` : "/icon/user.svg"}
             alt="Profile"
             width={80}
             height={80}
@@ -73,7 +169,7 @@ export default function MentorForm() {
           />
         </div>
         <div className={styles.iconGroup}>
-          <button className={styles.iconButton}>
+          <button className={styles.iconButton} onClick={() => document.getElementById('imageInput')?.click()}>
             <Image
               src="/icon/basicimage.svg"
               alt="Upload"
@@ -81,7 +177,14 @@ export default function MentorForm() {
               height={32}
             />
           </button>
-          <button className={styles.iconButton}>
+          <input
+            id="imageInput"
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            style={{ display: 'none' }}
+          />
+          <button className={styles.iconButton} onClick={handleImageDelete}>
             <Image src="/icon/trash.svg" alt="Delete" width={32} height={32} />
           </button>
         </div>
