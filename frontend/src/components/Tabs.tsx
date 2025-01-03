@@ -41,24 +41,13 @@ const Tabs: React.FC = () => {
 
   return (
     <div className={styles.tabBox}>
-      <div className={styles.buttonBox}>
-        <button
-          className={`${styles.button} ${
-            activeTab === "all" ? styles.active : ""
-          }`}
-          onClick={() => setActiveTab("all")}
-        >
-          인기순
-        </button>
-      </div>
-
       <div className={styles.card_container}>
         {filteredMentors.map((mentor) => (
           <MentorCard
             key={mentor.id}
             href={`/mentor/detail/${mentor.memberID}`}
             name={mentor.name}
-            type="멘토 타입" // 백엔드에서 타입 정보를 제공해야 합니다
+            type=""
             description={mentor.oneLineBio}
           />
         ))}
