@@ -37,13 +37,13 @@ public class MentorDTO {
 
     private final Long memberID;
 
-    /*private List<MentorTechStack> techStacks;*/
+    private List<String> techStacks;
 
 
     public MentorDTO(Mentor mentor) {
         Member member = mentor.getMember();
         this.name = member.getName();
-        this.profileImg = member.getProfileImg();
+        this.profileImg = mentor.getProfileImg();
         this.email = member.getEmail();
         this.id = mentor.getId();
         this.createdDate = mentor.getCreatedDate();
@@ -53,7 +53,7 @@ public class MentorDTO {
         this.portfolio = mentor.getPortfolio();;
         this.approved = mentor.getApproved();
         this.matchingStatus = mentor.getMatchingStatus();
-        /*this.techStacks = mentor.getTechStacks();*/
+        this.techStacks = mentor.getTechStacks();
         this.memberID = member.getId();
     }
 
@@ -61,7 +61,7 @@ public class MentorDTO {
         Mentor mentor = matching.getMentor();
         Member member = mentor.getMember();
         this.name = member.getName();
-        this.profileImg = member.getProfileImg();
+        this.profileImg = mentor.getProfileImg();
         this.email = member.getEmail();
         this.id = mentor.getId();
         this.createdDate = mentor.getCreatedDate();

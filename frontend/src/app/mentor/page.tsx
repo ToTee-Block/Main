@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import apiClient from "@/api/axiosConfig";
 import styles from "@/styles/pages/mentor/mentor.module.scss";
-import Image from "next/image";
 import MentorButton from "@/components/button/MentorButton";
 import Pagination from "@/components/pagination/custompagination";
 import Tag from "@/src/components/tag/tag";
@@ -20,42 +20,49 @@ interface Mentor {
 }
 
 export default function MentorSearch() {
-  const [selectedTags, setSelectedTags] = useState<Array<boolean>>(
-    Array(7).fill(false)
-  );
+  const [tags, setTags] = useState<Array<string>>([""]);
+  const [selectedTags, setSelectedTags] = useState<string[]>(["전체"]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const router = useRouter();
 
-  const tags = [
-    "전체",
-    "React",
-    "React",
-    "React",
-    "React",
-    "React",
-    "임시저장",
-  ];
-
   useEffect(() => {
-    fetchMentors();
+    const fetch = async () => {
+      await fetchTags();
+      fetchMentors();
+    };
+
+    fetch();
   }, [currentPage, selectedTags, searchQuery]);
+
+  const fetchTags = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8081/api/v1/techStacks`
+      );
+      const resultCode = response.data.resultCode;
+      const data = response.data.data;
+      if (resultCode === "200") {
+        setTags(["전체", ...data]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const fetchMentors = async () => {
     try {
       const response = await apiClient.get("/api/v1/mentors", {
         params: {
-          page: currentPage - 1,
-          size: 15,
-          tags: selectedTags
-            .filter((_, index) => index !== 0 && _)
-            .map((_, index) => tags[index + 1]),
-          query: searchQuery,
+          // page: currentPage - 1,
+          // size: 15,
+          // tags: selectedTags,
         },
       });
       if (response.data.resultCode === "200") {
+        console.log(response.data.data);
         setMentors(response.data.data);
         setTotalPages(response.data.totalPages);
       }
@@ -64,17 +71,21 @@ export default function MentorSearch() {
     }
   };
 
-  const handleTagToggle = (index: number): void => {
+  const handleTagToggle = (tagName: string): void => {
     setSelectedTags((prev) => {
-      const newState = [...prev];
-      if (index === 0) {
-        if (prev[0]) {
-          return prev.map(() => false);
-        }
-        return prev.map((_, i) => i === 0);
+      let newState = [...prev];
+      if (tagName === "전체") {
+        return ["전체"];
       } else {
-        newState[0] = false;
-        newState[index] = !newState[index];
+        if (newState.indexOf("전체") !== -1) {
+          newState = newState.filter((item) => item !== "전체");
+        }
+        if (newState.includes(tagName)) {
+          newState = newState.filter((item) => item !== tagName);
+          if (newState.length === 0) newState = ["전체"];
+        } else {
+          newState.push(tagName);
+        }
         return newState;
       }
     });
@@ -85,9 +96,12 @@ export default function MentorSearch() {
     setCurrentPage(1);
   };
 
-  const handleMentorClick = (mentorId: number) => {
-    router.push(`/mentor/detail/${mentorId}`);
-  };
+  useEffect(() => {
+    try {
+    } catch (e) {
+      console.log(e);
+    }
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -95,11 +109,13 @@ export default function MentorSearch() {
         <h1 className={styles.title}>ToTee Mentor</h1>
       </div>
       <div className={styles.tagSection}>
-        <Tag
-          tags={tags}
-          selectedTags={selectedTags}
-          onTagToggle={handleTagToggle}
-        />
+        <div className={styles.tagBox}>
+          <Tag
+            tags={tags}
+            selectedTags={selectedTags}
+            onTagToggle={handleTagToggle}
+          />
+        </div>
         <div className={styles.searchWrapper}>
           <Link href="/mentor/mymentor" className={styles.linkWrapper}>
             <MentorButton>My Mentor</MentorButton>
@@ -111,16 +127,18 @@ export default function MentorSearch() {
       <div className={styles.mentorGrid}>
         {mentors.map((mentor, index) => (
           <div
-            key={mentor.id} // index 대신 mentor.id 사용
+            key={mentor.id}
             className={styles.mentorCard}
-            onClick={() => handleMentorClick(mentor.id)} // 각 멘토의 실제 id 사용
+            onClick={() => router.push(`/mentor/detail/${mentor.memberID}`)}
           >
             <div className={styles.profileImage}>
-              <Image
-                src={mentor.profileImg || "/default-profile.jpg"}
+              <img
+                src={
+                  mentor.profileImg
+                    ? `/uploaded/${mentor.profileImg}`
+                    : "/icon/user.svg"
+                }
                 alt={mentor.name}
-                layout="fill"
-                objectFit="cover"
               />
             </div>
             <div className={styles.mentorInfo}>
