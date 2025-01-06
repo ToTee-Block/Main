@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import apiClient from "@/api/axiosConfig";
 import MentorCard from "@/components/card/MentorCard";
 import styles from "@/styles/components/tabs.module.scss";
+import Image from "next/image";
 
 interface Mentor {
   id: number;
@@ -11,6 +12,7 @@ interface Mentor {
   bio: string;
   portfolio: string;
   memberID: number;
+  profileImg: string | null;
 }
 
 const Tabs: React.FC = () => {
@@ -49,6 +51,7 @@ const Tabs: React.FC = () => {
             name={mentor.name}
             type=""
             description={mentor.oneLineBio}
+            imageUrl={mentor.profileImg || "/icon/user.svg"}
           />
         ))}
       </div>
