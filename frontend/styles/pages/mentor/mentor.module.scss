@@ -2,8 +2,7 @@
 
 .container {
   width: 100%;
-  max-width: 1680px;
-  margin: 0 auto;
+  min-width: 1280px;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -22,7 +21,7 @@
 }
 
 .tagSection {
-  width: 1680px;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;

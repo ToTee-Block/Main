@@ -10,9 +10,11 @@ import com.example.Main.domain.Mentor.repository.MentorMenteeMatchingRepository;
 import com.example.Main.domain.Mentor.repository.MentorRepository;
 import com.example.Main.domain.Mentor.repository.MentorReviewRepository;
 import com.example.Main.domain.Post.dto.PostDTO;
+import com.example.Main.domain.Post.entity.Post;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -99,6 +101,28 @@ public class MentorService {
         return mentorRepository.findAll().stream()
                 .map(MentorDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    public Page<MentorDTO> searchRecentMentors(int page, int size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Mentor> searchedMentors = this.mentorRepository.searchRecentMentors(keyword, pageable);
+
+        List<MentorDTO> recentMentors = searchedMentors.getContent().stream()
+                .map(MentorDTO::new)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(recentMentors, pageable, searchedMentors.getTotalElements());
+    }
+
+    public Page<MentorDTO> getMyMentorsByMentee(int page, int size, String keyword, Member mentee) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Mentor> searchedMentors = this.mentorRepository.getMyMentors(mentee, keyword, pageable);
+
+        List<MentorDTO> mentors = searchedMentors.getContent().stream()
+                .map(MentorDTO::new)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(mentors, pageable, searchedMentors.getTotalElements());
     }
 
     public MentorDTO getMentorDTOById(Long id) {
