@@ -40,6 +40,8 @@ public class MentorDTO {
 
     private List<String> techStacks;
 
+    private int matchCount;
+
 
     public MentorDTO(Mentor mentor) {
         Member member = mentor.getMember();
@@ -56,6 +58,7 @@ public class MentorDTO {
         this.matchingStatus = mentor.getMatchingStatus();
         this.techStacks = mentor.getTechStacks();
         this.memberID = member.getId();
+        this.matchCount = 0; // 초기값 설정
     }
 
     public MentorDTO(MentorMenteeMatching matching) {    // 매칭에서 멘토의 정보를 가져올때, 로그인한 나와 이루어진 매칭인지 확인: matchingStatus
@@ -73,5 +76,15 @@ public class MentorDTO {
         this.approved = mentor.getApproved();
         this.matchingStatus = matching.getApproved();
         this.memberID = member.getId();
+        this.matchCount = 0; // 초기값 설정
+    }
+
+    public MentorDTO(Mentor mentor, int matchCount) {
+        this(mentor); // 기존 생성자 호출
+        this.matchCount = matchCount;
+    }
+
+    public void setMatchCount(int matchCount) {
+        this.matchCount = matchCount;
     }
 }

@@ -17,29 +17,21 @@
   justify-content: center;
 }
 
-.imageWrapper {
-  width: 60%;
-  height: 70%;
-  border-radius: 50%;
-  background-color: rgb(204, 204, 204);
-  margin-bottom: 12px;
-}
-
 .content {
   width: 100%;
   margin-bottom: 10px;
   text-align: center;
-  
-  &>.name {
+
+  & > .name {
     margin-bottom: 12px;
   }
 
-  &>.name,
-  &>.description {
+  & > .name,
+  & > .description {
     @include font-XXXXS-M;
   }
 
-  &>.type {
+  & > .type {
     @include font-XXS-M;
     margin-bottom: 12px;
   }

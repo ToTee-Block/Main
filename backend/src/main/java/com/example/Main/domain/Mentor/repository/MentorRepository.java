@@ -25,7 +25,7 @@ public interface MentorRepository extends JpaRepository<Mentor, Long> {
             "ORDER BY m.createdDate DESC")
     Page<Mentor> searchRecentMentors(@Param("keyword") String keyword, Pageable pageable);
 
-    // 내 멘토검색
+    // 멘티의 멘토검색
     @Query("SELECT m FROM Mentor m " +
             "JOIN m.myMentees mm " +
             "JOIN m.member member " +
@@ -34,7 +34,7 @@ public interface MentorRepository extends JpaRepository<Mentor, Long> {
             "AND mm.approved = true " +  // 멘티와의 매칭도 승인된 상태
             "AND (member.name LIKE %:keyword% OR m.bio LIKE %:keyword%) " +
             "ORDER BY m.createdDate DESC")
-    Page<Mentor> getMyMentors(@Param("mentee") Member mentee,
+    Page<Mentor> getMentorsByMentee(@Param("mentee") Member mentee,
                               @Param("keyword") String keyword,
                               Pageable pageable);
 

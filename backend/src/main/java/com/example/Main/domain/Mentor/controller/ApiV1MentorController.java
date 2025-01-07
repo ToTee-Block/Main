@@ -85,6 +85,12 @@ public class ApiV1MentorController {
         return RsData.of("200", "내 멘토 정보 조회 성공", mentors);
     }
 
+    @GetMapping("/hot")
+    public ResponseEntity<RsData<List<MentorDTO>>> getHotMentors() {
+        List<MentorDTO> hotMentors = matchingService.getMentorsSortedByMatchCount();
+        return ResponseEntity.ok(RsData.of("200", "인기 멘토 목록 조회 성공", hotMentors));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<RsData<MentorDTO>> getMentorById(@PathVariable Long id) {
         MentorDTO mentor = mentorService.getMentorDTOById(id);
