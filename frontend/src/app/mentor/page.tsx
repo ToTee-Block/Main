@@ -157,9 +157,6 @@ export default function MentorSearch() {
           </div>
         ))}
       </div>
-    </Link>
-  ))}
-</div>
 
       <Pagination
         currentPage={currentPage}

@@ -1,22 +1,51 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "@/styles/pages/mentor/mentor-form.module.scss";
 import apiClient from "@/api/axiosConfig";
 import Image from "next/image";
 import ApplyButton from "@/components/button/ApplyButton";
-import Tag from "@/src/components/tag/tag";
+import Tag from "@/components/tag/tag";
+import { redirect } from "next/navigation";
+
 
 export default function MentorForm() {
   const [isApplyDisabled, setIsApplyDisabled] = useState(false);
-  const [isReapplyDisabled, setIsReapplyDisabled] = useState(false);
-  const [selectedTags, setSelectedTags] = useState(Array(16).fill(false));
   const [oneLineBio, setOneLineBio] = useState("");
   const [bio, setBio] = useState("");
   const [portfolio, setPortfolio] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [profileImge, setProfileImage] = useState<string | null>(null);
-  const [tempMentorId, setTempMentorId] = useState<number | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [mentorStatus, setMentorStatus] = useState<string | null>(null);
+
+ useEffect(() => {
+    const checkMentorStatus = async () => {
+      try {
+        const memberResponse = await apiClient.get("/api/v1/members/me");
+        if (memberResponse.data.resultCode === "200" && memberResponse.data.data.profileImg) {
+          setProfileImage(memberResponse.data.data.profileImg);
+        }
+    
+        const mentorResponse = await apiClient.get("/api/v1/mentors/me");
+        if (mentorResponse.data.resultCode === "200") {
+          const status = mentorResponse.data.data.status;
+          setMentorStatus(status);
+          
+          if (status === 'ACCEPTED') {
+            redirect("/mentor/detail");
+          } else if (status === 'PENDING') {
+            setIsApplyDisabled(true);
+          }
+        }
+      } catch (error) {
+        // 신청 이력이 없는 경우
+        setMentorStatus(null);
+      }
+    };
+
+    checkMentorStatus();
+  }, []);
 
   const techTags = [
     "JavaScript",
@@ -37,77 +66,21 @@ export default function MentorForm() {
     "Go"
   ];
 
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const memberResponse = await apiClient.get("/api/v1/members/me");
-      const memberId = memberResponse.data.data.id;
-
-      // 멘토 프로필 이미지 업로드를 위한 FormData
-      const formData = new FormData();
-      formData.append("profileImg", file);
-
-      const response = await apiClient.post(
-        `/api/v1/mentors/profileImg/${memberId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (response.data.resultCode === "200") {
-        setProfileImage(response.data.data);
-        setErrorMessage("");
+  const handleTagToggle = (tagName: string): void => {
+    setSelectedTags((prev) => {
+      if (prev.includes(tagName)) {
+        return prev.filter((item) => item !== tagName);
       } else {
-        setErrorMessage(response.data.msg || "이미지 업로드에 실패했습니다");
+        return [...prev, tagName];
       }
-    } catch (err: any) {
-      console.error("Image upload error:", err);
-      setErrorMessage(`이미지 업로드에 실패했습니다: ${err.message}`);
-    }
+    });
   };
 
-  const handleImageDelete = async () => {
-    try {
-      const memberResponse = await apiClient.get("/api/v1/members/me");
-      const memberId = memberResponse.data.data.id;
 
-      // 멘토 프로필 이미지 삭제를 위한 빈 FormData
-      const formData = new FormData();
-      formData.append("profileImg", new File([], ""));
-
-      const response = await apiClient.post(
-        `/api/v1/mentors/profileImg/${memberId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      
-      if (response.data.resultCode === "200") {
-        setProfileImage(null);
-        setErrorMessage("");
-      } else {
-        throw new Error(response.data.message || "이미지 삭제에 실패했습니다");
-      }
-    } catch (err: any) {
-      console.error("Image delete error:", err);
-      setErrorMessage(`이미지 삭제에 실패했습니다: ${err.message}`);
-    }
-  };
-
-  const handleApplyClick = async () => {
+ const handleApplyClick = async () => {
     setIsApplyDisabled(true);
     setErrorMessage("");
     try {
-      // 선택된 태그들을 기술 스택 배열로 변환
       const selectedTechStacks = selectedTags
         .map((selected, index) => selected ? techTags[index] : null)
         .filter((tag): tag is string => tag !== null);
@@ -121,35 +94,23 @@ export default function MentorForm() {
 
       if (response.data.resultCode === "200") {
         alert("멘토 등록 신청이 성공적으로 접수되었습니다.");
-        // mentorId를 저장하여 이미지 업로드에 사용
-        if (response.data.data.id) {
-          setTempMentorId(response.data.data.id);
-        }
+        router.push("/");  // 신청 후 메인 페이지로 이동
       } else {
         setErrorMessage(response.data.msg || "멘토 등록 신청에 실패했습니다.");
       }
     } catch (error) {
       console.error("Error applying for mentor:", error);
-      setErrorMessage(
-        "멘토 등록 신청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
-      );
+      setErrorMessage("멘토 등록 신청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setIsApplyDisabled(false);
     }
   };
 
-  const handleReapplyClick = () => {
-    setIsReapplyDisabled(true);
-    // Implement reapply logic here
-  };
-
-  const onTagToggle = (index: number): void => {
-    setSelectedTags((prev) => {
-      const newState = [...prev];
-      newState[index] = !newState[index];
-      return newState;
-    });
-  };
+  const autoResize = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const textarea = event.target;
+  textarea.style.height = 'auto';  // 높이를 초기화
+  textarea.style.height = `${textarea.scrollHeight}px`;  // 스크롤 높이만큼 설정
+};
 
   return (
     <div className={styles.container}>
@@ -161,32 +122,12 @@ export default function MentorForm() {
       <div className={styles.profileContainer}>
         <div className={styles.imageWrapper}>
           <Image
-            src={profileImge ? `/uploaded/${profileImge}` : "/icon/user.svg"}
+            src={profileImage ? `/uploaded/${profileImage}` : "/icon/user.svg"}
             alt="Profile"
             width={80}
             height={80}
             className={styles.profileImage}
           />
-        </div>
-        <div className={styles.iconGroup}>
-          <button className={styles.iconButton} onClick={() => document.getElementById('imageInput')?.click()}>
-            <Image
-              src="/icon/basicimage.svg"
-              alt="Upload"
-              width={32}
-              height={32}
-            />
-          </button>
-          <input
-            id="imageInput"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            style={{ display: 'none' }}
-          />
-          <button className={styles.iconButton} onClick={handleImageDelete}>
-            <Image src="/icon/trash.svg" alt="Delete" width={32} height={32} />
-          </button>
         </div>
         <input
           type="text"
@@ -203,8 +144,12 @@ export default function MentorForm() {
           className={styles.textarea}
           placeholder="입력해주세요."
           value={bio}
-          onChange={(e) => setBio(e.target.value)}
-        />
+          onChange={(e) => {
+          setBio(e.target.value);
+          autoResize(e);
+        }}
+        onInput={autoResize} 
+      />
       </div>
 
       <div className={`${styles.formBox} ${styles.techStackBox}`}>
@@ -212,7 +157,7 @@ export default function MentorForm() {
         <Tag
           tags={techTags}
           selectedTags={selectedTags}
-          onTagToggle={onTagToggle}
+          onTagToggle={handleTagToggle}
         />
       </div>
 
@@ -235,14 +180,6 @@ export default function MentorForm() {
         <div className={styles.submitButton}>
           <ApplyButton onClick={handleApplyClick} disabled={isApplyDisabled}>
             신청
-          </ApplyButton>
-        </div>
-        <div className={styles.submitButton}>
-          <ApplyButton
-            onClick={handleReapplyClick}
-            disabled={isReapplyDisabled}
-          >
-            재신청
           </ApplyButton>
         </div>
       </div>
