@@ -5,16 +5,11 @@ import com.example.Main.domain.Member.enums.MemberRole;
 import com.example.Main.domain.Member.repository.MemberRepository;
 import com.example.Main.domain.Mentor.dto.MentorDTO;
 import com.example.Main.domain.Mentor.entity.Mentor;
-import com.example.Main.domain.Mentor.entity.MentorMenteeMatching;
 import com.example.Main.domain.Mentor.repository.MentorMenteeMatchingRepository;
 import com.example.Main.domain.Mentor.repository.MentorRepository;
 import com.example.Main.domain.Mentor.repository.MentorReviewRepository;
-import com.example.Main.domain.Post.dto.PostDTO;
-import com.example.Main.domain.Post.entity.Post;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
