@@ -922,6 +922,9 @@ styles
 ## ⭐ 페이지별 기능 소개
 
 ### [메인화면]
+- 홈페이지 접속 시 초기화면으로 화면의 기본 구조는 상단 메뉴바, 중간 페이지 설명, 멘토 신청, 개발 질문답변, 게시글 리스트, 멘토 리스트, 하단 footer로 구분되어 있습니다.
+  - 상단 메뉴바는 토티블럭, 블로그, 질문답변, 멘토찾기, 멘토신청, 회원의 프로필 이미지를 클릭하여 프로필, 
+
 - 홈페이지 접속 시 초기화면으로 화면의 기본 구조는 상단 메뉴바, 중간 본문, 하단 footer로 구분되어 있습니다.
     - 상단 메뉴바는 애니버스, 봉사활동, 입양정보, 후원하기, 애니마켓, 애니공지로 총 6개의 메뉴로 구성되어 있습니다.
     - 상단 메뉴바의 최상단 부분은 로그인, 회원가입도 함께 포함되어 있습니다.
@@ -1149,19 +1152,11 @@ styles
 <details>
 <summary> ❗박승수 </summary>
 
-#### <1> <b>캘린더에서 상세페이지로 이동</b>
+#### <1> <b>채팅 연결</b>
 
-```문제``` FullCalendar를 사용하여 봉사활동의 전체 스케줄을 캘린더 일정에 표시하는데는 문제가 없었지만, 캘린더에 표시된 각 스케줄을 클릭했을 때 해당 상세페이지로 이동하지 않는 문제가 발생하였다.
+```문제``` 회원 프로필에서 연결된 멘토와 채팅을 연결 하였을 때 채팅방 Id 값은 들어가는데 채팅 join 테이블에서 아이디가 안들어가는 문제를 확인
 </br></br>
-```해결``` Calendar 엔티티에 어떤 봉사활동의 캘린더인지 @OneToOne 어노테이션을 사용하여 volunteer_id 외래키를 생성하고, FullCalendar 라이브러리의 특성상 객체를 JSON으로 직렬화하거나 JSON에서 역직렬화할 때 volunteer_id를 무시하도록 @JsonIgnore 어노테이션을 사용하였다.
-추가로 봉사활동의 캘린더를 보여주는 JavaScript인 list.js에서 `url: event.volunteer ? /volunteer/detail/${event.volunteer.id} : null` 와 같이 주소를 매핑하여 문제를 해결하였다.
-</br></br></br>
-
-#### <2> <b>애니마켓에서 별점순으로 필터링</b>
-
-```문제``` 애니마켓의 BSET 상품은 각 상품의 별점의 평균이 높은 순서로 8개를 추출하여 보여주는데, 엔티티 설계 시 Product 엔티티에는 별점과 관련된 컬럼이 들어가있지 않고, 각 상품의 리뷰인 Review 엔티티에 starRating 이라는 별점을 나타내는 컬럼이 있어서 단번에 별점 높은 순서의 상품을 추출하는데 문제가 발생하였다.
-</br></br>
-```해결``` getTopRatedProducts(8) 이라는 ProductService의 메서드를 이용하여 평균 별점이 가장 높은 8개의 상품을 추출하도록 하였고, ProductRepository에서 쿼리를 과 같이 `@Query(value = "SELECT p.* FROM product p JOIN review r ON p.id = r.product_id GROUP BY p.id ORDER BY AVG(r.star_rating) DESC, RAND() LIMIT :limit", nativeQuery = true)` 를 작성하여 Product와 Reivew를 조인하였고, 만약 동일 별점이면 랜덤으로 나타나도록 문제를 해결하였다.
+```해결``` 채팅 Join 테이블에서 멘토의 memberId값과 멘티의 memberId값을 엮은 값을 넣어 문제를 해결 하였습니다.
 </br></br></br>
 </details>
 
