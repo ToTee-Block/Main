@@ -24,7 +24,7 @@ const Tabs: React.FC = () => {
       try {
         const response = await apiClient.get("/api/v1/mentors/hot");
         if (response.data.resultCode === "200") {
-          setMentors(response.data.data);
+          setMentors(response.data.data.content);
         }
       } catch (error) {
         console.error("멘토 정보를 가져오는 데 실패했습니다:", error);

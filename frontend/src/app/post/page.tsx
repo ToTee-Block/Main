@@ -64,8 +64,8 @@ const Post: React.FC = () => {
       }
     };
 
-    fetchRecentPosts(); // 페이지가 로드될 때 데이터 호출
-  }, [activeTab]); // 빈 배열을 넣어 컴포넌트가 마운트될 때 한 번만 호출
+    fetchRecentPosts();
+  }, [activeTab]);
 
   if (loading) {
     return <div>Loading...</div>;

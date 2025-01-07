@@ -88,6 +88,9 @@ const Post: React.FC = () => {
           setError("Failed to fetch recent posts.");
           setLoading(false);
         }
+      } else {
+        alert("로그인이 필요합니다.");
+        location.href = "members";
       }
     };
 

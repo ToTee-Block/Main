@@ -2,13 +2,25 @@
 import React, { useState, useEffect } from "react";
 import { fetchUserProfile } from "@/api/axiosConfig";
 import axios from "axios";
-import styles from "@/styles/pages/mentor/mentor.module.scss";
-import MentorButton from "@/components/button/MentorButton";
+import styles from "@/styles/pages/mentor/mymentor.module.scss";
 import Pagination from "@/components/pagination/custompagination";
 import Tag from "@/src/components/tag/tag";
+import MentorButton from "@/components/button/MentorButton";
 import SearchBox from "@/components/search/SearchBox";
 import NoSearch from "@/components/exception/NoSearch";
 import { useRouter } from "next/navigation";
+
+interface Me {
+  birthDate: string;
+  createdDate: string;
+  email: string;
+  gender: string;
+  id: number;
+  modifiedDate: string;
+  name: string;
+  profileImg: string;
+  role: string;
+}
 
 interface Mentor {
   id: number;
@@ -19,7 +31,8 @@ interface Mentor {
   oneLineBio: string;
 }
 
-export default function MentorSearch() {
+export default function MyMentor() {
+  const [me, setMe] = useState<Me>();
   const [tags, setTags] = useState<Array<string>>([""]);
   const [selectedTags, setSelectedTags] = useState<string[]>(["전체"]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,17 +46,22 @@ export default function MentorSearch() {
     };
 
     const fetchRecentPosts = async () => {
+      const me = await getMe();
+      if (!me) {
+        alert("로그인이 필요합니다.");
+        location.href = "/members";
+      }
+
       const queryParams = new URLSearchParams(window.location.search);
       const page = Number(queryParams.get("page")) || 0;
-      const kw = queryParams.get("kw") || "";
 
       setCurrentPage(page + 1);
 
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/v1/mentors`,
+          `http://localhost:8081/api/v1/mentors/my/${me?.id}`,
           {
-            params: { page, size: 16, kw },
+            params: { page, size: 16 },
           }
         );
         const resultCode = response.data.resultCode;
@@ -65,6 +83,16 @@ export default function MentorSearch() {
     fetch();
     fetchRecentPosts();
   }, []);
+
+  const getMe = async () => {
+    const response = await fetchUserProfile();
+    const data = response.data;
+    if (response.resultCode === "200") {
+      setMe(data);
+      return data;
+    }
+    return false;
+  };
 
   const fetchTags = async () => {
     try {
@@ -101,22 +129,6 @@ export default function MentorSearch() {
     });
   };
 
-  const toMyMentor = () => {
-    if (!getMe) {
-      alert("로그인이 필요합니다.");
-      location.href = "/members";
-    }
-    location.href = "/mentor/my";
-  };
-
-  const getMe = async () => {
-    const response = await fetchUserProfile();
-    if (response.resultCode === "200") {
-      return true;
-    }
-    return false;
-  };
-
   useEffect(() => {
     try {
     } catch (e) {
@@ -127,7 +139,7 @@ export default function MentorSearch() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>ToTee Mentor</h1>
+        <h1 className={styles.title}>{me?.name}의 Mentor</h1>
       </div>
       <div className={styles.tagSection}>
         <div className={styles.tagBox}>
@@ -138,7 +150,13 @@ export default function MentorSearch() {
           />
         </div>
         <div className={styles.searchWrapper}>
-          <MentorButton onClick={toMyMentor}>My Mentor</MentorButton>
+          <MentorButton
+            onClick={() => {
+              location.href = "/mentor";
+            }}
+          >
+            Mentor
+          </MentorButton>
           <SearchBox />
         </div>
       </div>
