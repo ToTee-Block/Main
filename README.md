@@ -163,40 +163,69 @@
 <br>
 
 ### 🍋‍🟩 유윤하
--**UI**  메인, 상세, 멘토, QnA, 에디터
--**기능**
-1. 공통
-    - 페이지 전환 로딩 애니메이션 구현
-    - 푸터 자동차 애니메이션 구현
-    - global.scss 구현
-2. 메인페이지
-    - 전체 UI 디자인 구현
-    - 메인 섹션 레이아웃
-    - 멘토 카드 컴포넌트 디자인
-3. 멘토
-    - 상세페이지 디자인
-    - 멘토 리스트 레이아웃
-    - 멘토 정보 조회 페이지
-4. 소개페이지
-   -전체 UI 디자인 구현
-5. QnA
-    - 상세페이지 디자인
-    - 질문 섹션 레이아웃
-6. 에디터
-    - 마크다운 에디터 구현
-    - 드래그 앤 드롭 이미지 업로드
-    - 실시간 미리보기 기능
-    - 에디터/프리뷰 분할 레이아웃
-    - 마크다운 문법 스타일링
+- **UI**  메인, 상세, 멘토, QnA, 에디터
+- **기능**
+  1. 공통
+      - 페이지 전환 로딩 애니메이션 구현
+      - 푸터 자동차 애니메이션 구현
+      - global.scss 구현
+  2. 메인페이지
+      - 전체 UI 디자인 구현
+      - 메인 섹션 레이아웃
+      - 멘토 카드 컴포넌트 디자인
+  3. 멘토
+      - 상세페이지 디자인
+      - 멘토 리스트 레이아웃
+      - 멘토 정보 조회 페이지
+  4. 소개페이지
+     -전체 UI 디자인 구현
+  5. QnA
+      - 상세페이지 디자인
+      - 질문 섹션 레이아웃
+  6. 에디터
+      - 마크다운 에디터 구현
+      - 드래그 앤 드롭 이미지 업로드
+      - 실시간 미리보기 기능
+      - 에디터/프리뷰 분할 레이아웃
+      - 마크다운 문법 스타일링
 
 <br>
 
 ### 🍋‍🟩 유지훈
+- **기능**
+    1. 채팅
+        -  WebSocket을 활용한 실시간 채팅
+        - 이모지,이미지 전송
+    2. 알림
+        - 채팅 알림   
 
 <br>
 
 ### 🍋‍🟩 이상수
-  
+
+- **UI**
+    - 채팅 창, 채팅 위젯 버튼
+- **기능**
+    1. 멘토
+        - 엔티티 생성
+        - 멘토 신청
+    2. 기술 스택
+        - 엔티티 생성
+    3. 채팅
+        - 엔티티 수정
+        - 채팅방 선택
+        - 채팅 기록 불러오기
+
+- **연동(백, 프론트 연동)**
+    1. 채팅
+        - 송신자, 수신자 메세지 구분
+            - 채팅 방 별로 메세지 구분
+            - 실시간 채팅
+            - 채팅 기록
+            - 채팅 방 리스트 표시 및 선택
+    2. 모든페이지
+        - 채팅 위젯 버튼 적용
+
 <br>
 
 ### 🍋‍🟩 이은철
@@ -1193,55 +1222,49 @@ const handleDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
 <details>
 <summary> ❗유지훈 </summary>
 
-#### <1> <b>CSRF 토큰 오류</b>
+#### <1> <b> 사용자가 보낸 메시지가 DB에 저장되지 않는 문제 </b>
 
-```문제``` csrf token forbidden(403)오류로 인해 후원 기능 사용 시에 일시적인 오류가 나고 새로고침 하면 정상작동하는 문제가 발생하였다. 코드에서 문제점을 찾을 수 없었기에 간단한 방법으로 해결하였다.
+```문제```  사용자가 메시지를 전송하면 클라이언트에서는 정상적으로 표시되지만, DB에 메시지가 저장되지 않아 이후 조회 시 메시지가 누락되는 현상이 발생.
+
 </br></br>
-```해결``` 후원 기능에 csrf.token 기능을 빼고 SecurityConfig 에서도 csrf를 사용하지 않고 로그인한 사용자에게만 후원하기 버튼이 보일 수 있도록 수정하여 해결하였다.
+```해결``` 서비스 로직에서 메시지를 저장하는 부분에서 save() 메서드 호출이 누락되거나 올바르게 호출되지 않았다.
+ChatMessage 엔티티가 데이터베이스와 매핑되지 않은 경우 발생.
+
+메시지를 저장할 때 chatMessageRepository.save()를 명시적으로 호출.
+ChatMessage 엔티티에 필요한 필드와 매핑 어노테이션(@Entity, @ManyToOne 등)을 정확히 설정한다.
+
+` @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id"),   @JoinColumn(name = "chat_room_id"), chatMessageRepository.save(chatMessage);
+`
+
+이 설정을 통해 DB에서 저장된 메시지가 정확히 조회되고, 클라이언트에서 누락 없이 메시지를 확인 가능하게 되었다.
 </br></br></br>
 </details>
 
 <details>
 <summary> ❗이상수 </summary>
+sock.js 이용하다가 stomp.js 로 바꿈
+메세지를 보낸 것과 받은 것이 제대로 구분되게 함
 
-#### <1> <b>toast ui 적용 오류</b>
+#### <1> <b>메세지를 방 별로 송수신</b>
 
-```문제``` toast ui 활용시 제대로 된 form양식이 적용되지 않았으며 그 후에도 이미지 업로드시 base64 형식으로 저장되는점 등등의 여러 문제가 발생하였다.
+```문제``` 메세지 실시간 송수신까지는 문제가 없었으나, 채팅 방 구분 없이 모든 메세지가 송수신되는 문제가 있었다.
 </br></br>
-```해결``` 양식을 적용하기 위해 구글링을 하면서 editor 구성에 대한 정보를 검색해 script를 구성하였고
-그리고 나서 글쓰기 페이지에 toast ui가 적용되었지만 이미지 업로드 시에 base64형식으로 파일이 저장되어
-상세페이지에 이미지가 나타나지 않았고 hooks: {
-async addImageBlobHook(blob, callback) { const filename = await response.text();
-const imageUrl = `/gen/${filename}`;
-callback(imageUrl, "image alt attribute");
-}
-이와같은 코드를 적용시켜 블롭형식으로 파일저장시 이름을 바꾸어주었다.
-</br>
-
-#### <2> <b>공공데이터 API 활용</b>
-
-```문제``` 공공데이터 API를 활용하여 입양리스트를 구성하며 json방식이 아닌 xml방식으로만 가져올 수 있어서 문제가 생겼다.
-</br></br>
-```해결``` xml 방식으로 데이터를 가져오다 보니 정보를 읽어드리고 가져올 수 있는 수에서 에러가 발생했고 이를<br>
-String json = XmlToJsonConverter.convert(xml);
-System.out.println("JSON Response: " + json); </br>
-json형식으로 변환후 db에 저장시키며 데이터를 활용할 수 있었다
+```해결``` 백엔드에서는 기존 Chat 엔티티만 사용하던 것을 ChatMessage, ChatJoin, ChatRoom 으로 메세지, 방 참가자, 방 별로 세분화 하고, 프론트에서는 stomp.js의 방 구독 기능을 이용하여 채팅 방 별로 메세지 송수신을 구분하였다.
 </br></br></br>
 
-#### <3> <b>카테고리 활용</b>
+#### <2> <b>메세지 수신, 송신 구별</b>
 
-```문제``` 공공데이터 API를 활용하면서 카테고리를 모든 정보에 적용 시킬 수 없었고 상위,하위 카테고리로 구성하여 문제가 복잡하였다.
+```문제``` 메세지 실시간 전송과 채팅 방마다 메세지 구분은 되었지만, 메세지를 내가 보낸건지 상대가 보낸건지 구별할 수 없었다. 채팅 방을 나갔다가 다시 들어오면 송수신자 별로 구분이 되었지만 채팅 방에서 실시간으로 있는 동안에는 구분되지 않았다.
 </br></br>
-```해결``` jpa를 사용하여 카테고리 선택 시 조건에 맞는 데이터를 가져오려 했지만 animal엔티티에 카테고리 기능을 연결시키는 어려움이 있었고
-@Query("""</br>
-SELECT a FROM Animal a</br>
-WHERE (:kw IS NULL OR a.species LIKE CONCAT('%', :kw, '%'))</br>
-AND (:classification IS NULL OR a.classification LIKE CONCAT('%', :classification, '%'))</br>
-AND (:gender IS NULL OR a.gender LIKE CONCAT('%', :gender, '%'))</br>
-AND (:weight IS NULL OR a.weight LIKE CONCAT('%', :weight, '%'))</br>
-AND (:age IS NULL OR a.age LIKE CONCAT('%', :age, '%'))</br>
-""")</br>
-쿼리문을 활용해 직접적으로 조건에 맞는 데이터를 각 카테고리의 name과 연결시켜 검색되도록 하였다
+```해결``` 서버에서 송신자, 수신자를 미리 구별하고 클라이언트에서는 출력만 하는 방식으로 구현하려 했다. 채팅 기록은 이 방식으로 구현해서 되었기 때문이다. 하지만 이 방식을 사용해도 안되자 클라이언트에 로그인 정보를 가져와 수신자인지 아닌지를 구분하는 방식을 사용했다. 이미 로그인 기능으로 LocalStorage에 userEmail(로그인한 사용자의 아이디 값)이 저장되고 있었고, 이 값을 이용해 메세지 데이터에 송신자의 Email값과 비교해서 송신자인지 수신자인지를 구분해서 출력할 수 있었다.
+</br></br></br>
+
+#### <3> <b>ChatJoin 엔티티의 유니크 설정 문제</b>
+
+```문제``` ChatJoin 엔티티는 채팅 방에 참가자를 구분하기 위해 만든 엔티티로 Member_id와 ChatRoom_id 컬럼이 있고, Member_id와 ChatRoom_id의 두 값이 모두 같은 컬럼은 하나 이상 만들어지지 못하게 설정하려고 했는데, @Column(unique=true)만으로는 해결하지 못하고 있었다.
+</br></br>
+```해결``` @Table(name = "chat_join", uniqueConstraints =  {@UniqueConstraint(columnNames = {"member_id", "chat_room_id"})})을 사용했다. 이 어노테이션은 "member_id", "chat_room_id" 두 컬럼을 마치 하나의 컬럼에 유니크를 적용한 것처럼 작동한다. @Column(unique=true)를 사용하면 (member_id, chat_room_id)의 값이 (1, 2), (1, 1) 인 경우 규칙을 어긴 것이지만 위 어노테이션을 사용하면 허용된다.
 </br></br></br>
 </details>
 
