@@ -79,8 +79,9 @@ const Mentoring: React.FC = () => {
 
   const fetchMenteeData = async () => {
     try {
+      // 수정된 부분: API 엔드포인트 변경
       const response = await apiClient.get(
-        "/api/v1/members/myMentorings/request"
+        "/api/v1/members/myMentoring/request"
       );
       if (response.data.resultCode === "200") {
         setMentorData(response.data.data);
@@ -215,7 +216,7 @@ const MentorView: React.FC<{
     <div className={styles.mentoringContent}>
       {pendingRequests.length > 0 && (
         <div className={styles.mentorSection}>
-          <h4>멘토링 신청 목록</h4>
+          <h4>신청 list</h4>
           <div className={styles.requestList}>
             {pendingRequests.map((request) => (
               <div key={request.matchingId} className={styles.requestItem}>
@@ -251,7 +252,7 @@ const MentorView: React.FC<{
                     className={styles.chatButton}
                     onClick={() => handleChatRequest(mentee)}
                   >
-                    채팅 연결
+                    채팅연결
                   </button>
                   <button
                     className={styles.disconnectButton}
@@ -259,7 +260,7 @@ const MentorView: React.FC<{
                       handleDisconnect(mentee.mentorId, mentee.menteeId)
                     }
                   >
-                    연결 끊기
+                    연결끊기
                   </button>
                 </div>
               </div>
@@ -324,7 +325,7 @@ const MenteeView: React.FC<{
     <div className={styles.mentoringContent}>
       {data.length > 0 && (
         <div className={styles.menteeSection}>
-          <h4>멘토 목록</h4>
+          <h4>멘토 list</h4>
           <div className={styles.requestList}>
             {data.map((mentor) => (
               <div key={mentor.matchingId} className={styles.requestItem}>
@@ -334,7 +335,7 @@ const MenteeView: React.FC<{
                     className={styles.chatButton}
                     onClick={() => handleChatRequest(mentor)}
                   >
-                    채팅 연결
+                    채팅연결
                   </button>
                   <button
                     className={styles.disconnectButton}
@@ -342,7 +343,7 @@ const MenteeView: React.FC<{
                       handleDisconnect(mentor.mentorId, mentor.menteeId)
                     }
                   >
-                    연결 끊기
+                    연결끊기
                   </button>
                 </div>
               </div>

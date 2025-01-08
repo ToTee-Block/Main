@@ -2,10 +2,9 @@
 
 .mentoringContainer {
   width: 100%;
-  padding: 20px;
-  background-color: #ffffff;
+  margin-top: 20px;
+  background-color: var(--background);
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .mentoringHeader {
@@ -13,7 +12,7 @@
 
   h3 {
     font-size: 1.5rem;
-    color: #333;
+    color: var(--foreground);
     margin: 0;
   }
 }
@@ -24,9 +23,8 @@
     margin-bottom: 20px;
 
     h4 {
-      font-size: 1.1rem;
-      color: #555;
-      margin-bottom: 15px;
+      @include font-XXXS-R;
+      color: var(--dark-color);
     }
   }
 }
@@ -41,19 +39,42 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 6px;
 
   span {
-    font-size: 0.9rem;
-    color: #444;
+    @include font-XXXS-B;
+    color: var(--dark-color);
   }
 }
 
 .buttonGroup {
   display: flex;
-  gap: 10px;
+  gap: 4px;
+
+  .chatButton,
+  .disconnectButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 75px;
+    height: 25px;
+    padding: 5px;
+    @include font-XXXS-B;
+    color: var(--text-white);
+    background-color: var(--text-secondary-color);
+    border-radius: 5px;
+
+    &:hover {
+      filter: brightness(0.8);
+    }
+  }
+
+  .disconnectButton {
+    background-color: var(--background-red-color);
+
+    &:hover {
+      filter: brightness(0.8);
+    }
+  }
 }
 
 .acceptButton,
@@ -68,28 +89,19 @@
 }
 
 .acceptButton {
-  background-color: #4caf50;
-  color: white;
+  background-color: var(--text-secondary-color);
+  color: var(--text-white);
 
   &:hover {
-    background-color: #45a049;
+    filter: brightness(0.8);
   }
 }
 
 .rejectButton {
-  background-color: #f44336;
-  color: white;
+  background-color: var(--background-red-color);
+  color: var(--text-white);
 
   &:hover {
-    background-color: #da190b;
-  }
-}
-
-.applyButton {
-  background-color: #2196f3;
-  color: white;
-
-  &:hover {
-    background-color: #0b7dda;
+    filter: brightness(0.8);
   }
 }

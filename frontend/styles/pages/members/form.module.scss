@@ -16,7 +16,6 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    margin-bottom: 20px;
   }
 
   .widthInput {
@@ -41,7 +40,7 @@
       margin-bottom: 20px;
 
       &:hover {
-        background-color: var(--text-danger-light-color);
+        filter: brightness(0.8);
       }
     }
 

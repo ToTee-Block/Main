@@ -259,7 +259,7 @@ public class ApiV1MemberController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/myMentorings/request")    // 진행중인 멘토링 목록 + 내가 신청한 멘토링 목록
+    @GetMapping("/myMentoring/request")    // 진행중인 멘토링 목록 + 내가 신청한 멘토링 목록
     public RsData getMyMentorings(Principal principal) {
         Member member = this.memberService.getMemberByEmail(principal.getName());
 
