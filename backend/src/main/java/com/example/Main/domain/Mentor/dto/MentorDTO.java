@@ -42,6 +42,10 @@ public class MentorDTO {
 
     private int matchCount;
 
+    private Long mentorId;
+
+    private Long menteeId;
+
 
     public MentorDTO(Mentor mentor) {
         Member member = mentor.getMember();
@@ -77,6 +81,8 @@ public class MentorDTO {
         this.matchingStatus = matching.getApproved();
         this.memberID = member.getId();
         this.matchCount = 0; // 초기값 설정
+        this.mentorId = matching.getMentor().getId();
+        this.menteeId = matching.getMentee().getId();
     }
 
     public MentorDTO(Mentor mentor, int matchCount) {
