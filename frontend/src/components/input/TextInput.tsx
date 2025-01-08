@@ -11,6 +11,7 @@ interface TextInputProps {
   disabled?: boolean; // 패스워드 확인 로직
   className?: string; // 외부에서 스타일을 적용할 수 있는 prop
   placeholder?: string; // placeholder를 선택적으로 변경
+  autocompleteBool?: boolean;
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -22,6 +23,7 @@ const TextInput: React.FC<TextInputProps> = ({
   disabled = false,
   className = "",
   placeholder,
+  autocompleteBool,
 }) => {
   const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 상태
   const [hasError, setHasError] = useState(true); // 초기 에러 상태를 true로 설정
@@ -48,6 +50,7 @@ const TextInput: React.FC<TextInputProps> = ({
             className={styles.inputField}
             onChange={onChange}
             placeholder={placeholder}
+            {...(autocompleteBool ? {} : { autocomplete: "off" })}
           />
         </div>
       ) : (

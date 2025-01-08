@@ -16,7 +16,6 @@ interface Mentor {
 }
 
 const Tabs: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>("all");
   const [mentors, setMentors] = useState<Mentor[]>([]);
 
   useEffect(() => {

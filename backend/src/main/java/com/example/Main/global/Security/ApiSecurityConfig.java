@@ -36,6 +36,7 @@ public class ApiSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/*/members/code/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/members/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/members/me").permitAll()
+                        .requestMatchers("/api/*/members/code/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/*/members/password").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/*/members/profile").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/members/delete/**").permitAll()

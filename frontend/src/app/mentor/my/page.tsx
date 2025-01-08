@@ -129,13 +129,6 @@ export default function MyMentor() {
     });
   };
 
-  useEffect(() => {
-    try {
-    } catch (e) {
-      console.log(e);
-    }
-  }, []);
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
