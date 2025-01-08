@@ -195,7 +195,7 @@ const MentorView: React.FC<{
   const handleChatRequest = async (mentee: MatchingDTO) => {
     try {
       const response = await apiClient.post("/chat/rooms", {
-        name: `Mentoring Chat: ${userName} with ${mentee.name}`,
+        name: `${userName} with ${mentee.name}`,
         menteeId: mentee.menteeId,
         mentorId: mentee.mentorId,
       });
