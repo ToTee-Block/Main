@@ -6,8 +6,6 @@ import apiClient from "@/api/axiosConfig";
 import Image from "next/image";
 import ApplyButton from "@/components/button/ApplyButton";
 import Tag from "@/components/tag/tag";
-import { redirect } from "next/navigation";
-
 
 export default function MentorForm() {
   const [isApplyDisabled, setIsApplyDisabled] = useState(false);
@@ -19,32 +17,44 @@ export default function MentorForm() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [mentorStatus, setMentorStatus] = useState<string | null>(null);
 
- useEffect(() => {
-    const checkMentorStatus = async () => {
+  useEffect(() => {
+    const checkLoginAndMentorStatus = async () => {
       try {
+        // 로그인 상태 확인 및 프로필 이미지 가져오기
         const memberResponse = await apiClient.get("/api/v1/members/me");
-        if (memberResponse.data.resultCode === "200" && memberResponse.data.data.profileImg) {
-          setProfileImage(memberResponse.data.data.profileImg);
-        }
-    
-        const mentorResponse = await apiClient.get("/api/v1/mentors/me");
-        if (mentorResponse.data.resultCode === "200") {
-          const status = mentorResponse.data.data.status;
-          setMentorStatus(status);
-          
-          if (status === 'ACCEPTED') {
-            redirect("/mentor/detail");
-          } else if (status === 'PENDING') {
-            setIsApplyDisabled(true);
+        if (memberResponse.data.resultCode === "200") {
+          if (memberResponse.data.data.profileImg) {
+            setProfileImage(memberResponse.data.data.profileImg);
           }
+
+          try {
+            // 멘토 상태 확인
+            const mentorResponse = await apiClient.get(`/api/v1/mentors/${memberResponse.data.data.id}`);
+            if (mentorResponse.data.resultCode === "200") {
+              if (mentorResponse.data.data.approve === true) {
+                window.location.href = "/mentor/detail";
+                return;
+              }
+              // 승인 대기중인 경우
+              setMentorStatus("pending");
+              setIsApplyDisabled(true);
+            }
+          } catch {
+            // 멘토 데이터가 없는 경우 (신규 신청 가능)
+            setMentorStatus(null);
+            setIsApplyDisabled(false);
+          }
+        } else {
+          // 로그인되지 않은 경우
+          window.location.href = "/login";
         }
-      } catch (error) {
-        // 신청 이력이 없는 경우
-        setMentorStatus(null);
+      } catch {
+        // 로그인되지 않은 경우
+        window.location.href = "/login";
       }
     };
 
-    checkMentorStatus();
+    checkLoginAndMentorStatus();
   }, []);
 
   const techTags = [
@@ -67,6 +77,8 @@ export default function MentorForm() {
   ];
 
   const handleTagToggle = (tagName: string): void => {
+    if (mentorStatus === "pending") return;
+
     setSelectedTags((prev) => {
       if (prev.includes(tagName)) {
         return prev.filter((item) => item !== tagName);
@@ -94,23 +106,26 @@ export default function MentorForm() {
 
       if (response.data.resultCode === "200") {
         alert("멘토 등록 신청이 성공적으로 접수되었습니다.");
-        router.push("/");  // 신청 후 메인 페이지로 이동
+        setMentorStatus("pending");
+        setIsApplyDisabled(true);
+
       } else {
-        setErrorMessage(response.data.msg || "멘토 등록 신청에 실패했습니다.");
+        throw new Error(response.data.msg || "멘토 등록 신청에 실패했습니다.");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error applying for mentor:", error);
-      setErrorMessage("멘토 등록 신청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-    } finally {
+      setErrorMessage(error.message || "멘토 등록 신청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
       setIsApplyDisabled(false);
     }
   };
 
   const autoResize = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
   const textarea = event.target;
-  textarea.style.height = 'auto';  // 높이를 초기화
-  textarea.style.height = `${textarea.scrollHeight}px`;  // 스크롤 높이만큼 설정
+  textarea.style.height = 'auto';  
+  textarea.style.height = `${textarea.scrollHeight}px`;  
 };
+
+const isFieldDisabled = mentorStatus === "pending";
 
   return (
     <div className={styles.container}>
@@ -176,10 +191,19 @@ export default function MentorForm() {
         <div className={styles.errorMessage}>{errorMessage}</div>
       )}
 
+      {mentorStatus === "pending" && (
+        <div className={styles.pendingMessage}>
+          현재 멘토 신청이 검토 중입니다. 관리자 승인 후 멘토로 활동하실 수 있습니다.
+        </div>
+      )}
+
       <div className={styles.buttonWrapper}>
         <div className={styles.submitButton}>
-          <ApplyButton onClick={handleApplyClick} disabled={isApplyDisabled}>
-            신청
+        <ApplyButton 
+            onClick={handleApplyClick} 
+            disabled={isApplyDisabled}
+          >
+            {mentorStatus === 'pending' ? '심사중' : '신청'}
           </ApplyButton>
         </div>
       </div>
