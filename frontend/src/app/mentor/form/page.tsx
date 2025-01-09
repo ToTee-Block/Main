@@ -8,6 +8,7 @@ import ApplyButton from "@/components/button/ApplyButton";
 import Tag from "@/components/tag/tag";
 
 export default function MentorForm() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isApplyDisabled, setIsApplyDisabled] = useState(false);
   const [oneLineBio, setOneLineBio] = useState("");
   const [bio, setBio] = useState("");
@@ -16,98 +17,136 @@ export default function MentorForm() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [mentorStatus, setMentorStatus] = useState<string | null>(null);
+  const [techTags, setTechTags] = useState<string[]>([]);
 
   useEffect(() => {
     const checkLoginAndMentorStatus = async () => {
       try {
-        // 로그인 상태 확인 및 프로필 이미지 가져오기
         const memberResponse = await apiClient.get("/api/v1/members/me");
         if (memberResponse.data.resultCode === "200") {
+          setIsLoggedIn(true);
           if (memberResponse.data.data.profileImg) {
             setProfileImage(memberResponse.data.data.profileImg);
           }
 
-          try {
-            // 멘토 상태 확인
-            const mentorResponse = await apiClient.get(`/api/v1/mentors/${memberResponse.data.data.id}`);
-            if (mentorResponse.data.resultCode === "200") {
-              if (mentorResponse.data.data.approve === true) {
-                window.location.href = "/mentor/detail";
-                return;
-              }
-              // 승인 대기중인 경우
-              setMentorStatus("pending");
-              setIsApplyDisabled(true);
+          const mentorResponse = await apiClient.get(`/api/v1/mentors/profile/${memberResponse.data.data.id}`);
+          console.log("멘토 응답:", mentorResponse.data);
+
+          if (mentorResponse.data.resultCode === "200" && mentorResponse.data.data) {
+            const mentorData = mentorResponse.data.data;
+            console.log("멘토 데이터:", mentorData);
+
+            // 승인된 경우에만 detail 페이지로 이동
+            console.log("멘토 승인;", mentorData);
+            if (mentorData.approved === true) {
+              const mentorId = mentorData.id;
+              window.location.href = ("/mentor/detail/" + mentorId);
+              return;
             }
-          } catch {
-            // 멘토 데이터가 없는 경우 (신규 신청 가능)
-            setMentorStatus(null);
-            setIsApplyDisabled(false);
+              
+
+              // 기존 신청 데이터 복원
+            setOneLineBio(mentorData.oneLineBio || "");
+            setBio(mentorData.bio || "");
+            setPortfolio(mentorData.portfolio || "");
+            if (Array.isArray(mentorData.techStacks)) {
+              setSelectedTags(mentorData.techStacks);
+            }
+            setMentorStatus("pending");
           }
-        } else {
-          // 로그인되지 않은 경우
-          window.location.href = "/login";
         }
-      } catch {
-        // 로그인되지 않은 경우
-        window.location.href = "/login";
+      } catch (error: any) {
+        // 로그인하지 않은 경우는 페이지는 보여주되, 상호작용 시 로그인 요청
+        if (error.response?.status === 401) {
+          setIsLoggedIn(false);
+        }
+      }
+    };
+
+    const fetchTechStacks = async () => {
+      try {
+        const response = await apiClient.get("/api/v1/techStacks");
+        if (response.data.resultCode === "200") {
+          setTechTags(response.data.data);
+        } else {
+          throw new Error("Failed to fetch tech stacks");  
+        }
+      } catch (error) {
+        console.error("Error fetching tech stacks:", error);
       }
     };
 
     checkLoginAndMentorStatus();
+    fetchTechStacks();
   }, []);
 
-  const techTags = [
-    "JavaScript",
-    "TypeScript",
-    "React",
-    "Vue",
-    "Angular",
-    "Node.js",
-    "Python",
-    "Java",
-    "Spring",
-    "C++",
-    "C#",
-    "PHP",
-    "Ruby",
-    "Swift",
-    "Kotlin",
-    "Go"
-  ];
+
 
   const handleTagToggle = (tagName: string): void => {
+    if (!isLoggedIn) {
+      alert("로그인이 필요한 서비스입니다.");
+      window.location.href = "/members";
+      return;
+    }
     if (mentorStatus === "pending") return;
 
     setSelectedTags((prev) => {
-      if (prev.includes(tagName)) {
-        return prev.filter((item) => item !== tagName);
-      } else {
-        return [...prev, tagName];
-      }
-    });
-  };
+      const updatedTags = prev.includes(tagName)
+      ? prev.filter((item) => item !== tagName)
+      : [...prev, tagName];
 
+    return updatedTags;
+  });
+};
+
+  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  //   if (!isLoggedIn) {
+  //     alert("로그인이 필요한 서비스입니다.");
+  //     window.location.href = "/members";
+  //     return;
+  //   }
+  //   if (mentorStatus === "pending") return;
+
+  //   const { name, value } = e.target;
+  //   switch (name) {
+  //     case "oneLineBio":
+  //       setOneLineBio(value);
+  //       break;
+  //     case "bio":
+  //       setBio(value);
+  //       autoResize(e as React.ChangeEvent<HTMLTextAreaElement>);
+  //       break;
+  //     case "portfolio":
+  //       setPortfolio(value);
+  //       break;
+  //   }
+  // };
 
  const handleApplyClick = async () => {
-    setIsApplyDisabled(true);
-    setErrorMessage("");
-    try {
-      const selectedTechStacks = selectedTags
-        .map((selected, index) => selected ? techTags[index] : null)
-        .filter((tag): tag is string => tag !== null);
+    if (!isLoggedIn) {
+      alert("로그인이 필요한 서비스입니다.");
+      window.location.href = "/members";
+      return;
+    }
+    // 필수 필드 검증
+    if (!oneLineBio.trim() || !bio.trim() || !portfolio.trim() || selectedTags.length === 0) {
+      alert("모든 필드를 입력해주세요.");
+      return;
+    }
 
+    try {
+      // 선택된 태그를 그대로 전송
       const response = await apiClient.post("/api/v1/mentors/registration", {
-        oneLineBio,
-        bio,
-        portfolio,
-        techStacks: selectedTechStacks
+        oneLineBio: oneLineBio.trim(),
+        bio: bio.trim(),
+        portfolio: portfolio.trim(),
+        techStacks: selectedTags  // 직접 선택된 태그 배열 전송
       });
 
       if (response.data.resultCode === "200") {
         alert("멘토 등록 신청이 성공적으로 접수되었습니다.");
         setMentorStatus("pending");
-        setIsApplyDisabled(true);
+        window.location.reload();
 
       } else {
         throw new Error(response.data.msg || "멘토 등록 신청에 실패했습니다.");
@@ -150,6 +189,7 @@ const isFieldDisabled = mentorStatus === "pending";
           onChange={(e) => setOneLineBio(e.target.value)}
           placeholder="한줄 소개를 입력해주세요."
           className={styles.imageGuide}
+          disabled={mentorStatus === "pending"}
         />
       </div>
 
@@ -163,17 +203,20 @@ const isFieldDisabled = mentorStatus === "pending";
           setBio(e.target.value);
           autoResize(e);
         }}
-        onInput={autoResize} 
+        onInput={autoResize}
+        disabled={mentorStatus === "pending"}
       />
       </div>
 
       <div className={`${styles.formBox} ${styles.techStackBox}`}>
         <h3 className={styles.boxTitle}>기술 스택</h3>
         <Tag
-          tags={techTags}
+          tags={techTags || []}
           selectedTags={selectedTags}
           onTagToggle={handleTagToggle}
+          disabled={mentorStatus === "pending"}
         />
+
       </div>
 
       <div className={styles.formBox}>
@@ -184,6 +227,7 @@ const isFieldDisabled = mentorStatus === "pending";
           placeholder="입력해주세요."
           value={portfolio}
           onChange={(e) => setPortfolio(e.target.value)}
+          disabled={mentorStatus === "pending"}
         />
       </div>
 
@@ -201,7 +245,7 @@ const isFieldDisabled = mentorStatus === "pending";
         <div className={styles.submitButton}>
         <ApplyButton 
             onClick={handleApplyClick} 
-            disabled={isApplyDisabled}
+            disabled={mentorStatus === "pending"}
           >
             {mentorStatus === 'pending' ? '심사중' : '신청'}
           </ApplyButton>

@@ -8,6 +8,7 @@ import MentorButton from "@/components/button/MentorButton";
 import EditButton from "@/components/button/EditButton";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
+import axios from "axios";
 
 interface MentorData {
   id: number;
@@ -39,8 +40,8 @@ export default function MentorDetail() {
 
   const fetchMentorData = async (mentorId: string) => {
     try {
-      const response = await apiClient.get(
-        `/api/v1/mentors/profile/${mentorId}`
+      const response = await axios.get(
+        `http://localhost:8081/api/v1/mentors/${mentorId}`
       );
       console.log(response);
       if (response.data.resultCode === "200") {
