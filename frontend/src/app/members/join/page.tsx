@@ -69,6 +69,14 @@ export default function Join() {
           아이디 (E-mail)
         </TextInput>
 
+        <TextInput
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={styles.wideInput}
+        >
+          이메일 인증
+        </TextInput>
+
         {/* 비밀번호 입력 */}
         <TextInput
           value={password}

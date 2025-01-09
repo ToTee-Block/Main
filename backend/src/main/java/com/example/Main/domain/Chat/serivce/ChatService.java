@@ -11,8 +11,10 @@ import com.example.Main.domain.Member.entity.Member;
 import com.example.Main.domain.Member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.io.File;
@@ -60,9 +62,10 @@ public class ChatService {
 
         return new ChatDTO(
                 message.getChatSender().getChatRoom().getId(),       // 채팅방 ID
-                message.getChatSender().getChatJoiner().getId(),     // 발신자 ID
                 message.getMessage(),                                // 메시지 내용 (텍스트 또는 이미지 URL)
                 message.getCreatedDate(),                            // 전송 시간
+                message.getChatSender().getChatJoiner().getId(),     // 발신자 ID
+                message.getChatSender().getChatJoiner().getEmail(),     // 발신자 email
                 message.getChatSender().getChatJoiner().getName(),   // 발신자 이름
                 null,                                               // senderProfile (추후 추가할 경우 수정)
                 "",                                                 // 메시지 타입 (sent 또는 received, 필요 시 설정)
@@ -169,5 +172,14 @@ public class ChatService {
         chatJoinRepository.save(otherUserJoin);
 
         return savedRoom;
+    }
+
+    public List<Member> getRoomMembers (Long roomId) {
+        ChatRoom chatRoom = this.chatRoomRepository.findById(roomId).orElse(null);
+        if (chatRoom == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can not find chat room.");
+        }
+        List<ChatJoin> chatJoins = this.chatJoinRepository.findByChatRoom(chatRoom);
+        return chatJoins.stream().map(ChatJoin::getChatJoiner).toList();
     }
 }

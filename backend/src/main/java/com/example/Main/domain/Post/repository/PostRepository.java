@@ -29,7 +29,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 제목, 내용, 작성자 이름으로 검색하는 메소드
     // ver - 전체 / 최신순
-    @Query("SELECT p FROM Post p JOIN p.author a WHERE (LOWER(p.subject) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND p.isDraft = false ORDER BY p.createdDate DESC")
+    @Query("SELECT p FROM Post p JOIN p.author a WHERE " +
+            "(LOWER(p.subject) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(a.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND p.isDraft = false " +
+            "ORDER BY p.createdDate DESC")
     Page<Post> searchRecentPosts(@Param("keyword") String keyword, Pageable pageable);
 
     // ver - 전체 / 인기순

@@ -8,7 +8,7 @@ interface MentorCardProps {
   name: string;
   type: string;
   description: string;
-  imageUrl?: string; // 옵셔널로 변경
+  imageUrl: string;
 }
 
 const MentorCard: React.FC<MentorCardProps> = ({
@@ -21,11 +21,15 @@ const MentorCard: React.FC<MentorCardProps> = ({
   return (
     <Link href={href} className={styles.MentorBox}>
       <div className={styles.MentorCard}>
-        <div className={styles.imageWrapper}>
-          {imageUrl && (
-            <Image src={imageUrl} alt={name} width={100} height={100} />
-          )}
-        </div>
+        <Image
+          src={imageUrl}
+          alt={name}
+          width={168}
+          height={175}
+          onError={(e) => {
+            e.currentTarget.src = "/icon/user.svg";
+          }}
+        />
         <div className={styles.content}>
           <h3 className={styles.name}>{name}</h3>
           <p className={styles.type}>{type}</p>

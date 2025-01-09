@@ -9,4 +9,8 @@
   color: var(--text-white);
   border-radius: 10px;
   margin-bottom: 20px;
+
+  &:hover {
+    filter: brightness(0.8);
+  }
 }

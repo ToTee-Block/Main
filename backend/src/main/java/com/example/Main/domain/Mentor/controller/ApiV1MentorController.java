@@ -17,6 +17,7 @@ import com.example.Main.global.RsData.RsData;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -62,9 +63,32 @@ public class ApiV1MentorController {
     }
 
     @GetMapping
-    public ResponseEntity<RsData<List<MentorDTO>>> getAllMentors() {
-        List<MentorDTO> mentors = mentorService.getAllMentors();
-        return ResponseEntity.ok(RsData.of("200", "모든 멘토 정보 조회 성공", mentors));
+    public RsData list(@RequestParam(value = "page", defaultValue = "0") int page,
+                       @RequestParam(value = "size", defaultValue = "10") int size,
+                       @RequestParam(value = "kw", defaultValue = "") String keyword) {
+
+        Page<MentorDTO> mentors = mentorService.searchRecentMentors(page, size, keyword);
+        return RsData.of("200", "모든 멘토 정보 조회 성공", mentors);
+    }
+
+    @GetMapping("/my/{menteeId}")
+    public RsData getMentorsByMentee(@PathVariable(value = "menteeId") Long id,
+                                     @RequestParam(value = "page", defaultValue = "0") int page,
+                                     @RequestParam(value = "size", defaultValue = "10") int size,
+                                     @RequestParam(value = "kw", defaultValue = "") String keyword) {
+        Member mentee = memberService.getMemberById(id);
+        if(mentee == null) {
+            return RsData.of("400","존재하지 않는 멘티(사용자)입니다.");
+        }
+
+        Page<MentorDTO> mentors = mentorService.getMyMentorsByMentee(page, size, keyword, mentee);
+        return RsData.of("200", "내 멘토 정보 조회 성공", mentors);
+    }
+
+    @GetMapping("/hot")
+    public ResponseEntity<RsData<List<MentorDTO>>> getHotMentors() {
+        List<MentorDTO> hotMentors = matchingService.getMentorsSortedByMatchCount();
+        return ResponseEntity.ok(RsData.of("200", "인기 멘토 목록 조회 성공", hotMentors));
     }
 
     @GetMapping("/{id}")
