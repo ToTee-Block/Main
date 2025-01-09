@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -48,5 +49,6 @@ public class Mentor extends BaseEntity {
    @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL)
    private List<MentorReview> reviews;
 
-   private List<String> techStacks;
+   @ElementCollection
+   private Set<String> techStacks;
 }
