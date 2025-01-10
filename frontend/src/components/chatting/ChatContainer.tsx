@@ -149,27 +149,47 @@ const ChatContainer = () => {
     initializeClient();
   }, []);
 
+  // 각 방의 알림 구독 (새 useEffect 추가)
   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await fetch("http://localhost:8081/chat/notifications", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error("Failed to fetch notifications");
-        const data = await res.json();
-        setNotifications(data);
-      } catch (err) {
-        console.error("Error fetching notifications:", err);
-      }
-    };
+    if (stompClient && rooms.length > 0) {
+      rooms.forEach((room) => {
+        stompClient.subscribe(
+          `/sub/chatroom/notification/${room.id}`,
+          (message) => {
+            try {
+              const notification = JSON.parse(message.body);
+              setNotifications((prev) => [...prev, notification]);
+              console.log("Received room notification:", notification);
+            } catch (error) {
+              console.error("Error parsing notification message:", error);
+            }
+          }
+        );
+      });
+    }
+  }, [stompClient, rooms]);
 
-    fetchNotifications();
-  }, []);
+  // useEffect(() => {
+  //   const fetchNotifications = async () => {
+  //     try {
+  //       const res = await fetch("http://localhost:8081/chat/notifications", {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         },
+  //         credentials: "include",
+  //       });
+  //       if (!res.ok) throw new Error("Failed to fetch notifications");
+  //       const data = await res.json();
+  //       setNotifications(data);
+  //     } catch (err) {
+  //       console.error("Error fetching notifications:", err);
+  //     }
+  //   };
+
+  //   fetchNotifications();
+  // }, []);
 
   // 채팅방 세부 정보와 과거 메시지 가져오기
   const fetchRoomDetailsAndMessages = async (roomId: string) => {
@@ -255,8 +275,8 @@ const ChatContainer = () => {
       stompClient.unsubscribe(subscriptionRef.current);
     }
 
-    // 새 채팅방 구독 및 메시지 처리
-    const subscription = stompClient.subscribe(
+    // 새 채팅방 메시지 구독 및 처리
+    const messageSubscription = stompClient.subscribe(
       `/sub/chatroom/${roomId}`,
       (messageOutput) => {
         const data = JSON.parse(messageOutput.body);
@@ -292,8 +312,27 @@ const ChatContainer = () => {
       }
     );
 
-    // 새 구독 ID 저장
-    subscriptionRef.current = subscription.id;
+    // 새 채팅방 알림 구독
+    const notificationSubscription = stompClient.subscribe(
+      `/sub/chatroom/notification/${roomId}`,
+      (message) => {
+        try {
+          const notification = JSON.parse(message.body);
+          console.log("Room notification:", notification);
+          // 알림 상태 업데이트
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n.roomId === roomId ? { ...n, unreadCount: n.unreadCount + 1 } : n
+            )
+          );
+        } catch (error) {
+          console.error("Error parsing room notification:", error);
+        }
+      }
+    );
+
+    // 새 구독 ID 저장 (마지막으로 설정된 구독만 저장)
+    subscriptionRef.current = notificationSubscription.id;
 
     // 채팅방 세부 정보 및 메시지 로드
     fetchRoomDetailsAndMessages(roomId);

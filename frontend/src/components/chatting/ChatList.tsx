@@ -36,13 +36,15 @@ const ChatList: React.FC<ChatListProps> = ({
           >
             <span>{room.name}</span>
             {/* 알림이 있으면 표시 */}
-            {unreadCount > 0 && (
+            {unreadCount > 0 ? (
               <div
                 className={styles.status}
                 data-count={unreadCount} // 알림 개수 표시
               >
                 {unreadCount}
               </div>
+            ) : (
+              <div></div>
             )}
           </div>
         );
