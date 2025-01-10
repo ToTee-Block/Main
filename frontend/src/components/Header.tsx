@@ -218,25 +218,25 @@ const Header: React.FC = () => {
               {showProfileMenu && (
                 <div className={styles.dropdown}>
                   <Link href="/members/me" className={styles.dropdownItem}>
-                    My Profile
+                    내 프로필
                   </Link>
                   <Link
                     href="/members/password"
                     className={styles.dropdownItem}
                   >
-                    Modify Password
+                    비밀번호 변경
                   </Link>
                   <Link href="/blog" className={styles.dropdownItem}>
-                    My Blog
+                    내 블로그
                   </Link>
                   <Link href="/qna" className={styles.dropdownItem}>
-                    My QnA
+                    내 QnA
                   </Link>
                   <button
                     onClick={handleLogout}
                     className={styles.dropdownItem}
                   >
-                    Logout
+                    로그아웃
                   </button>
                 </div>
               )}

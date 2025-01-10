@@ -31,20 +31,28 @@ public class ApiSecurityConfig {
                      관리자 관련 기능은 "ADMIN" 권한만 접근 가능
                  */
                 .authorizeHttpRequests(auth -> auth
+                        // ADMIN
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+
+                        // Member 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.POST, "/api/*/members/join").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/*/members/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/*/members/code/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/members/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/members/me").permitAll()
+                        .requestMatchers("/api/*/members/code/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/*/members/password").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/*/members/profile").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/*/members/delete/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/members/myMentorings/*").authenticated()
+
+                        // Mentor 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.POST, "/api/*/mentors/registration").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/mentors/profile/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/mentors/myMentoring/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/*/members/mentor/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/*/members/myMentorings/*").authenticated()
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+
+                        // MentorReview 관련 API에 대한 권한 설정
+                        .requestMatchers(HttpMethod.GET, "/api/*/reviews/**").permitAll()
 
                         // post 관련 API에 대한 권한 설정
                         .requestMatchers(HttpMethod.GET, "/api/*/posts/**").permitAll()

@@ -35,6 +35,7 @@ const ChatContainer = () => {
   const [stompClient, setStompClient] = useState<Client | null>(null);
   const subscriptionRef = useRef<string | null>(null);
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -80,6 +81,13 @@ const ChatContainer = () => {
   const getCurrentTime = (): string =>
     new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   const getCurrentDate = (): string => new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    const email = localStorage.getItem("userId"); // 예: 'userId'에 이메일이 저장되어 있다고 가정
+    if (email) {
+      setCurrentUserEmail(email); // 로컬 스토리지에서 이메일 가져오기
+    }
+  }, []);
 
   // 채팅방 목록 가져오기
   useEffect(() => {
@@ -182,6 +190,22 @@ const ChatContainer = () => {
     }
   };
 
+  const handleSendMessage = (message: string, imageUrl?: string) => {
+    if (!stompClient || !activeRoom || !currentUserEmail) return;
+
+    const payload = {
+      roomId: Number(activeRoom),
+      message: imageUrl || message, // imageUrl 또는 message 사용
+      contentType: imageUrl ? "image" : "text",
+      senderEmail: currentUserEmail, // 이메일 추가
+    };
+
+    stompClient.publish({
+      destination: "/pub/message",
+      body: JSON.stringify(payload),
+    });
+  };
+
   const handleRoomSelect = (roomId: string) => {
     if (!stompClient) return;
 
@@ -197,6 +221,13 @@ const ChatContainer = () => {
       (messageOutput) => {
         const data = JSON.parse(messageOutput.body);
 
+        console.log("Received message:", data);
+        console.log("currentUserEmail:", currentUserEmail);
+        console.log("Message senderEmail:", data.senderEmail);
+        // 메시지 타입 구분: 발신자와 현재 사용자가 같으면 'sent', 다르면 'received'
+        const messageType =
+          data.senderEmail === currentUserEmail ? "sent" : "received"; // senderEmail을 currentUserEmail과 비교
+
         setChatHistory((prev) => ({
           ...prev,
           [roomId]: [
@@ -206,7 +237,7 @@ const ChatContainer = () => {
               senderId: data.senderId,
               senderName: data.senderName,
               senderProfile: data.senderProfile,
-              type: data.type,
+              type: messageType, // 메시지 타입 구분
               contentType: data.contentType,
               time: new Date(data.sendTime).toLocaleTimeString([], {
                 hour: "2-digit",
@@ -222,21 +253,6 @@ const ChatContainer = () => {
     subscriptionRef.current = subscription.id;
 
     fetchRoomDetailsAndMessages(roomId);
-  };
-
-  const handleSendMessage = (message: string, imageUrl?: string) => {
-    if (!stompClient || !activeRoom) return;
-
-    const payload = {
-      roomId: Number(activeRoom),
-      message: imageUrl || message, // imageUrl 또는 message 사용
-      contentType: imageUrl ? "image" : "text",
-    };
-
-    stompClient.publish({
-      destination: "/pub/message",
-      body: JSON.stringify(payload),
-    });
   };
 
   return (

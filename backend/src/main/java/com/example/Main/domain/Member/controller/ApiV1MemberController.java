@@ -204,19 +204,16 @@ public class ApiV1MemberController {
         return RsData.of("200", "프로필 이미지 변경 성공", savedProfileImg);
     }
 
-
-    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/password")
-    public RsData<MemberDTO> modifyPassword(@Valid @RequestBody PasswordChangeRequest request, Principal principal) {
-        Member member = memberService.getMemberByEmail(principal.getName());
+    public RsData<MemberDTO> modifyPassword(@Valid @RequestBody PasswordChangeRequest request) {
+        Member member = memberService.getMemberByEmail(request.getEmail());
 
-        // 현재 비밀번호 확인
-        if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
-            return RsData.of("400", "현재 비밀번호가 일치하지 않습니다.", null);
+        if (member == null) {
+            return RsData.of("400", "존재하지 않는 사용자입니다.");
         }
 
         // 비밀번호 변경 로직
-        Member updatedMember = memberService.modifyPassword(principal.getName(), request.getNewPassword());
+        Member updatedMember = memberService.modifyPassword(request.getEmail(), request.getNewPassword());
 
         return RsData.of("200", "비밀번호가 성공적으로 변경되었습니다.", new MemberDTO(updatedMember));
     }
@@ -259,7 +256,7 @@ public class ApiV1MemberController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/myMentorings/request")    // 진행중인 멘토링 목록 + 내가 신청한 멘토링 목록
+    @GetMapping("/myMentoring/request")    // 진행중인 멘토링 목록 + 내가 신청한 멘토링 목록
     public RsData getMyMentorings(Principal principal) {
         Member member = this.memberService.getMemberByEmail(principal.getName());
 
@@ -305,12 +302,16 @@ public class ApiV1MemberController {
         }
     }
 
-    @PostMapping("/code/send")
-    public RsData sendCode(@Valid @RequestBody MemberRequest memberRequest) {
+    @GetMapping("/code/send/{email}")
+    public RsData sendCode(@PathVariable(value = "email")String email) {
+        if (memberService.getMemberByEmail(email) == null) {
+            return RsData.of("400", "존재하지 않는 사용자입니다.");
+        }
+
         this.generatedAuthcode = Util.generateAuthCode(6);
         String emailContents = String.format("이메일 인증 코드 : %s", this.generatedAuthcode);
 
-        return this.emailService.send(memberRequest.getEmail(), "ToTeeBlocks 인증코드", emailContents);
+        return this.emailService.send(email, "ToTeeBlocks 인증코드", emailContents);
     }
 
     @PostMapping("/code/auth")

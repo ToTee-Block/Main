@@ -8,6 +8,7 @@ import TextInput from "@/components/input/TextInput";
 import CheckButton from "@/components/button/CheckButton";
 import styles from "@/styles/pages/members/password.module.scss";
 import Link from "next/link";
+import axios from "axios";
 
 interface PasswordResponse {
   resultCode: string;
@@ -17,15 +18,15 @@ interface PasswordResponse {
 
 export default function Password() {
   const router = useRouter();
+  const [isLogin, setIsLogin] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
-  const [currentPassword, setCurrentPassword] = useState<string>("");
+  const [authCode, setAuthCode] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isCurrentPasswordValid, setIsCurrentPasswordValid] =
-    useState<boolean>(false);
-  const [isPasswordChecked, setIsPasswordChecked] = useState<boolean>(false);
+  const [emailValid, setEmailValid] = useState<boolean>(false);
+  const [authBtnBool, setAuthBtnBool] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUserEmail = async () => {
@@ -33,11 +34,9 @@ export default function Password() {
         const response = await apiClient.get("/api/v1/members/me");
         if (response.data.resultCode === "200" && response.data.data) {
           setEmail(response.data.data.email || "");
+          setIsLogin(true);
         } else {
-          console.error(
-            "사용자 정보를 가져오는데 실패했습니다.",
-            response.data.msg
-          );
+          setIsLogin(false);
           setEmail("");
         }
       } catch (error) {
@@ -49,48 +48,74 @@ export default function Password() {
     fetchUserEmail();
   }, []);
 
-  const handleCheckCurrentPassword = async () => {
-    if (!currentPassword) {
-      setError("기존 비밀번호를 입력해주세요.");
+  const handleCheckEmail = async () => {
+    if (email == "") {
+      alert("이메일을 입력해주세요.");
+      return;
+    } else if (email.indexOf("@") == -1) {
+      alert("이메일 형식이 아닙니다.");
       return;
     }
-
+    setAuthBtnBool(true);
     try {
-      const response = await apiClient.patch("/api/v1/members/password", {
-        currentPassword: currentPassword,
-        newPassword: currentPassword, // 비밀번호 확인 시에는 같은 값 전송
-      });
+      const response = await axios.get(
+        `http://localhost:8081/api/v1/members/code/send/${email}`
+      );
+      const resultCode = response.data.resultCode;
+      const msg = response.data.msg;
+      console.log(response);
 
-      if (response.data.resultCode === "200") {
-        setIsCurrentPasswordValid(true);
-        setIsPasswordChecked(true);
+      if (resultCode === "200") {
+        console.log("인증코드 전송 성공");
         setError("");
-        alert("비밀번호가 확인되었습니다.");
+      } else if (resultCode === "400") {
+        alert(msg);
+        setError(msg);
       } else {
-        setIsCurrentPasswordValid(false);
-        setIsPasswordChecked(true);
-        setError(response.data.msg || "비밀번호가 일치하지 않습니다.");
-        alert("비밀번호가 일치하지 않습니다.");
+        setError(msg || "인증코드 전송에 실패했습니다.");
       }
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.msg || "비밀번호 확인에 실패했습니다.";
+        error.response?.data?.msg || "인증코드 전송에 실패했습니다.";
       setError(errorMessage);
-      setIsCurrentPasswordValid(false);
-      setIsPasswordChecked(true);
       alert(errorMessage);
     }
   };
+
+  const handleAuthCode = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8081/api/v1/members/code/auth`,
+        {
+          authcode: authCode,
+        }
+      );
+      const resultCode = response.data.resultCode;
+      const msg = response.data.msg;
+      console.log(response);
+
+      if (resultCode === "200") {
+        console.log("인증완료");
+        setEmailValid(true);
+        setError("");
+      } else if (resultCode === "400") {
+        alert(msg);
+        setError(msg);
+      } else {
+        setError(msg || "인증에 실패했습니다.");
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.msg || "인증에 실패했습니다.";
+      setError(errorMessage);
+      alert(errorMessage);
+    }
+  };
+
   const handlePasswordChange = async () => {
     setError("");
 
-    if (!isPasswordChecked) {
-      alert("기존 비밀번호 확인을 먼저 진행해주세요.");
-      return;
-    }
-
-    if (!isCurrentPasswordValid) {
-      alert("기존 비밀번호가 올바르지 않습니다. 다시 확인해주세요.");
+    if (!emailValid) {
+      alert("이메일 인증이 완료되지 않았습니다.");
       return;
     }
 
@@ -103,10 +128,10 @@ export default function Password() {
     }
 
     try {
-      const response = await apiClient.patch<PasswordResponse>(
-        "/api/v1/members/password",
+      const response = await axios.patch<PasswordResponse>(
+        "http://localhost:8081/api/v1/members/password",
         {
-          currentPassword: currentPassword,
+          email: email,
           newPassword: newPassword,
         }
       );
@@ -126,34 +151,46 @@ export default function Password() {
   };
 
   const isFormValid = () => {
-    return (
-      isCurrentPasswordValid && newPassword && confirmPassword && !isLoading
-    );
+    return emailValid && newPassword && confirmPassword && !isLoading;
   };
 
   return (
     <div className={styles.container}>
       <p className={styles.passwordTitle}>비밀번호 수정</p>
       <div className={styles.passwordBox}>
-        <TextInput value={email} isNotModify className={styles.wideInput}>
-          아이디(E-mail)
-        </TextInput>
-        <div className={styles.passwordInputGroup}>
+        <div
+          className={`${styles.emailGroup} ${emailValid ? styles.dp_none : ""}`}
+        >
           <TextInput
-            isPassword
-            value={currentPassword}
-            onChange={(e) => {
-              setCurrentPassword(e.target.value);
-              setIsCurrentPasswordValid(false);
-              setIsPasswordChecked(false);
-            }}
-            className={styles.passwordCheckde}
+            value={email}
+            className={styles.emailBox}
+            {...(isLogin ? { isNotModify: true } : {})}
+            onChange={isLogin ? undefined : (e) => setEmail(e.target.value)}
           >
-            기존 비밀번호
+            아이디(E-mail)
+          </TextInput>
+          <CheckButton onClick={handleCheckEmail}>인증</CheckButton>
+        </div>
+        <div
+          className={`${styles.authCodeGroup} ${
+            emailValid ? styles.dp_none : ""
+          }`}
+        >
+          <TextInput
+            value={authCode}
+            className={styles.authCodeBox}
+            autocompleteBool={false}
+            isNotModify={false}
+            onChange={(e) => {
+              setAuthCode(e.target.value);
+            }}
+          >
+            인증코드
           </TextInput>
           <CheckButton
-            onClick={handleCheckCurrentPassword}
-            disabled={!currentPassword}
+            onClick={handleAuthCode}
+            disabled={false}
+            display={authBtnBool}
           >
             확인
           </CheckButton>
@@ -162,8 +199,8 @@ export default function Password() {
           isPassword
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          disabled={!isCurrentPasswordValid}
-          className={styles.wideInput}
+          disabled={false}
+          className={`${styles.wideInput} ${emailValid ? "" : styles.dp_none}`}
         >
           새 비밀번호
         </TextInput>
@@ -171,8 +208,8 @@ export default function Password() {
           isPassword
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          disabled={!isCurrentPasswordValid}
-          className={styles.wideInput}
+          disabled={false}
+          className={`${styles.wideInput} ${emailValid ? "" : styles.dp_none}`}
         >
           비밀번호 확인
         </TextInput>

@@ -17,44 +17,18 @@ interface TableItem {
   role?: string;
 }
 
-interface Member {
-  id: number;
+interface ReportItem {
+  reportId: number;
+  reporterName: string;
+  target: {
+    targetId: number;
+    url: string;
+    authorName: string;
+    subject: string;
+  };
+  reason: string;
+  status: string;
   createdDate: string;
-  modifiedDate: string;
-  email: string;
-  name: string;
-  birthDate: string;
-  gender: string;
-  profileImg: string | null;
-  role: string;
-  myMentors: any[];
-  reviews: any[];
-}
-
-interface Mentor {
-  id: number;
-  createdDate: string;
-  modifiedDate: string;
-  email: string;
-  name: string;
-  profileImg: string | null;
-}
-
-interface Post {
-  id: number;
-  subject: string;
-  content: string;
-  authorEmail: string;
-  authorName: string;
-  createdDate: string;
-  modifiedDate: string;
-  techStacks: string[] | null;
-  isDraft: boolean;
-  likes: number;
-  likedByEmails: string[];
-  comments: any[];
-  thumbnail: string | null;
-  filePaths: string[];
 }
 
 interface SearchFilters {
@@ -67,18 +41,20 @@ interface SearchFilters {
 interface ApiResponse<T> {
   resultCode: string;
   msg: string;
-  data: {
-    content: T[];
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
-  };
+  data:
+    | T[]
+    | {
+        content: T[];
+        totalElements: number;
+        totalPages: number;
+        size: number;
+        number: number;
+      };
 }
 
 export default function ManagerPage() {
   const [activeTab, setActiveTab] = useState("members");
-  const [data, setData] = useState<TableItem[]>([]);
+  const [data, setData] = useState<TableItem[] | ReportItem[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
@@ -112,32 +88,42 @@ export default function ManagerPage() {
         size: String(itemsPerPage),
       });
 
-      const response = await apiClient.get<ApiResponse<Member | Mentor | Post>>(
+      const response = await apiClient.get<ApiResponse<TableItem | ReportItem>>(
         `${endpoint}?${params.toString()}`
       );
 
       if (response.data.resultCode === "200") {
-        const formattedData = response.data.data.content.map((item: any) => {
-          if (activeTab === "posts") {
-            return {
-              id: item.id,
-              email: item.authorEmail,
-              name: item.authorName,
-              createdDate: formatDate(item.createdDate),
-              url: item.subject,
-            } as TableItem;
-          } else {
-            return {
-              id: item.id,
-              email: item.email,
-              name: item.name,
-              createdDate: formatDate(item.createdDate),
-              role: item.role,
-            } as TableItem;
-          }
-        });
-        setData(formattedData);
-        setTotalItems(response.data.data.totalElements);
+        if (activeTab === "reports") {
+          const reportData = response.data.data as ReportItem[];
+          setData(reportData);
+          setTotalItems(reportData.length);
+        } else {
+          const responseData = response.data.data as {
+            content: (TableItem | ReportItem)[];
+            totalElements: number;
+          };
+          const formattedData = responseData.content.map((item: any) => {
+            if (activeTab === "posts") {
+              return {
+                id: item.id,
+                email: item.authorEmail,
+                name: item.authorName,
+                createdDate: formatDate(item.createdDate),
+                url: item.subject,
+              } as TableItem;
+            } else {
+              return {
+                id: item.id,
+                email: item.email,
+                name: item.name,
+                createdDate: formatDate(item.createdDate),
+                role: item.role,
+              } as TableItem;
+            }
+          });
+          setData(formattedData);
+          setTotalItems(responseData.totalElements);
+        }
       }
     } catch (error) {
       console.error("데이터 조회 실패:", error);
@@ -169,42 +155,58 @@ export default function ManagerPage() {
     }
   };
 
-  const handleApprove = async (mentorId: number, memberId: number) => {
-    const isConfirmed = window.confirm("승인하시겠습니까?");
-    if (isConfirmed) {
-      try {
-        const response = await apiClient.post("/api/v1/admin/mentors/approve", {
-          mentorId: mentorId.toString(),
-          memberId: memberId.toString(),
-          approve: "true",
-        });
+  const handleApprove = async (id: number) => {
+    if (activeTab === "mentors") {
+      const isConfirmed = window.confirm("승인하시겠습니까?");
+      if (isConfirmed) {
+        try {
+          const response = await apiClient.post(
+            "/api/v1/admin/mentors/approve",
+            {
+              mentorId: id.toString(),
+              memberId: id.toString(),
+              approve: "true",
+            }
+          );
 
-        if (response.data.resultCode === "200") {
-          console.log("멘토 승인 성공");
-          fetchData();
+          if (response.data.resultCode === "200") {
+            console.log("멘토 승인 성공");
+            fetchData();
+          }
+        } catch (error) {
+          console.error("승인 실패:", error);
         }
-      } catch (error) {
-        console.error("승인 실패:", error);
       }
+    } else if (activeTab === "reports") {
+      // 신고 처리 로직 추가
+      console.log("신고 처리:", id);
     }
   };
 
-  const handleReject = async (mentorId: number, memberId: number) => {
-    const isConfirmed = window.confirm("거부하시겠습니까?");
-    if (isConfirmed) {
-      try {
-        const response = await apiClient.post("/api/v1/admin/mentors/approve", {
-          mentorId: mentorId.toString(),
-          memberId: memberId.toString(),
-          approve: "false",
-        });
+  const handleReject = async (id: number) => {
+    if (activeTab === "mentors") {
+      const isConfirmed = window.confirm("거부하시겠습니까?");
+      if (isConfirmed) {
+        try {
+          const response = await apiClient.post(
+            "/api/v1/admin/mentors/approve",
+            {
+              mentorId: id.toString(),
+              memberId: id.toString(),
+              approve: "false",
+            }
+          );
 
-        if (response.data.resultCode === "200") {
-          fetchData();
+          if (response.data.resultCode === "200") {
+            fetchData();
+          }
+        } catch (error) {
+          console.error("거부 실패:", error);
         }
-      } catch (error) {
-        console.error("거부 실패:", error);
       }
+    } else if (activeTab === "reports") {
+      // 신고 반려 로직 추가
+      console.log("신고 반려:", id);
     }
   };
 
@@ -249,8 +251,8 @@ export default function ManagerPage() {
         />
         <Table
           data={data}
-          onApprove={activeTab === "mentors" ? handleApprove : undefined}
-          onReject={activeTab === "mentors" ? handleReject : undefined}
+          onApprove={handleApprove}
+          onReject={handleReject}
           onDelete={handleDelete}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}

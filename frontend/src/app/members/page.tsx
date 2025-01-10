@@ -152,7 +152,7 @@ export default function Login() {
             아이디 찾기
           </Link>
           <span className={styles.divider}>|</span>
-          <Link href="/reset-password" className={styles.link}>
+          <Link href="/members/password" className={styles.link}>
             비밀번호 재설정
           </Link>
         </div>

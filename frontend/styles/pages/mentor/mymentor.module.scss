@@ -2,7 +2,7 @@
 
 .container {
   width: 100%;
-  max-width: 1680px;
+  min-width: 1280px;
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -34,10 +34,19 @@
 }
 
 .tagSection {
-  width: 1680px;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  .tagBox {
+    width: 816px;
+    margin-bottom: 12px;
+    min-height: 48px;
+    max-height: 96px;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
 }
 
 .searchWrapper {
@@ -52,7 +61,7 @@
   column-gap: 95px;
   row-gap: 24px;
 }
-  
+
 .mentorCard {
   display: flex;
   flex-direction: column;
@@ -113,9 +122,8 @@
 .linkWrapper {
   text-decoration: none;
   color: inherit;
-  
+
   &:hover {
     text-decoration: none;
   }
 }
-

@@ -20,4 +20,6 @@ public interface MentorMenteeMatchingRepository extends JpaRepository<MentorMent
     List<MentorMenteeMatching> findByMenteeAndMentor(Member mentee, Mentor mentor);
 
     Optional<MentorMenteeMatching> findByMentor_IdAndMentee_Id(Long mentorId, Long menteeId);
+
+    int countByMentorAndApprovedTrue(Mentor mentor);
 }
