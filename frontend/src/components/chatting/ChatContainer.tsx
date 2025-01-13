@@ -179,6 +179,28 @@ const ChatContainer = () => {
     initializeClient();
   }, []);
 
+  // useEffect(() => {
+  //   const fetchNotifications = async () => {
+  //     try {
+  //       const res = await fetch("http://localhost:8081/chat/notifications", {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         },
+  //         credentials: "include",
+  //       });
+  //       if (!res.ok) throw new Error("Failed to fetch notifications");
+  //       const data = await res.json();
+  //       setNotifications(data);
+  //     } catch (err) {
+  //       console.error("Error fetching notifications:", err);
+  //     }
+  //   };
+
+  //   fetchNotifications();
+  // }, []);
+
   // 각 방의 알림 구독 (중복 제거)
   useEffect(() => {
     if (stompClient && rooms.length > 0) {
