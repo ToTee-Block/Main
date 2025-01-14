@@ -16,6 +16,7 @@ public class ChatNotificationDTO {
     private String message;      // 메시지 내용
     private String type;         // 알림 타입 (예: "text", "image")
     private LocalDateTime timestamp; // 알림 발생 시간
+    //TODO : unreadCount 추가
 
     public ChatNotificationDTO(Long roomId, String senderEmail, String message, String type, LocalDateTime timestamp) {
         this.roomId = roomId;
