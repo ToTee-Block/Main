@@ -11,8 +11,8 @@ interface Message {
   text: string; // 메시지 내용
   type: "sent" | "received"; // 보낸 메시지인지, 받은 메시지인지
   contentType: "image" | "text"; // 콘텐츠 타입: 이미지 또는 텍스트
-  senderId?: number; // 발신자 ID
-  senderName?: string; // 발신자 이름
+  senderId: number; // 발신자 ID
+  senderName: string; // 발신자 이름
   senderProfile?: string; // 발신자 프로필 이미지 URL
   time: string; // 메시지 전송 시간
   date: string; // 메시지 전송 날짜
@@ -130,37 +130,32 @@ const ChatContainer = () => {
         console.log("Connected to WebSocket");
         setStompClient(client);
 
+        // 공통 알림 구독
         client.subscribe("/sub/chatroom/notifications", (message) => {
           try {
-            const incomingNotifications = JSON.parse(message.body); // 배열 가정
+            const incomingNotifications = JSON.parse(message.body);
+
             setNotifications((prev) => {
               const updated = [...prev];
 
               incomingNotifications.forEach((newNotification: Notification) => {
-                const existingIndex = updated.findIndex(
+                const existingNotification = updated.find(
                   (n) => n.roomId === newNotification.roomId
                 );
 
-                if (existingIndex !== -1) {
-                  // 기존 알림이 있을 경우 unreadCount 업데이트
-                  updated[existingIndex].unreadCount += 1;
+                if (existingNotification) {
+                  // 기존 알림이 있을 경우 unreadCount와 메시지를 업데이트
+                  existingNotification.unreadCount += 1;
+                  existingNotification.message = newNotification.message;
+                  existingNotification.timestamp = newNotification.timestamp;
                 } else {
                   // 새로운 알림 추가
-                  updated.push({
-                    ...newNotification,
-                    unreadCount: 1,
-                    senderEmail: newNotification.senderEmail, // senderEmail 추가
-                    message: newNotification.message, // message 추가
-                    type: newNotification.type, // type 추가
-                    timestamp: newNotification.timestamp, // timestamp 추가
-                  });
+                  updated.push({ ...newNotification, unreadCount: 1 });
                 }
               });
 
-              return updated; // 업데이트된 배열 반환
+              return updated;
             });
-
-            console.log("Received notifications:", incomingNotifications);
           } catch (error) {
             console.error("Error parsing notification message:", error);
           }
@@ -204,34 +199,37 @@ const ChatContainer = () => {
   // 각 방의 알림 구독 (중복 제거)
   useEffect(() => {
     if (stompClient && rooms.length > 0) {
-      const subscriptions = rooms.map((room) => {
-        return stompClient.subscribe(
+      const subscriptions = rooms.map((room) =>
+        stompClient.subscribe(
           `/sub/chatroom/notification/${room.id}`,
           (message) => {
             try {
               const notification = JSON.parse(message.body);
-              setNotifications((prev) => {
-                const updated = prev.map((n) => {
-                  if (n.roomId === notification.roomId) {
-                    return { ...n, unreadCount: notification.unreadCount };
-                  }
-                  return n;
-                });
 
-                // 새로운 방의 알림 추가
-                if (!updated.find((n) => n.roomId === notification.roomId)) {
-                  updated.push(notification);
+              setNotifications((prev) => {
+                const updated = [...prev];
+                const existingNotification = updated.find(
+                  (n) => n.roomId === notification.roomId
+                );
+
+                if (existingNotification) {
+                  // 기존 알림 업데이트
+                  existingNotification.unreadCount += 1;
+                  existingNotification.message = notification.message;
+                  existingNotification.timestamp = notification.timestamp;
+                } else {
+                  // 새로운 알림 추가
+                  updated.push({ ...notification, unreadCount: 1 });
                 }
 
                 return updated;
               });
-              console.log("Received room notification:", notification);
             } catch (error) {
               console.error("Error parsing notification message:", error);
             }
           }
-        );
-      });
+        )
+      );
 
       return () => {
         subscriptions.forEach((sub) => sub.unsubscribe());
@@ -311,6 +309,7 @@ const ChatContainer = () => {
 
     setActiveRoom(roomId);
 
+    // 선택된 방의 unreadCount를 초기화
     setNotifications((prev) =>
       prev.map((n) => (n.roomId === roomId ? { ...n, unreadCount: 0 } : n))
     );
@@ -323,6 +322,7 @@ const ChatContainer = () => {
       `/sub/chatroom/${roomId}`,
       (messageOutput) => {
         const data = JSON.parse(messageOutput.body);
+
         setChatHistory((prev) => ({
           ...prev,
           [roomId]: [
