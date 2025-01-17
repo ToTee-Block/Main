@@ -935,7 +935,7 @@ styles
 
 | 메인화면                                                         |
 |--------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/메인1.png"> |
+| ![img.png](ReadmeFile/main.png) |
 
 <br>
 
@@ -947,7 +947,7 @@ styles
 
 | 회원가입                                                          |
 |---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/회원가입.png"> |
+| ![img.png](ReadmeFile/join.png)|
 
 <br>
 
@@ -958,7 +958,7 @@ styles
 
 | 로그인                                                          |
 |--------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/로그인.png"> |
+| ![img.png](ReadmeFile/login.png) |
 
 <br>
 
@@ -969,8 +969,8 @@ styles
 
 | 아이디 찾기, 비밀번호 재설정                                         |
 |-----------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/아이디찾기.png">  |
-| <img src="src/main/resources/static/images/capture/임시비밀번호.png"> |
+| ![img.png](ReadmeFile/modifyPassword.png) |
+| ![img_1.png](ReadmeFile/emailcode.png) |
 
 <br>
 
@@ -993,9 +993,8 @@ styles
 
 | 마이페이지                                                              |
 |--------------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/마이페이지-관리자.png"> |
-| <img src="src/main/resources/static/images/capture/마이페이지-기업.png">  |
-| <img src="src/main/resources/static/images/capture/마이페이지-일반.png">  |
+| ![img.png](ReadmeFile/mypage.png) |
+|![img_1.png](ReadmeFile/mypage2.png)|
 
 <br>
 
@@ -1009,7 +1008,7 @@ styles
 
 | 토티블록                                                          |
 |---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/애니버스.png"> |
+|![img.png](ReadmeFile/intro.png) |
 
 <br>
 
@@ -1026,10 +1025,10 @@ styles
 - 제목과 내용의 키워드를 통해 검색할 수 있습니다.
 
 
-| 블로그                                                          |
+| 블로그                                                           |
 |---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/봉사활동.png"> |
-| <img src="src/main/resources/static/images/capture/봉사후기.png"> |
+| ![img.png](ReadmeFile/blog.png)|
+| ![img.png](ReadmeFile/blogHotPost.png) |
 
 <br>
 
@@ -1039,10 +1038,10 @@ styles
 - 기술 스택 버튼을 통해 자신이 작성한 포스트가 어떤 기술 스택과 관련이 있는지 확인할 수 있습니다.
 - 글쓰기 버튼을 통해 에디터 페이지로 이동할 수 있습니다.
 
-| My Post                                                       |
-|---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/입양.png">   |
-| <img src="src/main/resources/static/images/capture/입양후기.png"> |
+| My Post                                                      |
+|--------------------------------------------------------------|
+|![img.png](ReadmeFile/myPost.png)  |
+|![img.png](ReadmeFile/myPostTackStack.png) |
 
 <br>
 
@@ -1066,7 +1065,10 @@ styles
 
 | 포스트                                                        |
 |-------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/후원.png"> |
+|![img.png](ReadmeFile/postDetail.png)|
+|![img_1.png](ReadmeFile/postDetailComment.png)|
+|![img_2.png](ReadmeFile/postDetailReport.png) |
+
 
 <br>
 
@@ -1084,7 +1086,7 @@ styles
 
 | 글쓰기 에디터                                                          |
 |---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/애니마켓.png"> |
+| ![img.png](ReadmeFile/editor.png) |
 
 <br>
 
@@ -1108,9 +1110,13 @@ styles
             - 신고하기는 5가지 사유를 선택할 수 있으며 기타 내용을 기재할 수 있습니다.
 
 
-| 질문답변                                                          |
-|---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/애니공지.png"> |
+| 질문답변                                                         |
+|--------------------------------------------------------------|
+|![img.png](ReadmeFile/qna.png) |
+|![img.png](ReadmeFile/myQna.png) |
+|![img.png](ReadmeFile/qnaDetail.png) |
+
+
 
 <br>
 
@@ -1127,8 +1133,8 @@ styles
 
 | 멘토찾기                                             |
 |---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/장바구니.png"> |
-| <img src="src/main/resources/static/images/capture/결제.png">   |
+|![img.png](ReadmeFile/mentor.png) |
+|![img.png](ReadmeFile/mentorDetail.png)  |
 
 <br>
 
@@ -1145,8 +1151,7 @@ styles
 
 | 멘토 신청                                             |
 |---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/장바구니.png"> |
-| <img src="src/main/resources/static/images/capture/결제.png">   |
+| ![img.png](ReadmeFile/mentorJoin.png) |
 
 <br>
 
@@ -1171,10 +1176,11 @@ styles
                 - 멘토 신청 : '멘토 신청이 성공적으로 접수가 되었습니다.'
 
 
-| 알림                                             |
-|---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/장바구니.png"> |
-| <img src="src/main/resources/static/images/capture/결제.png">   |
+| 알림                                           |
+|----------------------------------------------|
+|![img.png](ReadmeFile/notification.png)|
+|![img_1.png](ReadmeFile/notificationUser.png)|
+|![img_2.png](ReadmeFile/notificationAdmin.png)|
 
 <br>
 
@@ -1198,8 +1204,7 @@ styles
 
 | 관리자페이지                                             |
 |---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/장바구니.png"> |
-| <img src="src/main/resources/static/images/capture/결제.png">   |
+|![img.png](ReadmeFile/admin.png) |
 
 <br>
 
@@ -1218,8 +1223,7 @@ styles
 
 | 채팅                                             |
 |---------------------------------------------------------------|
-| <img src="src/main/resources/static/images/capture/장바구니.png"> |
-| <img src="src/main/resources/static/images/capture/결제.png">   |
+|![img.png](ReadmeFile/chatting.png) |
 
 <br>
 
