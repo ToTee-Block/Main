@@ -95,7 +95,7 @@
 
 |                                                       **유지훈**                                                       |                                                  **이상수**                                                   |                                                              **이은철**                                                              |
 |:-------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------:|
-|      [<img style="height:150px;" src="ReadmeFile/img_7.png" alt="ReadmeFile/img_7.png" > <br/> @psm817](https://github.com/psm817)       | [<img style="height:150px;" src="ReadmeFile/img_6.png" alt="ReadmeFile/img_6.png"> <br/> @jiyoung-0y0](https://github.com/jiyoung-0y0) | [<img style="height:150px;" src="ReadmeFile/img_5.png" alt="ReadmeFile/img_5.png"> <br/> @LEEEUNCHEOL96](https://github.com/LEEEUNCHEOL96) |
+|      [<img style="height:150px;" src="ReadmeFile/img_7.png" alt="ReadmeFile/img_7.png" > <br/> @yujihun1](https://github.com/yujihun1)       | [<img style="height:150px;" src="ReadmeFile/img_6.png" alt="ReadmeFile/img_6.png"> <br/> @LeeSamgsoo](https://github.com/LeeSamgsoo) | [<img style="height:150px;" src="ReadmeFile/img_5.png" alt="ReadmeFile/img_5.png"> <br/> @LEEEUNCHEOL96](https://github.com/LEEEUNCHEOL96) |
 
 </div>
 
