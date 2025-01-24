@@ -22,6 +22,7 @@ interface Notification {
   createdAt: string;
 }
 
+
 const Header: React.FC = () => {
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);

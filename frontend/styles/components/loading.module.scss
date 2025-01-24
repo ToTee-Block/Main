@@ -1,0 +1,82 @@
+@import "../globals/font-mixin.scss";
+
+.loadingContainer { 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: var(--background);
+    z-index: 9999;
+   }
+   
+  .loading {
+    width: 200px;
+    height: 200px;
+    position: relative;
+    border: 1px solid var(--background-red-color);
+  }
+
+  .box {
+    position: absolute;
+    top: 50%;
+    left: 38%;
+  }
+
+  .box > span {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background-color: inherit;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+
+  .box > span::after {
+    width: 48px;
+    height: 48px;
+    content: '';
+    display: block;
+    clip-path: polygon(50% 0%, 100% 25%, 50% 50%, 0% 25%);
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.5);
+  }
+
+  .box > span:nth-child(1) {
+    background-color: var(--secondary-color);
+    transform: translate(0px, -50px);
+    animation: low-jump 3s ease-in-out 0.75s infinite;
+  }
+
+  .box > span:nth-child(2) {
+    background-color: var(--primary-color);
+    transform: translate(30px, -30px);
+    animation: low-jump 3s ease-in-out 1s infinite;
+  }
+
+  .box > span:nth-child(3) {
+    background-color: var(--background-red-color);
+    transform: translate(-30px, -30px);
+    animation: low-jump 3s ease-in-out 0.5s infinite;
+  }
+
+  :global {
+    @keyframes low-jump {
+      0% { transform: translate(var(--x), var(--y)); }
+      5% { transform: translate(var(--x), calc(var(--y) - 20px)); }
+      25%, 100% { transform: translate(var(--x), var(--y)); }
+    }
+  
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 10ch }
+    }
+        
+    @keyframes blink {
+      50% { border-color: transparent }
+    }
+  }

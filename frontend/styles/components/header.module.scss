@@ -9,6 +9,7 @@
   align-items: center;
   justify-content: space-between;
   border: 1px solid var(--gray-400);
+  white-space: nowrap;
 }
 
 .navSection {
@@ -38,7 +39,6 @@
   color: var(--text-secondary-color) !important;
   border-bottom: 2px solid var(--text-secondary-color);
 }
-
 .userSection {
   display: flex;
   align-items: center;
@@ -180,7 +180,7 @@
   }
 
   &:hover {
-    background-color: var(--gray-100);
+    background: var(--gray-200);
   }
 
   &.unread {
