@@ -1469,4 +1469,4 @@ WebSocket을 활용해 사용자 간 원활한 소통을 구현했으며, 초기
 
 ## 🔗Link
 
-[프로젝트 완성 및 시연 영상]()
+[프로젝트 완성 및 시연 영상](https://www.youtube.com/watch?v=n5QRggx2gEc&t=60s)
