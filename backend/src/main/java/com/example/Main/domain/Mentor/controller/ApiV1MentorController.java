@@ -92,7 +92,7 @@ public class ApiV1MentorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RsData<MentorDTO>> getMentorById(@PathVariable Long id) {
+    public ResponseEntity<RsData<MentorDTO>> getMentorById(@PathVariable(value = "id") Long id) {
         MentorDTO mentor = mentorService.getMentorDTOById(id);
         if (mentor == null) {
             return ResponseEntity
